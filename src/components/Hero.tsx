@@ -1,10 +1,25 @@
 
-import React, { useState, useEffect } from 'react';
-import { images, getImageSrc } from '@/lib/data';
+import React, { useState, useEffect, useRef } from 'react';
+import { images } from '@/lib/data';
 
 const Hero: React.FC = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const featuredImages = [0, 1, 5]; // Indices of featured images from our data
+  // Using indexes 2 (Misty Mountains), 3 (Monkey on Railing), and 5 (Misty Forest) as requested
+  const featuredImages = [2, 3, 5]; 
+  const parallaxRef = useRef<HTMLDivElement>(null);
+  
+  // Handle parallax effect on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (parallaxRef.current) {
+        const scrollY = window.scrollY;
+        parallaxRef.current.style.transform = `translateY(${scrollY * 0.4}px)`;
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   
   // Auto-rotate images
   useEffect(() => {
@@ -18,9 +33,9 @@ const Hero: React.FC = () => {
   }, [featuredImages.length]);
   
   return (
-    <section className="relative h-screen w-full overflow-hidden">
+    <section className="relative h-screen w-full overflow-hidden bg-black">
       {/* Background Image with Parallax Effect */}
-      <div className="absolute inset-0 bg-black">
+      <div ref={parallaxRef} className="absolute inset-0 bg-black">
         {featuredImages.map((imageIndex, index) => {
           const image = images[imageIndex];
           return (
@@ -29,15 +44,15 @@ const Hero: React.FC = () => {
               className="absolute inset-0 w-full h-full transition-opacity duration-2000 ease-in-out"
               style={{
                 opacity: currentImageIndex === index ? 1 : 0,
-                backgroundImage: `url(${getImageSrc(image.src)})`,
+                backgroundImage: `url(${image.src})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
-                transform: 'scale(1.03)', // Slight zoom for effect
+                transform: 'scale(1.05)', // Slight zoom for effect
               }}
             />
           );
         })}
-        <div className="absolute inset-0 bg-black/40" /> {/* Overlay for better contrast */}
+        <div className="absolute inset-0 bg-black/50" /> {/* Darker overlay for better contrast */}
       </div>
       
       {/* Image Indicators */}

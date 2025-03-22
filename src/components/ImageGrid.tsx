@@ -1,6 +1,6 @@
+
 import React, { useState } from 'react';
-import { Image, getImageSrc } from '@/lib/data';
-import { ArrowRight } from 'lucide-react';
+import { Image } from '@/lib/data';
 import ImageModal from './ImageModal';
 
 interface ImageGridProps {
@@ -54,7 +54,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, columns = 3 }) => {
               onClick={() => openModal(image)}
             >
               <img 
-                src={getImageSrc(image.src)} 
+                src={image.src} 
                 alt={image.alt} 
                 className="w-full h-full object-cover"
                 loading="lazy"

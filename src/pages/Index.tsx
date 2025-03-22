@@ -4,16 +4,14 @@ import Hero from '@/components/Hero';
 import ImageGrid from '@/components/ImageGrid';
 import Footer from '@/components/Footer';
 import NavBar from '@/components/NavBar';
-import { images, getImageSrc } from '@/lib/data';
-import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { images } from '@/lib/data';
 
 const Index = () => {
   // Select a subset of images for the homepage
-  const featuredImages = images.slice(0, 3);
+  const featuredImages = [images[0], images[1], images[6]]; // Different selection for variety
   
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-black">
       <NavBar />
       
       {/* Hero Section */}
@@ -49,17 +47,10 @@ const Index = () => {
                 My work has been featured in National Geographic, BBC Wildlife Magazine, and numerous 
                 international exhibitions, earning recognition for its intimacy and emotional impact.
               </p>
-              <Link 
-                to="/about" 
-                className="inline-flex items-center mt-2 font-medium hover:text-primary/80 transition-colors"
-              >
-                Read my story
-                <ArrowRight className="h-4 w-4 ml-1.5" />
-              </Link>
             </div>
             <div className="rounded-lg overflow-hidden bg-muted shadow-md">
               <img 
-                src={images[1] ? getImageSrc(images[1].src) : "https://images.unsplash.com/photo-1552728089-57bdde30beb3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1425&q=80"} 
+                src={images[4] ? images[4].src : images[0].src} 
                 alt="Photographer in the field" 
                 className="w-full h-auto"
               />
@@ -75,13 +66,6 @@ const Index = () => {
           <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
             All photographs are available as museum-quality prints, produced using archival inks and premium papers.
           </p>
-          <Link 
-            to="/print" 
-            className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-colors"
-          >
-            Explore Print Options
-            <ArrowRight className="h-4 w-4 ml-2" />
-          </Link>
         </div>
       </section>
       
