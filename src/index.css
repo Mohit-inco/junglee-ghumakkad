@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @tailwind base;
@@ -107,15 +106,23 @@
 
 @layer components {
   .hover-image-card {
-    @apply relative overflow-hidden group cursor-pointer;
+    @apply relative overflow-hidden cursor-pointer;
   }
 
   .hover-image-card img {
-    @apply transition-all duration-700 ease-in-out transform group-hover:scale-105;
+    @apply transition-all duration-700 ease-in-out transform;
+  }
+
+  .group:hover .hover-image-card img {
+    @apply scale-105;
   }
 
   .hover-image-card .image-overlay {
-    @apply absolute inset-0 bg-black/50 opacity-0 transition-opacity duration-300 flex flex-col justify-end p-6 group-hover:opacity-100;
+    @apply absolute inset-0 bg-black/50 opacity-0 transition-opacity duration-300 flex flex-col justify-end p-6;
+  }
+
+  .group:hover .hover-image-card .image-overlay {
+    @apply opacity-100;
   }
 
   .page-transition-enter {

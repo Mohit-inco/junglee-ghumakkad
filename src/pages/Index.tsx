@@ -4,7 +4,7 @@ import Hero from '@/components/Hero';
 import ImageGrid from '@/components/ImageGrid';
 import Footer from '@/components/Footer';
 import NavBar from '@/components/NavBar';
-import { images } from '@/lib/data';
+import { images, getImageSrc } from '@/lib/data';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 

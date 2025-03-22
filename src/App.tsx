@@ -16,6 +16,7 @@ import Cart from "./pages/Cart";
 import NotFound from "./pages/NotFound";
 
 // Make getImageSrc available globally for our data
+// @ts-ignore - Adding getImageSrc to window
 window.getImageSrc = getImageSrc;
 
 const queryClient = new QueryClient();

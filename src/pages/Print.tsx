@@ -4,12 +4,14 @@ import { useParams, Link } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import PrintOption from '@/components/PrintOption';
-import { images, printOptions } from '@/lib/data';
+import { images, printOptions, getImageSrc } from '@/lib/data';
 import { ArrowLeft } from 'lucide-react';
+import { useCart } from '@/context/CartContext';
 
 const Print = () => {
   const { id } = useParams<{ id?: string }>();
   const [selectedImage, setSelectedImage] = useState<number | null>(id ? parseInt(id, 10) : null);
+  const { addToCart } = useCart();
   
   // Reset selected image when navigating directly to print/:id
   useEffect(() => {
@@ -158,10 +160,10 @@ const Print = () => {
                   {images.map(image => (
                     <div
                       key={image.id}
-                      className="hover-image-card rounded-lg overflow-hidden border shadow-sm cursor-pointer"
+                      className="group rounded-lg overflow-hidden border shadow-sm cursor-pointer"
                       onClick={() => setSelectedImage(image.id)}
                     >
-                      <div className="aspect-[4/3] bg-muted">
+                      <div className="hover-image-card aspect-[4/3] bg-muted">
                         <img 
                           src={getImageSrc(image.src)} 
                           alt={image.title} 
