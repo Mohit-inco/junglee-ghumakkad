@@ -4,7 +4,7 @@ import { images } from '@/lib/data';
 
 const Hero: React.FC = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  // Using indexes 2 (Misty Mountains), 3 (Monkey on Railing), and 5 (Misty Forest) as requested
+  // Using image indices 3, 4, and 6 as requested (which are at index 2, 3, and 5 in the array)
   const featuredImages = [2, 3, 5]; 
   const parallaxRef = useRef<HTMLDivElement>(null);
   
@@ -52,7 +52,7 @@ const Hero: React.FC = () => {
             />
           );
         })}
-        <div className="absolute inset-0 bg-black/50" /> {/* Darker overlay for better contrast */}
+        {/* Removed the dark overlay as requested */}
       </div>
       
       {/* Image Indicators */}

@@ -2,12 +2,12 @@
 import React from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
-import { photographerInfo } from '@/lib/data';
+import { photographerInfo, images } from '@/lib/data';
 import { Camera, Award, MapPin, Calendar, Mail, Instagram } from 'lucide-react';
 
 const About = () => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-black">
       <NavBar />
       
       <main className="flex-grow pt-24 px-6">
@@ -21,14 +21,14 @@ const About = () => {
               </p>
               <div className="flex items-center space-x-6">
                 <a 
-                  href="mailto:alex@wildframephotography.com" 
+                  href="mailto:mohit@jungleeghumakkad.com" 
                   className="flex items-center text-sm font-medium hover:text-primary/80 transition-colors"
                 >
                   <Mail className="h-5 w-5 mr-2" />
                   Contact Me
                 </a>
                 <a 
-                  href="#" 
+                  href="https://instagram.com/jungleeghumakkad" 
                   className="flex items-center text-sm font-medium hover:text-primary/80 transition-colors"
                 >
                   <Instagram className="h-5 w-5 mr-2" />
@@ -149,18 +149,18 @@ const About = () => {
             <h2 className="text-3xl font-serif mb-6">Where I've Worked</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {[
-                "Serengeti National Park, Tanzania",
-                "Masai Mara, Kenya",
-                "Okavango Delta, Botswana",
-                "Svalbard, Norway",
-                "Yellowstone National Park, USA",
-                "Pantanal, Brazil",
-                "Borneo Rainforest, Malaysia",
-                "Great Barrier Reef, Australia",
-                "Antarctic Peninsula",
-                "Arctic National Wildlife Refuge, Alaska",
-                "Galapagos Islands, Ecuador",
-                "Costa Rican Cloud Forests"
+                "Western Ghats, India",
+                "Corbett National Park, India",
+                "Himalayan Foothills, Uttarakhand",
+                "Thar Desert, Rajasthan",
+                "Sundarbans Delta, West Bengal",
+                "Kaziranga National Park, Assam",
+                "Andaman Islands",
+                "IIT Roorkee Campus",
+                "Urban Delhi",
+                "Coastal Goa",
+                "Backwaters, Kerala",
+                "Ladakh Region"
               ].map((location, index) => (
                 <div key={index} className="flex items-start">
                   <MapPin className="h-5 w-5 mr-2 text-primary/80 flex-shrink-0 mt-0.5" />

@@ -7,8 +7,8 @@ import NavBar from '@/components/NavBar';
 import { images } from '@/lib/data';
 
 const Index = () => {
-  // Select a subset of images for the homepage
-  const featuredImages = [images[0], images[1], images[6]]; // Different selection for variety
+  // Select a subset of images for the homepage - using images 1, 10, 13 for variety
+  const featuredImages = [images[0], images[9], images[12]]; 
   
   return (
     <div className="min-h-screen flex flex-col bg-black">
@@ -24,7 +24,7 @@ const Index = () => {
             <div>
               <h2 className="text-3xl md:text-4xl font-serif">Featured Work</h2>
               <p className="text-muted-foreground mt-3 max-w-2xl">
-                A selection of my most celebrated wildlife photographs from around the world.
+                A selection of my most celebrated photographs from around the world.
               </p>
             </div>
           </div>
@@ -40,18 +40,16 @@ const Index = () => {
             <div>
               <h2 className="text-3xl md:text-4xl font-serif mb-6">About the Photographer</h2>
               <p className="text-muted-foreground mb-6">
-                With over 15 years of experience capturing wildlife in their natural habitats, 
-                I've dedicated my career to showcasing the beauty and fragility of the natural world.
+                Junglee Ghumakkad (aka Mohit Kumar), a final-year B.Tech student in Electrical Engineering, has been capturing the world through his lens for the past five years. An aspiring wildlife photographer, he's equally drawn to event, astro, street, and architectural photography.
               </p>
               <p className="text-muted-foreground mb-6">
-                My work has been featured in National Geographic, BBC Wildlife Magazine, and numerous 
-                international exhibitions, earning recognition for its intimacy and emotional impact.
+                Whether it's tracking elusive wildlife, chasing the perfect night sky, or framing the chaos of city streets, he's always on the lookout for new perspectives and untold stories.
               </p>
             </div>
             <div className="rounded-lg overflow-hidden bg-muted shadow-md">
               <img 
-                src={images[4] ? images[4].src : images[0].src} 
-                alt="Photographer in the field" 
+                src={images[15].src} 
+                alt="Junglee Ghumakkad - Photographer" 
                 className="w-full h-auto"
               />
             </div>

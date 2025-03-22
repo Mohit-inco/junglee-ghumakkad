@@ -44,28 +44,29 @@ const NavBar: React.FC = () => {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link 
           to="/" 
-          className={cn("text-lg font-serif font-semibold tracking-wide transition-opacity hover:opacity-80", navTextClasses)}
+          className={cn("text-lg font-serif font-semibold tracking-wider italic transition-opacity hover:opacity-80", navTextClasses)}
+          style={{ letterSpacing: "0.05em" }}
         >
-          WILDFRAME
+          Junglee Ghumakkad
         </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
-          <Link to="/" className={cn("nav-link", isActive("/") && "active", navTextClasses)}>
+          <Link to="/" className={cn("nav-link glow-hover", isActive("/") && "active", navTextClasses)}>
             Home
           </Link>
-          <Link to="/gallery" className={cn("nav-link", isActive("/gallery") && "active", navTextClasses)}>
+          <Link to="/gallery" className={cn("nav-link glow-hover", isActive("/gallery") && "active", navTextClasses)}>
             Gallery
           </Link>
-          <Link to="/print" className={cn("nav-link", isActive("/print") && "active", navTextClasses)}>
+          <Link to="/print" className={cn("nav-link glow-hover", isActive("/print") && "active", navTextClasses)}>
             Prints
           </Link>
-          <Link to="/about" className={cn("nav-link", isActive("/about") && "active", navTextClasses)}>
+          <Link to="/about" className={cn("nav-link glow-hover", isActive("/about") && "active", navTextClasses)}>
             About
           </Link>
           <Link 
             to="/cart" 
-            className={cn("relative p-2 hover:opacity-80 transition-colors duration-200", navTextClasses)}
+            className={cn("relative p-2 hover:opacity-80 transition-colors duration-200 glow-hover", navTextClasses)}
             aria-label="Shopping Cart"
           >
             <ShoppingCart className="h-5 w-5" />

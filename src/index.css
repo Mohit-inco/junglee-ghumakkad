@@ -124,6 +124,17 @@
     @apply w-full;
   }
 
+  /* Glow hover effect for navbar items */
+  .glow-hover {
+    @apply transition-all duration-300;
+  }
+
+  .glow-hover:hover {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.7), 
+                 0 0 20px rgba(255, 255, 255, 0.5), 
+                 0 0 30px rgba(255, 255, 255, 0.3);
+  }
+
   .blur-backdrop {
     @apply fixed inset-0 z-50 bg-background/70 backdrop-blur-md;
   }
@@ -160,4 +171,3 @@
     transition: all 500ms;
   }
 }
-
