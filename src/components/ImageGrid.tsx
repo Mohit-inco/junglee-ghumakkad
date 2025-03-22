@@ -1,8 +1,6 @@
-
 import React, { useState } from 'react';
 import { Image, getImageSrc } from '@/lib/data';
 import { ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import ImageModal from './ImageModal';
 
 interface ImageGridProps {
@@ -39,7 +37,6 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, columns = 3 }) => {
     }
   };
   
-  // Calculate the grid classes based on the number of columns
   const gridClass = {
     1: "grid-cols-1",
     2: "grid-cols-1 sm:grid-cols-2",
@@ -64,15 +61,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, columns = 3 }) => {
               />
               <div className="image-overlay">
                 <h3 className="font-medium text-white text-lg mb-1">{image.title}</h3>
-                <p className="text-white/80 text-sm mb-3">{image.location}</p>
-                <Link 
-                  to={`/print/${image.id}`}
-                  className="inline-flex items-center bg-white/20 text-white text-sm backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/30 hover:bg-white/30 transition-colors duration-300"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  View print options
-                  <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
-                </Link>
+                <p className="text-white/80 text-sm">{image.location}</p>
               </div>
             </div>
           </div>

@@ -29,40 +29,43 @@ const NavBar: React.FC = () => {
     setIsMenuOpen(false);
   }, [location]);
 
+  // Navbar text style classes
+  const navTextClasses = "text-white drop-shadow-md";
+
   return (
     <header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 px-6 transition-all duration-300 ease-in-out",
         isScrolled 
-          ? "py-3 bg-background/95 shadow-sm backdrop-blur-md border-b" 
+          ? "py-3 bg-background/80 shadow-sm backdrop-blur-md border-b" 
           : "py-6 bg-background/0"
       )}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link 
           to="/" 
-          className="text-lg font-serif font-semibold tracking-wide transition-opacity hover:opacity-80"
+          className={cn("text-lg font-serif font-semibold tracking-wide transition-opacity hover:opacity-80", navTextClasses)}
         >
           WILDFRAME
         </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
-          <Link to="/" className={cn("nav-link", isActive("/") && "active")}>
+          <Link to="/" className={cn("nav-link", isActive("/") && "active", navTextClasses)}>
             Home
           </Link>
-          <Link to="/gallery" className={cn("nav-link", isActive("/gallery") && "active")}>
+          <Link to="/gallery" className={cn("nav-link", isActive("/gallery") && "active", navTextClasses)}>
             Gallery
           </Link>
-          <Link to="/print" className={cn("nav-link", isActive("/print") && "active")}>
+          <Link to="/print" className={cn("nav-link", isActive("/print") && "active", navTextClasses)}>
             Prints
           </Link>
-          <Link to="/about" className={cn("nav-link", isActive("/about") && "active")}>
+          <Link to="/about" className={cn("nav-link", isActive("/about") && "active", navTextClasses)}>
             About
           </Link>
           <Link 
             to="/cart" 
-            className="relative p-2 text-foreground/80 hover:text-foreground transition-colors duration-200"
+            className={cn("relative p-2 hover:opacity-80 transition-colors duration-200", navTextClasses)}
             aria-label="Shopping Cart"
           >
             <ShoppingCart className="h-5 w-5" />
@@ -78,7 +81,7 @@ const NavBar: React.FC = () => {
         <div className="flex items-center md:hidden">
           <Link 
             to="/cart" 
-            className="relative p-2 mr-2 text-foreground/80 hover:text-foreground transition-colors duration-200"
+            className={cn("relative p-2 mr-2 hover:opacity-80 transition-colors duration-200", navTextClasses)}
             aria-label="Shopping Cart"
           >
             <ShoppingCart className="h-5 w-5" />
@@ -91,7 +94,7 @@ const NavBar: React.FC = () => {
 
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="p-2 text-foreground/80 hover:text-foreground transition-colors duration-200"
+            className={cn("p-2 hover:opacity-80 transition-colors duration-200", navTextClasses)}
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           >
             {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -105,25 +108,25 @@ const NavBar: React.FC = () => {
           <nav className="flex flex-col p-6 space-y-4">
             <Link 
               to="/" 
-              className={cn("text-lg nav-link", isActive("/") && "active")}
+              className={cn("text-lg nav-link", isActive("/") && "active", "text-foreground")}
             >
               Home
             </Link>
             <Link 
               to="/gallery" 
-              className={cn("text-lg nav-link", isActive("/gallery") && "active")}
+              className={cn("text-lg nav-link", isActive("/gallery") && "active", "text-foreground")}
             >
               Gallery
             </Link>
             <Link 
               to="/print" 
-              className={cn("text-lg nav-link", isActive("/print") && "active")}
+              className={cn("text-lg nav-link", isActive("/print") && "active", "text-foreground")}
             >
               Prints
             </Link>
             <Link 
               to="/about" 
-              className={cn("text-lg nav-link", isActive("/about") && "active")}
+              className={cn("text-lg nav-link", isActive("/about") && "active", "text-foreground")}
             >
               About
             </Link>

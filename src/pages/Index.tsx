@@ -29,13 +29,6 @@ const Index = () => {
                 A selection of my most celebrated wildlife photographs from around the world.
               </p>
             </div>
-            <Link 
-              to="/gallery" 
-              className="mt-4 md:mt-0 inline-flex items-center text-sm font-medium hover:text-primary/80 transition-colors"
-            >
-              View all work
-              <ArrowRight className="h-4 w-4 ml-1.5" />
-            </Link>
           </div>
           
           <ImageGrid images={featuredImages} columns={3} />
