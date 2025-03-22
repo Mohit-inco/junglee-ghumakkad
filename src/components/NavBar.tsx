@@ -1,10 +1,8 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, ShoppingCart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { cn } from "@/lib/utils";
-
 const NavBar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -32,11 +30,10 @@ const NavBar: React.FC = () => {
 
   // Navbar text style classes
   const navTextClasses = "text-white drop-shadow-md";
-  
   return <header className={cn("fixed top-0 left-0 right-0 z-50 px-6 transition-all duration-300 ease-in-out", isScrolled ? "py-3 bg-background/80 shadow-sm backdrop-blur-md border-b" : "py-6 bg-background/0")}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link to="/" className="brand-name text-xl md:text-2xl text-white font-medium tracking-wider drop-shadow-md">
-          <span className="nature-text">Junglee Ghumakkad</span>
+          <span className="nature-text font-extralight text-zinc-50 text-base">Junglee Ghumakkad</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -95,5 +92,4 @@ const NavBar: React.FC = () => {
         </div>}
     </header>;
 };
-
 export default NavBar;
