@@ -72,6 +72,8 @@ export default {
 			fontFamily: {
 				sans: ['Inter', 'sans-serif'],
 				serif: ['Playfair Display', 'serif'],
+				script: ['Dancing Script', 'cursive'],
+				nature: ['Caveat', 'cursive'],
 			},
 			keyframes: {
 				'accordion-down': {
