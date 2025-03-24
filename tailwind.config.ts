@@ -74,6 +74,7 @@ export default {
 				serif: ['Playfair Display', 'serif'],
 				script: ['Dancing Script', 'cursive'],
 				nature: ['Caveat', 'cursive'],
+				brilliante: ['Brilliante', 'serif'],
 			},
 			keyframes: {
 				'accordion-down': {

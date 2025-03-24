@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight, Info, ExternalLink, ShoppingCart } from 'lucide-react';
 import { Image, getImageSrc } from '@/lib/data';
@@ -61,7 +62,11 @@ const ImageModal: React.FC<ImageModalProps> = ({
             </div>
             
             <div className="flex items-center justify-center h-full">
-              <img src={getImageSrc(image.src)} alt={image.alt} className="max-h-full max-w-full object-contain" />
+              <img 
+                src={getImageSrc(image.src)} 
+                alt={image.alt} 
+                className="max-h-full max-w-full object-contain shadow-xl shadow-black/30 rounded" 
+              />
             </div>
             
             {/* Navigation buttons */}
