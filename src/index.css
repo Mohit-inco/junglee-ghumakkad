@@ -177,4 +177,28 @@
     opacity: 0;
     transition: all 500ms;
   }
+
+  /* New animation classes */
+  .scroll-animate {
+    @apply transition-all duration-1000 ease-out;
+    transition-property: opacity, transform;
+  }
+
+  .photo-animate {
+    @apply transition-all duration-1500 ease-out;
+    transition-property: opacity, transform;
+  }
+  
+  .animate-fade-in {
+    @apply opacity-100;
+    transform: translateY(0);
+  }
+  
+  .photo-animate.animate-fade-in {
+    transform: scale(1);
+  }
+  
+  .photo-animate {
+    transform: scale(0.9);
+  }
 }

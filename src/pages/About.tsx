@@ -1,11 +1,37 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { photographerInfo, images } from '@/lib/data';
 import { Camera, Award, MapPin, Calendar, Mail, Instagram } from 'lucide-react';
 
 const About = () => {
+  // Add scroll animation effects
+  useEffect(() => {
+    const animateOnScroll = () => {
+      const elements = document.querySelectorAll('.scroll-animate');
+      
+      elements.forEach(element => {
+        const elementPosition = element.getBoundingClientRect().top;
+        const windowHeight = window.innerHeight;
+        
+        if (elementPosition < windowHeight * 0.85) {
+          element.classList.add('animate-fade-in');
+          element.classList.remove('opacity-0');
+        }
+      });
+    };
+    
+    // Run once on initial load
+    setTimeout(animateOnScroll, 300);
+    
+    // Add scroll event listener
+    window.addEventListener('scroll', animateOnScroll);
+    
+    // Clean up
+    return () => window.removeEventListener('scroll', animateOnScroll);
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col bg-black">
       <NavBar />
@@ -14,7 +40,7 @@ const About = () => {
         <div className="max-w-7xl mx-auto">
           {/* Hero Section */}
           <div className="grid grid-cols-1 md:grid-cols-5 gap-12 mb-16">
-            <div className="md:col-span-3 order-2 md:order-1">
+            <div className="md:col-span-3 order-2 md:order-1 scroll-animate opacity-0">
               <h1 className="text-4xl md:text-5xl font-serif mb-6">About the Photographer</h1>
               <p className="text-lg text-muted-foreground leading-relaxed mb-6">
                 {photographerInfo.bio}
@@ -37,7 +63,7 @@ const About = () => {
               </div>
             </div>
             <div className="md:col-span-2 order-1 md:order-2">
-              <div className="rounded-lg overflow-hidden bg-muted shadow-md aspect-[4/5]">
+              <div className="rounded-lg overflow-hidden bg-muted shadow-md aspect-[4/5] photo-animate opacity-0">
                 <img 
                   src={photographerInfo.profileImage} 
                   alt={photographerInfo.name} 
@@ -49,17 +75,17 @@ const About = () => {
           
           {/* My Story Section */}
           <div className="mb-20">
-            <h2 className="text-3xl font-serif mb-6">My Story</h2>
+            <h2 className="text-3xl font-serif mb-6 scroll-animate opacity-0">My Story</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
               <div className="md:col-span-2">
                 {photographerInfo.longBio.split('\n\n').map((paragraph, index) => (
-                  <p key={index} className="text-muted-foreground mb-6 leading-relaxed">
+                  <p key={index} className="text-muted-foreground mb-6 leading-relaxed scroll-animate opacity-0" style={{transitionDelay: `${index * 100}ms`}}>
                     {paragraph}
                   </p>
                 ))}
               </div>
               <div className="space-y-8">
-                <div className="bg-card rounded-lg border p-6 shadow-sm">
+                <div className="bg-card rounded-lg border p-6 shadow-sm scroll-animate opacity-0">
                   <h3 className="font-medium mb-4 flex items-center">
                     <Award className="h-5 w-5 mr-2 text-primary/80" />
                     Awards & Recognition
@@ -73,7 +99,7 @@ const About = () => {
                   </ul>
                 </div>
                 
-                <div className="bg-card rounded-lg border p-6 shadow-sm">
+                <div className="bg-card rounded-lg border p-6 shadow-sm scroll-animate opacity-0" style={{transitionDelay: '100ms'}}>
                   <h3 className="font-medium mb-4 flex items-center">
                     <Calendar className="h-5 w-5 mr-2 text-primary/80" />
                     Exhibitions
@@ -92,61 +118,30 @@ const About = () => {
           
           {/* Equipment Section */}
           <div className="mb-20">
-            <h2 className="text-3xl font-serif mb-6">My Equipment</h2>
+            <h2 className="text-3xl font-serif mb-6 scroll-animate opacity-0">My Equipment</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              <div className="bg-card rounded-lg border p-6 shadow-sm flex">
-                <Camera className="h-6 w-6 mr-4 text-primary/80 flex-shrink-0" />
-                <div>
-                  <h3 className="font-medium mb-1">Canon EOS R5</h3>
-                  <p className="text-sm text-muted-foreground">Primary camera for wildlife photography</p>
+              {[
+                {name: "Canon EOS R5", desc: "Primary camera for wildlife photography"},
+                {name: "Canon EF 600mm f/4L IS III USM", desc: "Primary super-telephoto lens"},
+                {name: "Canon EF 100-400mm f/4.5-5.6L IS II", desc: "Versatile zoom lens for varied conditions"},
+                {name: "Canon EF 24-70mm f/2.8L II USM", desc: "Standard zoom for environmental shots"},
+                {name: "Gitzo GT5563GS Systematic Tripod", desc: "Carbon fiber tripod for stability"},
+                {name: "Really Right Stuff BH-55 Ball Head", desc: "Professional ball head for precision"}
+              ].map((item, index) => (
+                <div key={index} className="bg-card rounded-lg border p-6 shadow-sm flex scroll-animate opacity-0" style={{transitionDelay: `${index * 50}ms`}}>
+                  <Camera className="h-6 w-6 mr-4 text-primary/80 flex-shrink-0" />
+                  <div>
+                    <h3 className="font-medium mb-1">{item.name}</h3>
+                    <p className="text-sm text-muted-foreground">{item.desc}</p>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="bg-card rounded-lg border p-6 shadow-sm flex">
-                <Camera className="h-6 w-6 mr-4 text-primary/80 flex-shrink-0" />
-                <div>
-                  <h3 className="font-medium mb-1">Canon EF 600mm f/4L IS III USM</h3>
-                  <p className="text-sm text-muted-foreground">Primary super-telephoto lens</p>
-                </div>
-              </div>
-              
-              <div className="bg-card rounded-lg border p-6 shadow-sm flex">
-                <Camera className="h-6 w-6 mr-4 text-primary/80 flex-shrink-0" />
-                <div>
-                  <h3 className="font-medium mb-1">Canon EF 100-400mm f/4.5-5.6L IS II</h3>
-                  <p className="text-sm text-muted-foreground">Versatile zoom lens for varied conditions</p>
-                </div>
-              </div>
-              
-              <div className="bg-card rounded-lg border p-6 shadow-sm flex">
-                <Camera className="h-6 w-6 mr-4 text-primary/80 flex-shrink-0" />
-                <div>
-                  <h3 className="font-medium mb-1">Canon EF 24-70mm f/2.8L II USM</h3>
-                  <p className="text-sm text-muted-foreground">Standard zoom for environmental shots</p>
-                </div>
-              </div>
-              
-              <div className="bg-card rounded-lg border p-6 shadow-sm flex">
-                <Camera className="h-6 w-6 mr-4 text-primary/80 flex-shrink-0" />
-                <div>
-                  <h3 className="font-medium mb-1">Gitzo GT5563GS Systematic Tripod</h3>
-                  <p className="text-sm text-muted-foreground">Carbon fiber tripod for stability</p>
-                </div>
-              </div>
-              
-              <div className="bg-card rounded-lg border p-6 shadow-sm flex">
-                <Camera className="h-6 w-6 mr-4 text-primary/80 flex-shrink-0" />
-                <div>
-                  <h3 className="font-medium mb-1">Really Right Stuff BH-55 Ball Head</h3>
-                  <p className="text-sm text-muted-foreground">Professional ball head for precision</p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
           
           {/* Locations Section */}
           <div>
-            <h2 className="text-3xl font-serif mb-6">Where I've Worked</h2>
+            <h2 className="text-3xl font-serif mb-6 scroll-animate opacity-0">Where I've Worked</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {[
                 "Western Ghats, India",
@@ -162,7 +157,7 @@ const About = () => {
                 "Backwaters, Kerala",
                 "Ladakh Region"
               ].map((location, index) => (
-                <div key={index} className="flex items-start">
+                <div key={index} className="flex items-start scroll-animate opacity-0" style={{transitionDelay: `${index * 50}ms`}}>
                   <MapPin className="h-5 w-5 mr-2 text-primary/80 flex-shrink-0 mt-0.5" />
                   <span className="text-muted-foreground text-sm">{location}</span>
                 </div>
