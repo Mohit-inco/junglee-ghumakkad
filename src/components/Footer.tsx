@@ -13,7 +13,7 @@ const Footer: React.FC = () => {
           {/* Brand and Description */}
           <div className="space-y-4">
             <Link to="/" className="text-xl font-serif font-semibold inline-block">
-              WILDFRAME
+              JUNGLEE GHUMAKKAD
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs">
               Capturing the beauty and drama of wildlife around the world, creating windows into the natural world.
@@ -51,7 +51,7 @@ const Footer: React.FC = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Connect</h3>
             <div className="flex space-x-4">
-              <a href="#" aria-label="Instagram" className="text-muted-foreground hover:text-foreground transition-colors">
+              <a href="https://www.instagram.com/junglee_ghumakkad/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-muted-foreground hover:text-foreground transition-colors">
                 <Instagram className="h-5 w-5" />
               </a>
               <a href="#" aria-label="Twitter" className="text-muted-foreground hover:text-foreground transition-colors">
@@ -84,7 +84,7 @@ const Footer: React.FC = () => {
         </div>
 
         <div className="mt-10 pt-6 border-t border-border/50 flex flex-col md:flex-row justify-between items-center text-sm text-muted-foreground">
-          <p>© {currentYear} WildFrame Photography. All rights reserved.</p>
+          <p>© {currentYear} Junglee Ghumakkad. All rights reserved.</p>
           <div className="mt-4 md:mt-0 flex space-x-6">
             <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-foreground transition-colors">Terms of Service</a>
