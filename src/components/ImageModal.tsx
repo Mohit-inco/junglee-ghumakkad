@@ -9,6 +9,7 @@ interface ImageModalProps {
   onNext: () => void;
   onPrev: () => void;
   isGalleryView?: boolean;
+  clickPosition?: { x: number, y: number } | null;
 }
 
 const ImageModal: React.FC<ImageModalProps> = ({
@@ -16,13 +17,15 @@ const ImageModal: React.FC<ImageModalProps> = ({
   onClose,
   onNext,
   onPrev,
-  isGalleryView = false
+  isGalleryView = false,
+  clickPosition = null
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   const [showInfo, setShowInfo] = React.useState(false);
   const [currentImage, setCurrentImage] = useState(image);
   const [nextImage, setNextImage] = useState<Image | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [hasAnimatedIn, setHasAnimatedIn] = useState(false);
 
   useEffect(() => {
     if (nextImage) {
@@ -42,6 +45,15 @@ const ImageModal: React.FC<ImageModalProps> = ({
       setNextImage(image);
     }
   }, [image, currentImage.id, isTransitioning]);
+
+  // Animate in on initial render
+  useEffect(() => {
+    // Small delay to ensure the animation plays properly
+    const timer = setTimeout(() => {
+      setHasAnimatedIn(true);
+    }, 50);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Handle key presses for navigation and closing
   useEffect(() => {
@@ -72,9 +84,14 @@ const ImageModal: React.FC<ImageModalProps> = ({
   };
 
   return (
-    <div className="blur-backdrop" onClick={handleBackdropClick}>
+    <div className="blur-backdrop">
       <div className="image-modal">
-        <div ref={modalRef} className="image-modal-content">
+        <div 
+          ref={modalRef} 
+          className={`image-modal-content transition-all duration-500 ease-in-out ${
+            hasAnimatedIn ? 'scale-100 opacity-100' : 'scale-90 opacity-0'
+          }`}
+        >
           <div className="relative h-full">
             <div className="absolute top-4 right-4 z-10 flex space-x-2">
               <button 
@@ -97,7 +114,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
             <div className="flex items-center justify-center h-full">
               {/* Current Image */}
               <div 
-                className={`absolute inset-0 flex items-center justify-center transition-opacity duration-1000 ${
+                className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ${
                   isTransitioning ? 'opacity-0' : 'opacity-100'
                 }`}
               >
@@ -111,7 +128,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
               {/* Next Image (for transition) */}
               {nextImage && (
                 <div 
-                  className={`absolute inset-0 flex items-center justify-center transition-opacity duration-1000 ${
+                  className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ${
                     isTransitioning ? 'opacity-100' : 'opacity-0'
                   }`}
                 >
