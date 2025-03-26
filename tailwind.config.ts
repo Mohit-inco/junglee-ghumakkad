@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -127,7 +126,6 @@ export default {
 				'2000': '2000ms',
 				'3000': '3000ms',
 				'1500': '1500ms',
-				'1000': '1000ms',
 			}
 		}
 	},

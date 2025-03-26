@@ -73,8 +73,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, columns = 3 }) => {
           image={selectedImage} 
           onClose={closeModal} 
           onNext={nextImage} 
-          onPrev={prevImage}
-          isGalleryView={true}
+          onPrev={prevImage} 
         />
       )}
     </>

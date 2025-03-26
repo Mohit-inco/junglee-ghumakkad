@@ -1,47 +1,22 @@
 
-import React, { useEffect, useRef, useState } from 'react';
-import { X, ChevronLeft, ChevronRight, Info } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
+import { X, ChevronLeft, ChevronRight, Info, ExternalLink, ShoppingCart } from 'lucide-react';
 import { Image, getImageSrc } from '@/lib/data';
-
+import { Link } from 'react-router-dom';
 interface ImageModalProps {
   image: Image;
   onClose: () => void;
   onNext: () => void;
   onPrev: () => void;
-  isGalleryView?: boolean;
 }
-
 const ImageModal: React.FC<ImageModalProps> = ({
   image,
   onClose,
   onNext,
-  onPrev,
-  isGalleryView = false
+  onPrev
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   const [showInfo, setShowInfo] = React.useState(false);
-  const [currentImage, setCurrentImage] = useState(image);
-  const [nextImage, setNextImage] = useState<Image | null>(null);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-
-  useEffect(() => {
-    if (nextImage) {
-      const timer = setTimeout(() => {
-        setCurrentImage(nextImage);
-        setNextImage(null);
-        setIsTransitioning(false);
-      }, 500); // Half of the transition duration
-      return () => clearTimeout(timer);
-    }
-  }, [nextImage]);
-
-  // Update current image when the prop changes, but with transition
-  useEffect(() => {
-    if (image.id !== currentImage.id && !isTransitioning) {
-      setIsTransitioning(true);
-      setNextImage(image);
-    }
-  }, [image, currentImage.id, isTransitioning]);
 
   // Handle key presses for navigation and closing
   useEffect(() => {
@@ -70,124 +45,81 @@ const ImageModal: React.FC<ImageModalProps> = ({
       onClose();
     }
   };
-
-  return (
-    <div className="blur-backdrop" onClick={handleBackdropClick}>
+  return <div className="blur-backdrop" onClick={handleBackdropClick}>
       <div className="image-modal">
         <div ref={modalRef} className="image-modal-content">
           <div className="relative h-full">
             <div className="absolute top-4 right-4 z-10 flex space-x-2">
-              <button 
-                className="p-1.5 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" 
-                onClick={() => setShowInfo(!showInfo)} 
-                aria-label="Toggle information"
-              >
+              <button className="p-1.5 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" onClick={() => setShowInfo(!showInfo)} aria-label="Toggle information">
                 <Info className="h-5 w-5" />
               </button>
-              
-              <button 
-                className="p-1.5 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" 
-                onClick={onClose} 
-                aria-label="Close modal"
-              >
+              <Link to={`/print/${image.id}`} className="p-1.5 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" aria-label="View print options">
+                
+              </Link>
+              <button className="p-1.5 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" onClick={onClose} aria-label="Close modal">
                 <X className="h-5 w-5" />
               </button>
             </div>
             
             <div className="flex items-center justify-center h-full">
-              {/* Current Image */}
-              <div 
-                className={`absolute inset-0 flex items-center justify-center transition-opacity duration-1000 ${
-                  isTransitioning ? 'opacity-0' : 'opacity-100'
-                }`}
-              >
-                <img 
-                  src={getImageSrc(currentImage.src)} 
-                  alt={currentImage.alt} 
-                  className="max-h-full max-w-full object-contain shadow-xl shadow-black/30 rounded" 
-                />
-              </div>
-              
-              {/* Next Image (for transition) */}
-              {nextImage && (
-                <div 
-                  className={`absolute inset-0 flex items-center justify-center transition-opacity duration-1000 ${
-                    isTransitioning ? 'opacity-100' : 'opacity-0'
-                  }`}
-                >
-                  <img 
-                    src={getImageSrc(nextImage.src)} 
-                    alt={nextImage.alt} 
-                    className="max-h-full max-w-full object-contain shadow-xl shadow-black/30 rounded" 
-                  />
-                </div>
-              )}
+              <img 
+                src={getImageSrc(image.src)} 
+                alt={image.alt} 
+                className="max-h-full max-w-full object-contain shadow-xl shadow-black/30 rounded" 
+              />
             </div>
             
             {/* Navigation buttons */}
-            <button 
-              className="absolute left-4 top-1/2 -translate-y-1/2 p-2 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" 
-              onClick={e => {
-                e.stopPropagation();
-                onPrev();
-              }} 
-              aria-label="Previous image"
-            >
+            <button className="absolute left-4 top-1/2 -translate-y-1/2 p-2 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" onClick={e => {
+            e.stopPropagation();
+            onPrev();
+          }} aria-label="Previous image">
               <ChevronLeft className="h-6 w-6" />
             </button>
             
-            <button 
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" 
-              onClick={e => {
-                e.stopPropagation();
-                onNext();
-              }} 
-              aria-label="Next image"
-            >
+            <button className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" onClick={e => {
+            e.stopPropagation();
+            onNext();
+          }} aria-label="Next image">
               <ChevronRight className="h-6 w-6" />
             </button>
             
             {/* Image info panel */}
-            <div 
-              className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/0 text-white p-6 transform transition-transform duration-300 ${
-                showInfo ? 'translate-y-0' : 'translate-y-full'
-              }`}
-            >
-              <h2 className="text-xl font-medium mb-2">{currentImage.title}</h2>
-              <p className="text-white/80 mb-3">{currentImage.description}</p>
+            <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/0 text-white p-6 transform transition-transform duration-300 ${showInfo ? 'translate-y-0' : 'translate-y-full'}`}>
+              <h2 className="text-xl font-medium mb-2">{image.title}</h2>
+              <p className="text-white/80 mb-3">{image.description}</p>
               
               <div className="flex flex-wrap gap-y-3 gap-x-6 text-sm text-white/70">
                 <div>
                   <span className="font-medium block text-white">Location</span>
-                  <span>{currentImage.location}</span>
+                  <span>{image.location}</span>
                 </div>
                 <div>
                   <span className="font-medium block text-white">Date</span>
-                  <span>{currentImage.date}</span>
+                  <span>{image.date}</span>
                 </div>
-                {currentImage.photographerNote && (
-                  <div className="w-full mt-1">
+                {image.photographerNote && <div className="w-full mt-1">
                     <span className="font-medium block text-white">Photographer's Note</span>
-                    <span className="text-white/80 italic">{currentImage.photographerNote}</span>
-                  </div>
-                )}
+                    <span className="text-white/80 italic">{image.photographerNote}</span>
+                  </div>}
               </div>
               
               <div className="mt-4 pt-3 border-t border-white/20 flex justify-between items-center">
                 <div className="flex gap-2">
-                  {currentImage.categories.map((category, index) => (
-                    <span key={index} className="text-xs bg-white/20 text-white px-2 py-1 rounded-full">
+                  {image.categories.map((category, index) => <span key={index} className="text-xs bg-white/20 text-white px-2 py-1 rounded-full">
                       {category}
-                    </span>
-                  ))}
+                    </span>)}
                 </div>
+                
+                <Link to={`/print/${image.id}`} className="flex items-center text-sm font-medium" onClick={e => e.stopPropagation()}>
+                  Purchase prints
+                  <ExternalLink className="h-3.5 w-3.5 ml-1.5" />
+                </Link>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default ImageModal;
