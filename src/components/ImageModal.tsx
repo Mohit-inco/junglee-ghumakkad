@@ -22,33 +22,30 @@ const ImageModal: React.FC<ImageModalProps> = ({
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   const [showInfo, setShowInfo] = React.useState(false);
-  const [currentImage, setCurrentImage] = useState(image);
+  const [currentImage, setCurrentImage] = useState<Image>(image);
   const [nextImage, setNextImage] = useState<Image | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [hasAnimatedIn, setHasAnimatedIn] = useState(false);
 
-  useEffect(() => {
-    if (nextImage) {
-      const timer = setTimeout(() => {
-        setCurrentImage(nextImage);
-        setNextImage(null);
-        setIsTransitioning(false);
-      }, 500); // Half of the transition duration
-      return () => clearTimeout(timer);
-    }
-  }, [nextImage]);
-
-  // Update current image when the prop changes, but with transition
+  // Handle image transitions
   useEffect(() => {
     if (image.id !== currentImage.id && !isTransitioning) {
       setIsTransitioning(true);
       setNextImage(image);
+      
+      // Complete the transition after the fade duration
+      const timer = setTimeout(() => {
+        setCurrentImage(image);
+        setNextImage(null);
+        setIsTransitioning(false);
+      }, 700); // 700ms matches our CSS transition duration
+      
+      return () => clearTimeout(timer);
     }
   }, [image, currentImage.id, isTransitioning]);
 
   // Animate in on initial render
   useEffect(() => {
-    // Small delay to ensure the animation plays properly
     const timer = setTimeout(() => {
       setHasAnimatedIn(true);
     }, 50);
@@ -84,7 +81,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
   };
 
   return (
-    <div className="blur-backdrop">
+    <div className="blur-backdrop" onClick={handleBackdropClick}>
       <div className="image-modal">
         <div 
           ref={modalRef} 
