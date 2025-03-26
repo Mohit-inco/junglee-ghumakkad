@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Dancing+Script:wght@400;700&family=Caveat:wght@400;600;700&display=swap');
 
 @tailwind base;
@@ -130,6 +131,7 @@
     @apply w-full;
   }
 
+  /* Glow hover effect for navbar items */
   .glow-hover {
     @apply transition-all duration-300;
   }
@@ -149,22 +151,20 @@
   }
 
   .image-modal-content {
-    @apply relative max-w-7xl w-full bg-transparent rounded-lg overflow-hidden shadow-2xl;
+    @apply relative max-w-7xl w-full bg-transparent rounded-lg overflow-hidden animate-scale-up shadow-2xl;
     height: 90vh;
     max-height: 90vh;
-    transform-origin: center;
-    will-change: transform, opacity;
   }
 
   .slide-enter {
-    transform: translateX(0);
+    transform: translateX(100%);
     opacity: 0;
   }
 
   .slide-enter-active {
     transform: translateX(0);
     opacity: 1;
-    transition: opacity 700ms ease-in-out;
+    transition: all 500ms;
   }
 
   .slide-exit {
@@ -173,11 +173,12 @@
   }
 
   .slide-exit-active {
-    transform: translateX(0);
+    transform: translateX(-100%);
     opacity: 0;
-    transition: opacity 700ms ease-in-out;
+    transition: all 500ms;
   }
 
+  /* New animation classes */
   .scroll-animate {
     @apply transition-all duration-1000 ease-out;
     transition-property: opacity, transform;
@@ -199,28 +200,5 @@
   
   .photo-animate {
     transform: scale(0.9);
-  }
-  
-  .cursor-zoom-in {
-    cursor: zoom-in;
-  }
-  
-  .animate-scale-up {
-    animation: scaleUp 0.4s ease-in-out forwards;
-  }
-  
-  @keyframes scaleUp {
-    from {
-      transform: scale(0.9);
-      opacity: 0;
-    }
-    to {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-
-  .image-fade-transition {
-    transition: opacity 0.7s ease-in-out;
   }
 }

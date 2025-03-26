@@ -10,18 +10,14 @@ interface ImageGridProps {
 
 const ImageGrid: React.FC<ImageGridProps> = ({ images, columns = 3 }) => {
   const [selectedImage, setSelectedImage] = useState<Image | null>(null);
-  const [clickPosition, setClickPosition] = useState<{ x: number, y: number } | null>(null);
   
-  const openModal = (image: Image, e: React.MouseEvent) => {
-    // Capture click position relative to viewport for zoom effect
-    setClickPosition({ x: e.clientX, y: e.clientY });
+  const openModal = (image: Image) => {
     setSelectedImage(image);
     document.body.style.overflow = 'hidden';
   };
   
   const closeModal = () => {
     setSelectedImage(null);
-    setClickPosition(null);
     document.body.style.overflow = '';
   };
   
@@ -54,13 +50,13 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, columns = 3 }) => {
         {images.map((image) => (
           <div key={image.id} className="group rounded-md overflow-hidden">
             <div 
-              className="hover-image-card aspect-[4/3] bg-muted relative cursor-zoom-in"
-              onClick={(e) => openModal(image, e)}
+              className="hover-image-card aspect-[4/3] bg-muted relative"
+              onClick={() => openModal(image)}
             >
               <img 
                 src={image.src} 
                 alt={image.alt} 
-                className="w-full h-full object-cover transition-transform duration-300"
+                className="w-full h-full object-cover"
                 loading="lazy"
               />
               <div className="image-overlay">
@@ -79,7 +75,6 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, columns = 3 }) => {
           onNext={nextImage} 
           onPrev={prevImage}
           isGalleryView={true}
-          clickPosition={clickPosition}
         />
       )}
     </>
