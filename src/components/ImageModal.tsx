@@ -23,6 +23,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
   const [currentImage, setCurrentImage] = useState(image);
   const [nextImage, setNextImage] = useState<Image | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isZoomed, setIsZoomed] = useState(false);
 
   useEffect(() => {
     if (nextImage) {
@@ -30,7 +31,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
         setCurrentImage(nextImage);
         setNextImage(null);
         setIsTransitioning(false);
-      }, 500); // Half of the transition duration
+      }, 800); // Duration of the crossfade (a bit longer than CSS transition)
       return () => clearTimeout(timer);
     }
   }, [nextImage]);
@@ -71,6 +72,12 @@ const ImageModal: React.FC<ImageModalProps> = ({
     }
   };
 
+  // Toggle zoom effect on image click
+  const handleImageClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsZoomed(!isZoomed);
+  };
+
   return (
     <div className="blur-backdrop" onClick={handleBackdropClick}>
       <div className="image-modal">
@@ -97,21 +104,24 @@ const ImageModal: React.FC<ImageModalProps> = ({
             <div className="flex items-center justify-center h-full">
               {/* Current Image */}
               <div 
-                className={`absolute inset-0 flex items-center justify-center transition-opacity duration-1000 ${
+                className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ${
                   isTransitioning ? 'opacity-0' : 'opacity-100'
                 }`}
+                onClick={handleImageClick}
               >
-                <img 
-                  src={getImageSrc(currentImage.src)} 
-                  alt={currentImage.alt} 
-                  className="max-h-full max-w-full object-contain shadow-xl shadow-black/30 rounded" 
-                />
+                <div className={`transition-transform duration-500 ease-in-out ${isZoomed ? 'scale-125' : 'scale-100'}`}>
+                  <img 
+                    src={getImageSrc(currentImage.src)} 
+                    alt={currentImage.alt} 
+                    className="max-h-full max-w-full object-contain shadow-xl shadow-black/30 rounded cursor-zoom-in" 
+                  />
+                </div>
               </div>
               
               {/* Next Image (for transition) */}
               {nextImage && (
                 <div 
-                  className={`absolute inset-0 flex items-center justify-center transition-opacity duration-1000 ${
+                  className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ${
                     isTransitioning ? 'opacity-100' : 'opacity-0'
                   }`}
                 >
@@ -129,6 +139,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
               className="absolute left-4 top-1/2 -translate-y-1/2 p-2 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" 
               onClick={e => {
                 e.stopPropagation();
+                if (isZoomed) setIsZoomed(false);
                 onPrev();
               }} 
               aria-label="Previous image"
@@ -140,6 +151,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
               className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" 
               onClick={e => {
                 e.stopPropagation();
+                if (isZoomed) setIsZoomed(false);
                 onNext();
               }} 
               aria-label="Next image"
