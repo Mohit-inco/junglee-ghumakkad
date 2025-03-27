@@ -4,6 +4,7 @@ import Hero from '@/components/Hero';
 import ImageGrid from '@/components/ImageGrid';
 import Footer from '@/components/Footer';
 import NavBar from '@/components/NavBar';
+import ExpandingPanels from '@/components/ExpandingPanels';
 import { images } from '@/lib/data';
 
 const Index = () => {
@@ -42,6 +43,9 @@ const Index = () => {
       
       {/* Hero Section */}
       <Hero />
+      
+      {/* Expanding Panels Section */}
+      <ExpandingPanels />
       
       {/* Featured Work Section */}
       <section className="py-20 px-6">
