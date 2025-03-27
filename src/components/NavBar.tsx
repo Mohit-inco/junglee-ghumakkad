@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, ShoppingCart, Instagram } from "lucide-react";
+import { Menu, X, ShoppingCart, Instagram, BookOpen } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { cn } from "@/lib/utils";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
@@ -49,6 +49,9 @@ const NavBar: React.FC = () => {
           </Link>
           <Link to="/gallery" className={cn("nav-link glow-hover", isActive("/gallery") && "active", navTextClasses)}>
             Gallery
+          </Link>
+          <Link to="/blogs" className={cn("nav-link glow-hover", isActive("/blogs") && "active", navTextClasses)}>
+            Blogs
           </Link>
           <Link to="/print" className={cn("nav-link glow-hover", isActive("/print") && "active", navTextClasses)}>
             Prints
@@ -105,6 +108,9 @@ const NavBar: React.FC = () => {
             </Link>
             <Link to="/gallery" className={cn("text-lg nav-link", isActive("/gallery") && "active", "text-foreground")}>
               Gallery
+            </Link>
+            <Link to="/blogs" className={cn("text-lg nav-link", isActive("/blogs") && "active", "text-foreground")}>
+              Blogs
             </Link>
             <Link to="/print" className={cn("text-lg nav-link", isActive("/print") && "active", "text-foreground")}>
               Prints

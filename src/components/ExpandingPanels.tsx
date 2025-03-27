@@ -17,37 +17,37 @@ interface PanelProps {
 const panels: PanelProps[] = [
   {
     id: 1,
-    title: "PRINTS",
+    title: "Print",
     image: "/lovable-uploads/0e2ba0f0-296e-4549-92bf-6460d3329b27.png",
     link: "/print",
     icon: <FileText className="w-6 h-6" />
   },
   {
     id: 2,
-    title: "BLOGS",
+    title: "Blogs",
     image: "/lovable-uploads/78c195fe-7a73-4a8a-9544-b17bff810417.png",
-    link: "/gallery",
+    link: "/blogs",
     icon: <BookOpen className="w-6 h-6" />
   },
   {
     id: 3,
-    title: "TIGER'S DIRECTORY",
+    title: "About me",
     image: "/lovable-uploads/5585f3be-0c31-4a9d-8fb1-72d97dd2ba56.png", 
     link: "/about",
     icon: <Instagram className="w-6 h-6" />
   },
   {
     id: 4,
-    title: "BOOK YOUR OWN TRIP",
+    title: "Street pallete",
     image: "/lovable-uploads/cba03c53-20ff-4ca5-9e8c-3447e84c5d5d.png",
     link: "/gallery",
     icon: <MapPin className="w-6 h-6" />
   },
   {
     id: 5,
-    title: "WORKSHOPS",
+    title: "Instagram",
     image: "/lovable-uploads/b49a2f95-d89f-4124-a032-f2a4b78eeac6.png",
-    link: "/gallery",
+    link: "https://www.instagram.com/junglee_ghumakkad/",
     icon: <Camera className="w-6 h-6" />
   }
 ];
@@ -85,7 +85,7 @@ const ExpandingPanels: React.FC = () => {
   }
 
   return (
-    <section className="relative w-full h-[60vh] overflow-hidden bg-black">
+    <section className="relative w-full h-[65vh] overflow-hidden bg-black max-w-6xl mx-auto rounded-lg">
       <div className="flex h-full">
         {panels.map((panel) => {
           const isActive = activePanel === panel.id;
@@ -129,6 +129,8 @@ const ExpandingPanels: React.FC = () => {
                         <Link 
                           to={panel.link}
                           className="flex items-center space-x-2"
+                          target={panel.title === "Instagram" ? "_blank" : undefined}
+                          rel={panel.title === "Instagram" ? "noopener noreferrer" : undefined}
                         >
                           {panel.icon}
                           <span className="ml-2">EXPLORE</span>
