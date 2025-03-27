@@ -5,10 +5,16 @@
   text-align: center;
 }
 
-/* Hide scrollbar for WebKit browsers */
-::-webkit-scrollbar {
-  display: none;
-}
+
+  body {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;     /* Firefox */
+  }
+
+  body::-webkit-scrollbar {
+    display: none;             /* Chrome, Safari, and Opera */
+  }
+
 
 .logo {
   height: 6em;
