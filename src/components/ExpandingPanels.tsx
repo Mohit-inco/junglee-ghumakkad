@@ -85,7 +85,7 @@ const ExpandingPanels: React.FC = () => {
   }
 
   return (
-    <section className="relative w-full h-[90vh] overflow-hidden bg-black">
+    <section className="relative w-full h-[60vh] overflow-hidden bg-black">
       <div className="flex h-full">
         {panels.map((panel) => {
           const isActive = activePanel === panel.id;
@@ -99,6 +99,7 @@ const ExpandingPanels: React.FC = () => {
                 ${isPrevActive ? 'translate-x-0' : 'translate-x-0'}`}
               onClick={() => handlePanelClick(panel.id)}
               onMouseEnter={() => handlePanelHover(panel.id)}
+              onMouseLeave={() => setActivePanel(null)}
             >
               <div 
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-in-out"
@@ -141,12 +142,6 @@ const ExpandingPanels: React.FC = () => {
           );
         })}
       </div>
-      
-      {/* Reset when mouse leaves container */}
-      <div 
-        className="absolute inset-0 pointer-events-none sm:pointer-events-auto"
-        onMouseLeave={() => setActivePanel(null)}
-      />
     </section>
   );
 };

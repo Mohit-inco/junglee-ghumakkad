@@ -44,9 +44,6 @@ const Index = () => {
       {/* Hero Section */}
       <Hero />
       
-      {/* Expanding Panels Section */}
-      <ExpandingPanels />
-      
       {/* Featured Work Section */}
       <section className="py-20 px-6">
         <div className="max-w-7xl mx-auto">
@@ -64,6 +61,9 @@ const Index = () => {
           </div>
         </div>
       </section>
+      
+      {/* Expanding Panels Section - Moved below Featured Work */}
+      <ExpandingPanels />
       
       {/* About Section Preview */}
       <section className="bg-muted py-20 px-6">

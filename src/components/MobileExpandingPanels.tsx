@@ -70,7 +70,7 @@ const MobileExpandingPanels: React.FC = () => {
           <div
             key={panel.id}
             className={`relative overflow-hidden transition-all duration-700 ease-in-out cursor-pointer 
-              ${isActive ? 'h-[40vh]' : 'h-[20vh]'}`}
+              ${isActive ? 'h-[40vh]' : 'h-[12vh]'}`}
             onClick={() => handlePanelClick(panel.id)}
           >
             <div 
@@ -86,13 +86,13 @@ const MobileExpandingPanels: React.FC = () => {
             
             <div className="absolute inset-0 flex flex-col justify-center items-center p-6 text-white">
               <div className={`panel-content transition-all duration-700 ease-in-out ${isActive ? 'scale-110' : 'scale-100'}`}>
-                <h3 className={`text-2xl font-bold text-center transition-all duration-500 
+                <h3 className={`text-xl font-bold text-center transition-all duration-500 
                   ${isActive ? 'opacity-100 mb-4' : 'opacity-80'}`}>
                   {panel.title}
                 </h3>
                 
                 {isActive && (
-                  <div className="flex flex-col items-center mt-4 animate-fade-in">
+                  <div className="flex flex-col items-center mt-4 opacity-0 animate-fade-in">
                     <Button 
                       variant="outline"
                       className="bg-black/60 hover:bg-black/80 text-white border-white/30 hover:border-white/50"
