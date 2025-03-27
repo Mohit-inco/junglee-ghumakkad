@@ -50,7 +50,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, columns = 3 }) => {
         {images.map((image) => (
           <div key={image.id} className="group rounded-md overflow-hidden">
             <div 
-              className="hover-image-card aspect-[4/3] bg-muted relative"
+              className="hover-image-card aspect-[4/3] bg-muted relative cursor-pointer"
               onClick={() => openModal(image)}
             >
               <img 

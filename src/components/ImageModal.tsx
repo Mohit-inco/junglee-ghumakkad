@@ -3,12 +3,14 @@ import React, { useEffect, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight, Info, ExternalLink, ShoppingCart } from 'lucide-react';
 import { Image, getImageSrc } from '@/lib/data';
 import { Link } from 'react-router-dom';
+
 interface ImageModalProps {
   image: Image;
   onClose: () => void;
   onNext: () => void;
   onPrev: () => void;
 }
+
 const ImageModal: React.FC<ImageModalProps> = ({
   image,
   onClose,
@@ -45,7 +47,9 @@ const ImageModal: React.FC<ImageModalProps> = ({
       onClose();
     }
   };
-  return <div className="blur-backdrop" onClick={handleBackdropClick}>
+  
+  return (
+    <div className="blur-backdrop" onClick={handleBackdropClick}>
       <div className="image-modal">
         <div ref={modalRef} className="image-modal-content">
           <div className="relative h-full">
@@ -70,17 +74,25 @@ const ImageModal: React.FC<ImageModalProps> = ({
             </div>
             
             {/* Navigation buttons */}
-            <button className="absolute left-4 top-1/2 -translate-y-1/2 p-2 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" onClick={e => {
-            e.stopPropagation();
-            onPrev();
-          }} aria-label="Previous image">
+            <button 
+              className="absolute left-4 top-1/2 -translate-y-1/2 p-2 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" 
+              onClick={(e) => {
+                e.stopPropagation();
+                onPrev();
+              }} 
+              aria-label="Previous image"
+            >
               <ChevronLeft className="h-6 w-6" />
             </button>
             
-            <button className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" onClick={e => {
-            e.stopPropagation();
-            onNext();
-          }} aria-label="Next image">
+            <button 
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" 
+              onClick={(e) => {
+                e.stopPropagation();
+                onNext();
+              }} 
+              aria-label="Next image"
+            >
               <ChevronRight className="h-6 w-6" />
             </button>
             
@@ -120,6 +132,8 @@ const ImageModal: React.FC<ImageModalProps> = ({
           </div>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default ImageModal;
