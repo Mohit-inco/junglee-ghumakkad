@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Instagram, BookOpen, FileText, Camera, MapPin } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import MobileExpandingPanels from './MobileExpandingPanels';
+import { Button } from '@/components/ui/button';
 
 interface PanelProps {
   id: number;
@@ -17,14 +18,14 @@ const panels: PanelProps[] = [
   {
     id: 1,
     title: "PRINTS",
-    image: "/lovable-uploads/d44baf47-bd29-479f-a2b2-5d89b521d032.png",
+    image: "/lovable-uploads/0e2ba0f0-296e-4549-92bf-6460d3329b27.png",
     link: "/print",
     icon: <FileText className="w-6 h-6" />
   },
   {
     id: 2,
     title: "BLOGS",
-    image: "/lovable-uploads/147b0bde-3442-427e-9887-b90b89dd512b.png",
+    image: "/lovable-uploads/78c195fe-7a73-4a8a-9544-b17bff810417.png",
     link: "/gallery",
     icon: <BookOpen className="w-6 h-6" />
   },
@@ -38,14 +39,14 @@ const panels: PanelProps[] = [
   {
     id: 4,
     title: "BOOK YOUR OWN TRIP",
-    image: "/lovable-uploads/96658d4c-fd6e-4225-8d2b-7a0706abf2db.png",
+    image: "/lovable-uploads/cba03c53-20ff-4ca5-9e8c-3447e84c5d5d.png",
     link: "/gallery",
     icon: <MapPin className="w-6 h-6" />
   },
   {
     id: 5,
     title: "WORKSHOPS",
-    image: "/lovable-uploads/4620b1a4-fff2-4ff5-9326-053c13f07bd5.png",
+    image: "/lovable-uploads/b49a2f95-d89f-4124-a032-f2a4b78eeac6.png",
     link: "/gallery",
     icon: <Camera className="w-6 h-6" />
   }
@@ -119,14 +120,19 @@ const ExpandingPanels: React.FC = () => {
                   
                   {isActive && (
                     <div className="flex flex-col items-center mt-6 opacity-0 animate-fade-in">
-                      <Link 
-                        to={panel.link}
-                        className="bg-black/60 hover:bg-black/80 text-white px-6 py-3 rounded-md 
-                                 flex items-center space-x-2 transition-all duration-300 hover:scale-105"
+                      <Button 
+                        variant="outline"
+                        className="bg-black/60 hover:bg-black/80 text-white border-white/30 hover:border-white/50 hover:scale-105"
+                        asChild
                       >
-                        {panel.icon}
-                        <span>EXPLORE</span>
-                      </Link>
+                        <Link 
+                          to={panel.link}
+                          className="flex items-center space-x-2"
+                        >
+                          {panel.icon}
+                          <span className="ml-2">EXPLORE</span>
+                        </Link>
+                      </Button>
                     </div>
                   )}
                 </div>
