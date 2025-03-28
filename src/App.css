@@ -5,17 +5,6 @@
   text-align: center;
 }
 
-
-  body {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;     /* Firefox */
-  }
-
-  body::-webkit-scrollbar {
-    display: none;             /* Chrome, Safari, and Opera */
-  }
-
-
 .logo {
   height: 6em;
   padding: 1.5em;

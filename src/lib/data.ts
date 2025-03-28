@@ -1,3 +1,4 @@
+
 export interface Image {
   id: number;
   title: string;
@@ -195,7 +196,7 @@ export const images: Image[] = [
     alt: "Golden sunset over ocean",
     width: 1920,
     height: 1280,
-    categories: ["Sunset", "Ocean", "Landscape", "Street"],
+    categories: ["Sunset", "Ocean", "Landscape"],
   },
   {
     id: 14,
@@ -236,6 +237,7 @@ export const images: Image[] = [
     height: 1920,
     categories: ["Portrait", "People"],
   },
+  // New images being added
   {
     id: 17,
     title: "Pelican Ballet",
@@ -430,58 +432,6 @@ export const images: Image[] = [
     width: 1080,
     height: 1920,
     categories: ["Birds", "Golden Hour", "Portrait"],
-  },
-  {
-    id: 32,
-    title: "City Reflection",
-    description: "Urban buildings mirrored in a puddle after rainfall, creating a surreal double-world effect.",
-    photographerNote: "The rain had just stopped, leaving perfect puddles for these mirror-like reflections.",
-    location: "Downtown, Delhi",
-    date: "August 2023",
-    src: "/lovable-uploads/About.jpg",
-    alt: "Urban buildings reflected in puddle",
-    width: 1920,
-    height: 1280,
-    categories: ["Street", "Urban", "Reflection"],
-  },
-  {
-    id: 33,
-    title: "Market Silhouettes",
-    description: "Silhouettes of shoppers and vendors in a bustling street market at dusk.",
-    photographerNote: "The fading light created these dramatic shadows against the market's vibrant backdrop.",
-    location: "Local Market, Mumbai",
-    date: "September 2023",
-    src: "/lovable-uploads/DSC_9460-2.jpg",
-    alt: "Silhouettes in street market",
-    width: 1920,
-    height: 1280,
-    categories: ["Street", "Market", "Silhouette"],
-  },
-  {
-    id: 34,
-    title: "Bicycle Lane",
-    description: "An empty bicycle lane cutting through urban architecture with interesting shadows.",
-    photographerNote: "The geometric patterns and sharp shadows caught my eye on this quiet Sunday morning.",
-    location: "City Center, Delhi",
-    date: "July 2023",
-    src: "/lovable-uploads/147b0bde-3442-427e-9887-b90b89dd512b.png",
-    alt: "Empty bicycle lane with shadows",
-    width: 1920,
-    height: 1280,
-    categories: ["Street", "Urban", "Geometry"],
-  },
-  {
-    id: 35,
-    title: "Street Vendor",
-    description: "A colorful street food stall illuminated at night with steam rising from cooking food.",
-    photographerNote: "The combination of artificial lights and rising steam created this atmospheric scene.",
-    location: "Night Market, Kolkata",
-    date: "October 2023",
-    src: "/lovable-uploads/d44baf47-bd29-479f-a2b2-5d89b521d032.png",
-    alt: "Illuminated street food stall at night",
-    width: 1920,
-    height: 1280,
-    categories: ["Street", "Food", "Night"],
   },
 ];
 
