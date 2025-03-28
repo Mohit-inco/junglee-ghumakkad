@@ -30,14 +30,14 @@ const panels: PanelProps[] = [
   {
     id: 3,
     title: "About me",
-    image: "/lovable-uploads/About.jpg", 
+    image: "/lovable-uploads/5585f3be-0c31-4a9d-8fb1-72d97dd2ba56.png",
     link: "/about",
     icon: <Instagram className="w-5 h-5" />
   },
   {
     id: 4,
     title: "Street pallete",
-    image: "/lovable-uploads/DSC_9460-2.jpg",
+    image: "/lovable-uploads/895ec1fd-884a-4f8c-823a-e31962b7b5d2.png", // 13th image for Street palette
     link: "/gallery",
     icon: <MapPin className="w-5 h-5" />
   },
