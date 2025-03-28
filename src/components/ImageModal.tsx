@@ -1,8 +1,7 @@
 
 import React, { useEffect, useRef } from 'react';
-import { X, ChevronLeft, ChevronRight, Info, ExternalLink, ShoppingCart } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Info } from 'lucide-react';
 import { Image, getImageSrc } from '@/lib/data';
-import { Link } from 'react-router-dom';
 
 interface ImageModalProps {
   image: Image;
@@ -57,9 +56,6 @@ const ImageModal: React.FC<ImageModalProps> = ({
               <button className="p-1.5 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" onClick={() => setShowInfo(!showInfo)} aria-label="Toggle information">
                 <Info className="h-5 w-5" />
               </button>
-              <Link to={`/print/${image.id}`} className="p-1.5 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" aria-label="View print options">
-                
-              </Link>
               <button className="p-1.5 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" onClick={onClose} aria-label="Close modal">
                 <X className="h-5 w-5" />
               </button>
@@ -122,11 +118,6 @@ const ImageModal: React.FC<ImageModalProps> = ({
                       {category}
                     </span>)}
                 </div>
-                
-                <Link to={`/print/${image.id}`} className="flex items-center text-sm font-medium" onClick={e => e.stopPropagation()}>
-                  Purchase prints
-                  <ExternalLink className="h-3.5 w-3.5 ml-1.5" />
-                </Link>
               </div>
             </div>
           </div>

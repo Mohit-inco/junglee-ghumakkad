@@ -30,7 +30,7 @@ const panels: PanelProps[] = [
   {
     id: 3,
     title: "About me",
-    image: "/lovable-uploads/5585f3be-0c31-4a9d-8fb1-72d97dd2ba56.png", 
+    image: "/lovable-uploads/cc6ae3f0-2470-451e-bfd8-a64d479c47c9.png", 
     link: "/about",
     icon: <Instagram className="w-5 h-5" />
   },
@@ -86,7 +86,7 @@ const MobileExpandingPanels: React.FC = () => {
             
             <div className="absolute inset-0 flex flex-col justify-center items-center p-6 text-white">
               <div className={`panel-content transition-all duration-700 ease-in-out ${isActive ? 'scale-110' : 'scale-100'}`}>
-                <h3 className={`text-xl font-bold text-center transition-all duration-500 
+                <h3 className={`text-lg font-light text-center transition-all duration-500 
                   ${isActive ? 'opacity-100 mb-4' : 'opacity-80'}`}>
                   {panel.title}
                 </h3>
@@ -105,7 +105,7 @@ const MobileExpandingPanels: React.FC = () => {
                         rel={panel.title === "Instagram" ? "noopener noreferrer" : undefined}
                       >
                         {panel.icon}
-                        <span className="ml-2 text-sm font-medium">EXPLORE</span>
+                        <span className="ml-2 text-xs tracking-wide">EXPLORE</span>
                       </Link>
                     </Button>
                   </div>
