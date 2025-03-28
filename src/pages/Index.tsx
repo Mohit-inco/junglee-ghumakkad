@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import Hero from '@/components/Hero';
 import ImageGrid from '@/components/ImageGrid';
@@ -8,51 +7,44 @@ import ExpandingPanels from '@/components/ExpandingPanels';
 import { images } from '@/lib/data';
 
 // Add the street images to be used on the gallery page
-export const streetImages = [
-  {
-    id: "street1",
-    src: "/lovable-uploads/cbe0dd82-8e11-4dbd-8762-a9623403952a.png",
-    title: "Neon City Streets",
-    location: "Urban",
-    description: "Vibrant neon lights illuminate the busy city street at night.",
-    alt: "Neon lit urban street at night with shops and stores",
-    category: "street",
-    tags: ["street", "urban", "night", "neon"]
-  }
-];
-
+export const streetImages = [{
+  id: "street1",
+  src: "/lovable-uploads/cbe0dd82-8e11-4dbd-8762-a9623403952a.png",
+  title: "Neon City Streets",
+  location: "Urban",
+  description: "Vibrant neon lights illuminate the busy city street at night.",
+  alt: "Neon lit urban street at night with shops and stores",
+  category: "street",
+  tags: ["street", "urban", "night", "neon"]
+}];
 const Index = () => {
   // Select a subset of images for the homepage - using images 1, 10, 13 for variety
-  const featuredImages = [images[0], images[9], images[12]]; 
-  
+  const featuredImages = [images[0], images[9], images[12]];
+
   // Add scroll animation effects
   useEffect(() => {
     const animateOnScroll = () => {
       const elements = document.querySelectorAll('.scroll-animate');
-      
       elements.forEach(element => {
         const elementPosition = element.getBoundingClientRect().top;
         const windowHeight = window.innerHeight;
-        
         if (elementPosition < windowHeight * 0.85) {
           element.classList.add('animate-fade-in');
           element.classList.remove('opacity-0');
         }
       });
     };
-    
+
     // Run once on initial load
     setTimeout(animateOnScroll, 300);
-    
+
     // Add scroll event listener
     window.addEventListener('scroll', animateOnScroll);
-    
+
     // Clean up
     return () => window.removeEventListener('scroll', animateOnScroll);
   }, []);
-  
-  return (
-    <div className="min-h-screen flex flex-col bg-black">
+  return <div className="min-h-screen flex flex-col bg-black">
       <NavBar />
       
       {/* Hero Section */}
@@ -80,7 +72,7 @@ const Index = () => {
       <ExpandingPanels />
       
       {/* About Section Preview */}
-      <section className="bg-muted py-20 px-6">
+      <section className="bg-muted px-6 py-[62px] my-[80px]">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="scroll-animate opacity-0">
@@ -93,11 +85,7 @@ const Index = () => {
               </p>
             </div>
             <div className="rounded-lg overflow-hidden bg-muted shadow-md scroll-animate opacity-0">
-              <img 
-                src={images[15].src} 
-                alt="Junglee Ghumakkad - Photographer" 
-                className="w-full h-auto"
-              />
+              <img src={images[15].src} alt="Junglee Ghumakkad - Photographer" className="w-full h-auto" />
             </div>
           </div>
         </div>
@@ -114,8 +102,6 @@ const Index = () => {
       </section>
       
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
