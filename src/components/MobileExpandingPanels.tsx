@@ -31,21 +31,21 @@ const panels: PanelProps[] = [
     title: "About me",
     image: "/lovable-uploads/275a428b-9218-4337-a28c-d0538ad3b6ee.png", 
     link: "/about",
-    icon: <Instagram className="w-4 h-4" />
+    icon: <MapPin className="w-4 h-4" />  
   },
   {
     id: 4,
     title: "Street pallete",
     image: "/lovable-uploads/cbe0dd82-8e11-4dbd-8762-a9623403952a.png",
     link: "/gallery",
-    icon: <MapPin className="w-4 h-4" />
+    icon: <Camera className="w-4 h-4" /> 
   },
   {
     id: 5,
     title: "Instagram",
     image: "/lovable-uploads/b49a2f95-d89f-4124-a032-f2a4b78eeac6.png",
     link: "https://www.instagram.com/junglee_ghumakkad/",
-    icon: <Camera className="w-4 h-4" />
+    icon: <Instagram className="w-4 h-4" />
   }
 ];
 
