@@ -37,7 +37,7 @@ const panels: PanelProps[] = [
   {
     id: 4,
     title: "Street pallete",
-    image: "/lovable-uploads/cba03c53-20ff-4ca5-9e8c-3447e84c5d5d.png",
+    image: "/lovable-uploads/cbe0dd82-8e11-4dbd-8762-a9623403952a.png",
     link: "/gallery",
     icon: <MapPin className="w-5 h-5" />
   },

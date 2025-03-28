@@ -7,6 +7,20 @@ import NavBar from '@/components/NavBar';
 import ExpandingPanels from '@/components/ExpandingPanels';
 import { images } from '@/lib/data';
 
+// Add the street images to be used on the gallery page
+export const streetImages = [
+  {
+    id: "street1",
+    src: "/lovable-uploads/cbe0dd82-8e11-4dbd-8762-a9623403952a.png",
+    title: "Neon City Streets",
+    location: "Urban",
+    description: "Vibrant neon lights illuminate the busy city street at night.",
+    alt: "Neon lit urban street at night with shops and stores",
+    category: "street",
+    tags: ["street", "urban", "night", "neon"]
+  }
+];
+
 const Index = () => {
   // Select a subset of images for the homepage - using images 1, 10, 13 for variety
   const featuredImages = [images[0], images[9], images[12]]; 
