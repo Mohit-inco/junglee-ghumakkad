@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Instagram, BookOpen, FileText, Camera, MapPin } from 'lucide-react';
@@ -30,7 +29,7 @@ const panels: PanelProps[] = [
   {
     id: 3,
     title: "About me",
-    image: "/lovable-uploads/d44baf47-bd29-479f-a2b2-5d89b521d032.png", 
+    image: "/lovable-uploads/275a428b-9218-4337-a28c-d0538ad3b6ee.png", 
     link: "/about",
     icon: <Instagram className="w-4 h-4" />
   },
@@ -86,7 +85,7 @@ const MobileExpandingPanels: React.FC = () => {
             
             <div className="absolute inset-0 flex flex-col justify-center items-center p-6 text-white">
               <div className={`panel-content transition-all duration-700 ease-in-out ${isActive ? 'scale-110' : 'scale-100'}`}>
-                <h3 className={`text-sm font-light text-center transition-all duration-500 
+                <h3 className={`text-xs font-light text-center transition-all duration-500 
                   ${isActive ? 'opacity-100 mb-4' : 'opacity-80'}`}>
                   {panel.title}
                 </h3>

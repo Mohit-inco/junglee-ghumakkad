@@ -28,7 +28,7 @@ const panels: PanelProps[] = [{
 }, {
   id: 3,
   title: "About me",
-  image: "/lovable-uploads/d44baf47-bd29-479f-a2b2-5d89b521d032.png", 
+  image: "/lovable-uploads/275a428b-9218-4337-a28c-d0538ad3b6ee.png", 
   link: "/about",
   icon: <Instagram className="w-5 h-5" />
 }, {
@@ -94,7 +94,7 @@ const ExpandingPanels: React.FC = () => {
               
               <div className="absolute inset-0 flex flex-col justify-center items-center p-6 text-white my-0 py-[19px] mx-[4px]">
                 <div className={`panel-content transition-all duration-700 ease-in-out ${isActive ? 'scale-110' : 'scale-100'}`}>
-                  <h3 className={`text-sm md:text-base font-light text-center mb-4 transition-all duration-500 
+                  <h3 className={`text-xs md:text-sm font-light text-center mb-4 transition-all duration-500 
                     ${isActive ? 'opacity-100 translate-y-0' : 'opacity-80'}`}>
                     {panel.title}
                   </h3>

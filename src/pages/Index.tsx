@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import Hero from '@/components/Hero';
 import ImageGrid from '@/components/ImageGrid';
@@ -17,9 +18,13 @@ export const streetImages = [{
   category: "street",
   tags: ["street", "urban", "night", "neon"]
 }];
+
 const Index = () => {
   // Select a subset of images for the homepage - using images 1, 10, 13 for variety
   const featuredImages = [images[0], images[9], images[12]];
+  
+  // Find the Ocean Sunset image (id 13) for the about section
+  const aboutSectionImage = images.find(img => img.id === 13) || images[12];
 
   // Add scroll animation effects
   useEffect(() => {
@@ -85,7 +90,7 @@ const Index = () => {
               </p>
             </div>
             <div className="rounded-lg overflow-hidden bg-muted shadow-md scroll-animate opacity-0">
-              <img src={images[15].src} alt="Junglee Ghumakkad - Photographer" className="w-full h-auto" />
+              <img src={aboutSectionImage.src} alt="Ocean Sunset" className="w-full h-auto" />
             </div>
           </div>
         </div>
