@@ -74,6 +74,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, columns = 3 }) => {
           onClose={closeModal} 
           onNext={nextImage} 
           onPrev={prevImage} 
+          hidePrintOption={true}
         />
       )}
     </>
