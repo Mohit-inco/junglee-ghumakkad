@@ -39,11 +39,11 @@ const ImageModal: React.FC<ImageModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 sm:p-10" onClick={handleClickOutside}>
+    <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 sm:p-6" onClick={handleClickOutside}>
       <div ref={modalRef} className="relative bg-transparent max-w-5xl w-full flex flex-col" onClick={(e) => e.stopPropagation()}>
         {/* Close button */}
         <button 
-          className="absolute top-2 right-2 z-10 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
           onClick={onClose}
         >
           <X className="h-5 w-5" />
@@ -52,7 +52,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
         {/* Navigation arrows */}
         {onPrev && (
           <button 
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 p-3 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
             onClick={(e) => { e.stopPropagation(); onPrev(); }}
           >
             <ChevronLeft className="h-7 w-7" />
@@ -61,7 +61,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
         
         {onNext && (
           <button 
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 p-3 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
             onClick={(e) => { e.stopPropagation(); onNext(); }}
           >
             <ChevronRight className="h-7 w-7" />
@@ -69,17 +69,17 @@ const ImageModal: React.FC<ImageModalProps> = ({
         )}
         
         {/* Image container */}
-        <div className="w-full h-[70vh] overflow-hidden">
+        <div className="w-full h-[70vh] md:h-[80vh] overflow-hidden rounded-lg flex items-center justify-center">
           <img 
             src={image.src} 
             alt={image.alt} 
-            className="w-full h-full object-contain"
+            className="max-w-full max-h-full object-contain"
           />
         </div>
         
         {/* Image info */}
-        <div className="bg-background/90 backdrop-blur-sm p-6 mt-4 rounded-lg">
-          <h2 className="text-2xl font-serif">{image.title}</h2>
+        <div className="bg-background/90 backdrop-blur-sm p-4 md:p-6 mt-4 rounded-lg">
+          <h2 className="text-xl md:text-2xl font-serif">{image.title}</h2>
           <p className="text-muted-foreground mt-2 mb-4">{image.description}</p>
           
           <div className="flex flex-wrap gap-y-3 text-sm text-muted-foreground">
