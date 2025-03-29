@@ -62,17 +62,10 @@ const About = () => {
                 </a>
               </div>
             </div>
-            <div className="md:col-span-2 order-1 md:order-2 flex flex-col space-y-4">
+            <div className="md:col-span-2 order-1 md:order-2">
               <div className="rounded-lg overflow-hidden bg-muted shadow-md aspect-[4/5] photo-animate opacity-0">
                 <img 
-                  src="/lovable-uploads/275a428b-9218-4337-a28c-d0538ad3b6ee.png" 
-                  alt={photographerInfo.name} 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="rounded-lg overflow-hidden bg-muted shadow-md photo-animate opacity-0" style={{transitionDelay: '100ms'}}>
-                <img 
-                  src={images[15].src} 
+                  src={photographerInfo.profileImage} 
                   alt={photographerInfo.name} 
                   className="w-full h-full object-cover"
                 />

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Instagram, BookOpen, FileText, Camera, MapPin } from 'lucide-react';
@@ -17,35 +18,35 @@ const panels: PanelProps[] = [
     title: "Print",
     image: "/lovable-uploads/0e2ba0f0-296e-4549-92bf-6460d3329b27.png",
     link: "/print",
-    icon: <FileText className="w-4 h-4" />
+    icon: <FileText className="w-5 h-5" />
   },
   {
     id: 2,
     title: "Blogs",
     image: "/lovable-uploads/78c195fe-7a73-4a8a-9544-b17bff810417.png",
     link: "/blogs",
-    icon: <BookOpen className="w-4 h-4" />
+    icon: <BookOpen className="w-5 h-5" />
   },
   {
     id: 3,
     title: "About me",
-    image: "/lovable-uploads/275a428b-9218-4337-a28c-d0538ad3b6ee.png", 
+    image: "/lovable-uploads/cc6ae3f0-2470-451e-bfd8-a64d479c47c9.png", 
     link: "/about",
-    icon: <MapPin className="w-4 h-4" />  
+    icon: <Instagram className="w-5 h-5" />
   },
   {
     id: 4,
     title: "Street pallete",
     image: "/lovable-uploads/cbe0dd82-8e11-4dbd-8762-a9623403952a.png",
     link: "/gallery",
-    icon: <Camera className="w-4 h-4" /> 
+    icon: <MapPin className="w-5 h-5" />
   },
   {
     id: 5,
     title: "Instagram",
     image: "/lovable-uploads/b49a2f95-d89f-4124-a032-f2a4b78eeac6.png",
     link: "https://www.instagram.com/junglee_ghumakkad/",
-    icon: <Instagram className="w-4 h-4" />
+    icon: <Camera className="w-5 h-5" />
   }
 ];
 
@@ -85,7 +86,7 @@ const MobileExpandingPanels: React.FC = () => {
             
             <div className="absolute inset-0 flex flex-col justify-center items-center p-6 text-white">
               <div className={`panel-content transition-all duration-700 ease-in-out ${isActive ? 'scale-110' : 'scale-100'}`}>
-                <h3 className={`text-xs font-light text-center transition-all duration-500 
+                <h3 className={`text-lg font-light text-center transition-all duration-500 
                   ${isActive ? 'opacity-100 mb-4' : 'opacity-80'}`}>
                   {panel.title}
                 </h3>
@@ -94,7 +95,7 @@ const MobileExpandingPanels: React.FC = () => {
                   <div className="flex flex-col items-center mt-4 opacity-0 animate-fade-in">
                     <Button 
                       variant="outline"
-                      className="bg-black/60 hover:bg-black/80 text-white border-white/30 hover:border-white/50 text-xs"
+                      className="bg-black/60 hover:bg-black/80 text-white border-white/30 hover:border-white/50"
                       asChild
                     >
                       <Link 

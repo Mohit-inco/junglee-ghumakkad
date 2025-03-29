@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { Image } from '@/lib/data';
 import ImageModal from './ImageModal';
-import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface ImageGridProps {
   images: Image[];
@@ -49,23 +48,21 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, columns = 3 }) => {
     <>
       <div className={`grid ${gridClass} gap-6 md:gap-8`}>
         {images.map((image) => (
-          <div key={image.id} className="group rounded-md overflow-hidden shadow-md">
+          <div key={image.id} className="group rounded-md overflow-hidden">
             <div 
-              className="hover-image-card relative cursor-pointer"
+              className="hover-image-card aspect-[4/3] bg-muted relative cursor-pointer"
               onClick={() => openModal(image)}
             >
-              <AspectRatio ratio={4/3} className="bg-muted">
-                <img 
-                  src={image.src} 
-                  alt={image.alt} 
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-                <div className="image-overlay">
-                  <h3 className="font-medium text-white text-lg mb-1">{image.title}</h3>
-                  <p className="text-white/80 text-sm">{image.location}</p>
-                </div>
-              </AspectRatio>
+              <img 
+                src={image.src} 
+                alt={image.alt} 
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+              <div className="image-overlay">
+                <h3 className="font-medium text-white text-lg mb-1">{image.title}</h3>
+                <p className="text-white/80 text-sm">{image.location}</p>
+              </div>
             </div>
           </div>
         ))}
@@ -77,7 +74,6 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, columns = 3 }) => {
           onClose={closeModal} 
           onNext={nextImage} 
           onPrev={prevImage} 
-          hidePrintOption={true}
         />
       )}
     </>
