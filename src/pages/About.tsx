@@ -1,8 +1,18 @@
+
 import React, { useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { photographerInfo, images } from '@/lib/data';
 import { Camera, Award, MapPin, Calendar, Mail, Instagram } from 'lucide-react';
+import { 
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious
+} from "@/components/ui/carousel";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+
 const About = () => {
   // Add scroll animation effects
   useEffect(() => {
@@ -27,6 +37,10 @@ const About = () => {
     // Clean up
     return () => window.removeEventListener('scroll', animateOnScroll);
   }, []);
+
+  // Select a subset of portfolio images for the carousel
+  const portfolioImages = images.slice(0, 10);
+  
   return <div className="min-h-screen flex flex-col bg-black">
       <NavBar />
       
@@ -51,6 +65,33 @@ const About = () => {
               </div>
             </div>
             
+            {/* Photo Carousel */}
+            <div className="md:col-span-2 order-1 md:order-2 scroll-animate opacity-0">
+              <Carousel className="w-full max-w-md mx-auto">
+                <CarouselContent>
+                  {portfolioImages.map((image, index) => (
+                    <CarouselItem key={image.id}>
+                      <div className="p-1">
+                        <div className="overflow-hidden rounded-md border border-border/40 shadow-md">
+                          <AspectRatio ratio={3/2}>
+                            <img
+                              src={image.src}
+                              alt={image.title}
+                              className="w-full h-full object-cover transition-all hover:scale-105 duration-700"
+                            />
+                          </AspectRatio>
+                        </div>
+                        <div className="mt-2 text-sm text-muted-foreground text-center">
+                          {image.title}
+                        </div>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="absolute -left-12 md:-left-8 lg:-left-12 bg-background/50 hover:bg-background/80 border-0" />
+                <CarouselNext className="absolute -right-12 md:-right-8 lg:-right-12 bg-background/50 hover:bg-background/80 border-0" />
+              </Carousel>
+            </div>
           </div>
           
           {/* My Story Section */}
