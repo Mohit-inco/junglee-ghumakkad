@@ -70,7 +70,7 @@ const About = () => {
           </div>
 
           {/* Portfolio Carousel Section */}
-          <div className="mb-16 scroll-animate opacity-0">
+          <div className="mt-12 mb-16 scroll-animate opacity-0">
             <h2 className="text-3xl font-serif mb-6">Portfolio Highlights</h2>
             <Carousel className="w-full max-w-4xl mx-auto">
               <CarouselContent>
@@ -78,7 +78,7 @@ const About = () => {
                   <CarouselItem key={image.id}>
                     <div className="p-2">
                       <div className="overflow-hidden rounded-md border border-border/40 shadow-md">
-                        <AspectRatio ratio={4/3}>
+                        <AspectRatio ratio={16/9}>
                           <img
                             src={image.src}
                             alt={image.title}
@@ -196,3 +196,4 @@ const About = () => {
     </div>;
 };
 export default About;
+
