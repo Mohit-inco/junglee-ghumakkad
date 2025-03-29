@@ -12,8 +12,11 @@ import {
   CarouselPrevious
 } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const About = () => {
+  const isMobile = useIsMobile();
+  
   // Add scroll animation effects
   useEffect(() => {
     const animateOnScroll = () => {
@@ -47,8 +50,8 @@ const About = () => {
       <main className="flex-grow pt-24 px-6">
         <div className="max-w-7xl mx-auto">
           {/* Hero Section */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-12 mb-16">
-            <div className="md:col-span-3 order-2 md:order-1 scroll-animate opacity-0">
+          <div className="mb-16">
+            <div className="scroll-animate opacity-0">
               <h1 className="text-4xl md:text-5xl font-serif mb-6">About the Photographer</h1>
               <p className="text-lg text-muted-foreground leading-relaxed mb-6">
                 {photographerInfo.bio}
@@ -64,34 +67,39 @@ const About = () => {
                 </a>
               </div>
             </div>
-            
-            {/* Photo Carousel */}
-            <div className="md:col-span-2 order-1 md:order-2 scroll-animate opacity-0">
-              <Carousel className="w-full max-w-md mx-auto">
-                <CarouselContent>
-                  {portfolioImages.map((image, index) => (
-                    <CarouselItem key={image.id}>
-                      <div className="p-1">
-                        <div className="overflow-hidden rounded-md border border-border/40 shadow-md">
-                          <AspectRatio ratio={3/2}>
-                            <img
-                              src={image.src}
-                              alt={image.title}
-                              className="w-full h-full object-cover transition-all hover:scale-105 duration-700"
-                            />
-                          </AspectRatio>
-                        </div>
-                        <div className="mt-2 text-sm text-muted-foreground text-center">
-                          {image.title}
-                        </div>
+          </div>
+
+          {/* Portfolio Carousel Section */}
+          <div className="mb-16 scroll-animate opacity-0">
+            <h2 className="text-3xl font-serif mb-6">Portfolio Highlights</h2>
+            <Carousel className="w-full max-w-4xl mx-auto">
+              <CarouselContent>
+                {portfolioImages.map((image, index) => (
+                  <CarouselItem key={image.id}>
+                    <div className="p-2">
+                      <div className="overflow-hidden rounded-md border border-border/40 shadow-md">
+                        <AspectRatio ratio={4/3}>
+                          <img
+                            src={image.src}
+                            alt={image.title}
+                            className="w-full h-full object-cover transition-all hover:scale-105 duration-700"
+                          />
+                        </AspectRatio>
                       </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="absolute -left-12 md:-left-8 lg:-left-12 bg-background/50 hover:bg-background/80 border-0" />
-                <CarouselNext className="absolute -right-12 md:-right-8 lg:-right-12 bg-background/50 hover:bg-background/80 border-0" />
-              </Carousel>
-            </div>
+                      <div className="mt-3 text-sm text-muted-foreground text-center">
+                        {image.title}
+                      </div>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              {!isMobile && (
+                <>
+                  <CarouselPrevious className="absolute -left-12 lg:-left-16 bg-background/50 hover:bg-background/80 border-0" />
+                  <CarouselNext className="absolute -right-12 lg:-right-16 bg-background/50 hover:bg-background/80 border-0" />
+                </>
+              )}
+            </Carousel>
           </div>
           
           {/* My Story Section */}
