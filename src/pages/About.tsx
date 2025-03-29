@@ -1,22 +1,14 @@
-
 import React, { useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { photographerInfo, images } from '@/lib/data';
 import { Camera, Award, MapPin, Calendar, Mail, Instagram } from 'lucide-react';
-import { 
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious
-} from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useIsMobile } from '@/hooks/use-mobile';
-
 const About = () => {
   const isMobile = useIsMobile();
-  
+
   // Add scroll animation effects
   useEffect(() => {
     const animateOnScroll = () => {
@@ -43,7 +35,6 @@ const About = () => {
 
   // Select a subset of portfolio images for the carousel
   const portfolioImages = images.slice(0, 10);
-  
   return <div className="min-h-screen flex flex-col bg-black">
       <NavBar />
       
@@ -71,34 +62,26 @@ const About = () => {
 
           {/* Portfolio Carousel Section */}
           <div className="mt-12 mb-16 scroll-animate opacity-0">
-            <h2 className="text-3xl font-serif mb-6">Portfolio Highlights</h2>
+            <h2 className="font-serif mb-6 text-xl">Me who is</h2>
             <Carousel className="w-full max-w-4xl mx-auto">
               <CarouselContent>
-                {portfolioImages.map((image, index) => (
-                  <CarouselItem key={image.id}>
+                {portfolioImages.map((image, index) => <CarouselItem key={image.id}>
                     <div className="p-2">
                       <div className="overflow-hidden rounded-md border border-border/40 shadow-md">
-                        <AspectRatio ratio={16/9}>
-                          <img
-                            src={image.src}
-                            alt={image.title}
-                            className="w-full h-full object-cover transition-all hover:scale-105 duration-700"
-                          />
+                        <AspectRatio ratio={16 / 9}>
+                          <img src={image.src} alt={image.title} className="w-full h-full object-cover transition-all hover:scale-105 duration-700" />
                         </AspectRatio>
                       </div>
                       <div className="mt-3 text-sm text-muted-foreground text-center">
                         {image.title}
                       </div>
                     </div>
-                  </CarouselItem>
-                ))}
+                  </CarouselItem>)}
               </CarouselContent>
-              {!isMobile && (
-                <>
+              {!isMobile && <>
                   <CarouselPrevious className="absolute -left-12 lg:-left-16 bg-background/50 hover:bg-background/80 border-0" />
                   <CarouselNext className="absolute -right-12 lg:-right-16 bg-background/50 hover:bg-background/80 border-0" />
-                </>
-              )}
+                </>}
             </Carousel>
           </div>
           
@@ -196,4 +179,3 @@ const About = () => {
     </div>;
 };
 export default About;
-
