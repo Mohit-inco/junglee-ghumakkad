@@ -24,7 +24,7 @@ const About = () => {
       elements.forEach(element => {
         const elementPosition = element.getBoundingClientRect().top;
         const windowHeight = window.innerHeight;
-        if (elementPosition < windowHeight * 0.85) {
+        if (elementPosition < windowHeight * 0.60) {
           element.classList.add('animate-fade-in');
           element.classList.remove('opacity-0');
         }
