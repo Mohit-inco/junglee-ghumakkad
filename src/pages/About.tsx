@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
@@ -6,6 +7,7 @@ import { Camera, Award, MapPin, Calendar, Mail, Instagram } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useIsMobile } from '@/hooks/use-mobile';
+
 const About = () => {
   const isMobile = useIsMobile();
 
@@ -33,15 +35,20 @@ const About = () => {
     return () => window.removeEventListener('scroll', animateOnScroll);
   }, []);
 
-  // Select a subset of portfolio images for the carousel
-  const portfolioImages = images.slice(0, 10);
+  // These are the personal photos of the photographer
+  const photographerPhotos = [
+    "/lovable-uploads/e2435b3a-a454-4ee6-afe6-f003e215a86d.png",
+    "/lovable-uploads/ec9a3df4-2f8e-4066-a0ea-b05d58c998fd.png",
+    "/lovable-uploads/b78ec221-6b04-488f-a420-0a92408def7f.png"
+  ];
+
   return <div className="min-h-screen flex flex-col bg-black">
       <NavBar />
       
       <main className="flex-grow pt-24 px-6">
         <div className="max-w-7xl mx-auto">
           {/* Hero Section */}
-          <div className="mb-16">
+          <div className="mb-8">
             <div className="scroll-animate opacity-0">
               <h1 className="text-4xl md:text-5xl font-serif mb-6">About the Photographer</h1>
               <p className="text-lg text-muted-foreground leading-relaxed mb-6">
@@ -60,29 +67,36 @@ const About = () => {
             </div>
           </div>
 
-          {/* Portfolio Carousel Section */}
-          <div className="mt-12 mb-16 scroll-animate opacity-0">
-            <h2 className="font-serif mb-6 text-xl">Me who is</h2>
-            <Carousel className="w-full max-w-4xl mx-auto">
-              <CarouselContent>
-                {portfolioImages.map((image, index) => <CarouselItem key={image.id}>
-                    <div className="p-2">
-                      <div className="overflow-hidden rounded-md border border-border/40 shadow-md">
-                        <AspectRatio ratio={16 / 9}>
-                          <img src={image.src} alt={image.title} className="w-full h-full object-cover transition-all hover:scale-105 duration-700" />
-                        </AspectRatio>
+          {/* Photographer Photos Carousel */}
+          <div className="mt-8 mb-16 scroll-animate opacity-0">
+            <h2 className="font-serif mb-6 text-xl">Behind the Lens</h2>
+            <div className="max-w-3xl mx-auto">
+              <Carousel className="w-full">
+                <CarouselContent>
+                  {photographerPhotos.map((photo, index) => (
+                    <CarouselItem key={index}>
+                      <div className="p-1">
+                        <div className="overflow-hidden rounded-md border border-border/40 shadow-md">
+                          <AspectRatio ratio={16 / 9}>
+                            <img 
+                              src={photo} 
+                              alt={`Photographer ${index + 1}`} 
+                              className="w-full h-full object-cover transition-all hover:scale-105 duration-700" 
+                            />
+                          </AspectRatio>
+                        </div>
                       </div>
-                      <div className="mt-3 text-sm text-muted-foreground text-center">
-                        {image.title}
-                      </div>
-                    </div>
-                  </CarouselItem>)}
-              </CarouselContent>
-              {!isMobile && <>
-                  <CarouselPrevious className="absolute -left-12 lg:-left-16 bg-background/50 hover:bg-background/80 border-0" />
-                  <CarouselNext className="absolute -right-12 lg:-right-16 bg-background/50 hover:bg-background/80 border-0" />
-                </>}
-            </Carousel>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                {!isMobile && (
+                  <>
+                    <CarouselPrevious className="absolute -left-12 lg:-left-16 bg-background/50 hover:bg-background/80 border-0" />
+                    <CarouselNext className="absolute -right-12 lg:-right-16 bg-background/50 hover:bg-background/80 border-0" />
+                  </>
+                )}
+              </Carousel>
+            </div>
           </div>
           
           {/* My Story Section */}
@@ -178,4 +192,5 @@ const About = () => {
       <Footer />
     </div>;
 };
+
 export default About;
