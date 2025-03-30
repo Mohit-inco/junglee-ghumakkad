@@ -46,17 +46,17 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, columns = 3 }) => {
   
   return (
     <>
-      <div className={`grid ${gridClass} gap-4 md:gap-6`}>
+      <div className={`grid ${gridClass} gap-3 md:gap-4`}>
         {images.map((image) => (
           <div key={image.id} className="group rounded-md overflow-hidden">
             <div 
-              className="hover-image-card bg-muted relative cursor-pointer"
+              className="hover-image-card aspect-[4/3]  bg-muted relative cursor-pointer"
               onClick={() => openModal(image)}
             >
               <img 
                 src={image.src} 
                 alt={image.alt} 
-                className="w-full h-auto object-cover"
+                className="w-full h-full object-cover"
                 loading="lazy"
               />
               <div className="image-overlay">
