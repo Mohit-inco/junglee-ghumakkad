@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
@@ -35,7 +34,7 @@ const About = () => {
     return () => window.removeEventListener('scroll', animateOnScroll);
   }, []);
 
-  // These are the personal photos of the photographer
+  // These are the updated personal photos of the photographer
   const photographerPhotos = [
     "/lovable-uploads/e2435b3a-a454-4ee6-afe6-f003e215a86d.png",
     "/lovable-uploads/ec9a3df4-2f8e-4066-a0ea-b05d58c998fd.png",
@@ -81,7 +80,7 @@ const About = () => {
                             <img 
                               src={photo} 
                               alt={`Photographer ${index + 1}`} 
-                              className="w-full h-full object-cover transition-all hover:scale-105 duration-700" 
+                              className="w-full h-full object-contain" 
                             />
                           </AspectRatio>
                         </div>
