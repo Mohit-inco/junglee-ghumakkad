@@ -31,7 +31,7 @@ const Gallery = () => {
       <NavBar />
       
       <main className="flex-grow pt-24 px-6">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           {/* Gallery Header */}
           <div className="mb-12">
             <h1 className="text-4xl md:text-5xl font-serif mb-4">Wildlife Gallery</h1>
