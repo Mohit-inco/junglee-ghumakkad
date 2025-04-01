@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -8,62 +8,137 @@ import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Plus, Edit, Trash, Image, Save } from 'lucide-react';
-import { images } from '@/lib/data';
+import { fetchGalleryImages, createGalleryImage, updateGalleryImage, deleteGalleryImage, uploadImage, GalleryImage } from '@/lib/supabase';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const AdminGallery = () => {
   const { toast } = useToast();
-  const [galleryItems, setGalleryItems] = useState(images);
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
-    id: 0,
+    id: '',
     title: '',
     description: '',
-    photographerNote: '',
+    photographer_note: '',
     location: '',
     date: '',
-    src: '',
+    image_url: '',
     alt: '',
     categories: '',
   });
-  const [editingItemId, setEditingItemId] = useState<number | null>(null);
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  
+  // Query to fetch gallery images
+  const { data: galleryItems = [], isLoading } = useQuery({
+    queryKey: ['galleryImages'],
+    queryFn: fetchGalleryImages
+  });
+  
+  // Mutation to create a new gallery image
+  const createImageMutation = useMutation({
+    mutationFn: async (data: Omit<GalleryImage, 'id' | 'created_at'>) => {
+      return await createGalleryImage(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['galleryImages'] });
+      toast({
+        title: "Image added",
+        description: `"${formData.title}" has been added to the gallery.`,
+      });
+      setIsDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add image",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Mutation to update an existing gallery image
+  const updateImageMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string, data: Partial<Omit<GalleryImage, 'id' | 'created_at'>> }) => {
+      return await updateGalleryImage(id, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['galleryImages'] });
+      toast({
+        title: "Image updated",
+        description: `"${formData.title}" has been updated successfully.`,
+      });
+      setIsDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update image",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Mutation to delete a gallery image
+  const deleteImageMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return await deleteGalleryImage(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['galleryImages'] });
+      toast({
+        title: "Image deleted",
+        description: "The image has been removed from the gallery.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete image",
+        variant: "destructive",
+      });
+    }
+  });
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
   
-  const handleEdit = (image: any) => {
+  const handleEdit = (image: GalleryImage) => {
     setFormData({
       id: image.id,
       title: image.title,
       description: image.description,
-      photographerNote: image.photographerNote,
+      photographer_note: image.photographer_note,
       location: image.location,
       date: image.date,
-      src: image.src,
+      image_url: image.image_url,
       alt: image.alt,
       categories: image.categories.join(', '),
     });
     setEditingItemId(image.id);
-    setImagePreview(image.src);
+    setImagePreview(image.image_url);
+    setImageFile(null);
     setIsDialogOpen(true);
   };
   
   const handleNewImage = () => {
     setFormData({
-      id: galleryItems.length + 1,
+      id: '',
       title: '',
       description: '',
-      photographerNote: '',
+      photographer_note: '',
       location: '',
       date: '',
-      src: '',
+      image_url: '',
       alt: '',
       categories: '',
     });
     setEditingItemId(null);
     setImagePreview(null);
+    setImageFile(null);
     setIsDialogOpen(true);
   };
   
@@ -71,66 +146,57 @@ const AdminGallery = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     
-    // In a real implementation, you would upload this file to your server or cloud storage
-    // and get back a URL to use. For this demo, we'll create a temporary object URL.
+    // Create a preview URL
     const previewUrl = URL.createObjectURL(file);
     setImagePreview(previewUrl);
-    setFormData({ ...formData, src: `[Uploaded file: ${file.name}]`, alt: file.name });
+    setImageFile(file);
+    setFormData({ ...formData, alt: file.name.split('.')[0] });
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Convert categories string to array
-    const categoriesArray = formData.categories.split(',').map(cat => cat.trim());
-    
-    // Create new image object
-    const newImageData = {
-      id: formData.id,
-      title: formData.title,
-      description: formData.description,
-      photographerNote: formData.photographerNote,
-      location: formData.location,
-      date: formData.date,
-      src: formData.src,
-      alt: formData.alt,
-      width: 1920, // Default values - in a real app you'd get these from the image
-      height: 1080,
-      categories: categoriesArray,
-    };
-    
-    if (editingItemId) {
-      // Update existing item
-      setGalleryItems(galleryItems.map(item => 
-        item.id === editingItemId ? newImageData : item
-      ));
+    try {
+      // Convert categories string to array
+      const categoriesArray = formData.categories.split(',').map(cat => cat.trim());
+      
+      // Upload image if there's a new file
+      let imageUrl = formData.image_url;
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile, 'gallery');
+      }
+      
+      // Prepare the data
+      const imageData = {
+        title: formData.title,
+        description: formData.description,
+        photographer_note: formData.photographer_note,
+        location: formData.location,
+        date: formData.date,
+        image_url: imageUrl,
+        alt: formData.alt,
+        categories: categoriesArray,
+      };
+      
+      if (editingItemId) {
+        // Update existing item
+        updateImageMutation.mutate({ id: editingItemId, data: imageData });
+      } else {
+        // Add new item
+        createImageMutation.mutate(imageData as any);
+      }
+    } catch (error: any) {
       toast({
-        title: "Image updated",
-        description: `"${formData.title}" has been updated successfully.`,
-      });
-    } else {
-      // Add new item
-      setGalleryItems([...galleryItems, newImageData]);
-      toast({
-        title: "Image added",
-        description: `"${formData.title}" has been added to the gallery.`,
+        title: "Error",
+        description: error.message || "There was an error processing your request",
+        variant: "destructive",
       });
     }
-    
-    setIsDialogOpen(false);
-    
-    // In a real app, you would update your database here.
-    console.log('Updated gallery items:', [...galleryItems, newImageData]);
   };
   
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     if (confirm('Are you sure you want to delete this image?')) {
-      setGalleryItems(galleryItems.filter(item => item.id !== id));
-      
-      toast({
-        title: "Image deleted",
-        description: "The image has been removed from the gallery.",
-      });
+      deleteImageMutation.mutate(id);
     }
   };
 
@@ -146,47 +212,60 @@ const AdminGallery = () => {
         </Button>
       </div>
       
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[100px]">Preview</TableHead>
-            <TableHead>Title</TableHead>
-            <TableHead className="hidden md:table-cell">Location</TableHead>
-            <TableHead className="hidden md:table-cell">Categories</TableHead>
-            <TableHead className="text-right w-[150px]">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {galleryItems.map((image) => (
-            <TableRow key={image.id}>
-              <TableCell>
-                <div className="h-12 w-12 bg-muted rounded overflow-hidden">
-                  <img 
-                    src={image.src} 
-                    alt={image.alt} 
-                    className="h-full w-full object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = "/placeholder.svg";
-                    }} 
-                  />
-                </div>
-              </TableCell>
-              <TableCell className="font-medium">{image.title}</TableCell>
-              <TableCell className="hidden md:table-cell">{image.location}</TableCell>
-              <TableCell className="hidden md:table-cell">{image.categories.join(", ")}</TableCell>
-              <TableCell className="text-right space-x-2">
-                <Button variant="ghost" size="icon" onClick={() => handleEdit(image)}>
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={() => handleDelete(image.id)}>
-                  <Trash className="h-4 w-4" />
-                </Button>
-              </TableCell>
+      {isLoading ? (
+        <div className="flex justify-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[100px]">Preview</TableHead>
+              <TableHead>Title</TableHead>
+              <TableHead className="hidden md:table-cell">Location</TableHead>
+              <TableHead className="hidden md:table-cell">Categories</TableHead>
+              <TableHead className="text-right w-[150px]">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {galleryItems.map((image: GalleryImage) => (
+              <TableRow key={image.id}>
+                <TableCell>
+                  <div className="h-12 w-12 bg-muted rounded overflow-hidden">
+                    <img 
+                      src={image.image_url} 
+                      alt={image.alt} 
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "/placeholder.svg";
+                      }} 
+                    />
+                  </div>
+                </TableCell>
+                <TableCell className="font-medium">{image.title}</TableCell>
+                <TableCell className="hidden md:table-cell">{image.location}</TableCell>
+                <TableCell className="hidden md:table-cell">{image.categories.join(", ")}</TableCell>
+                <TableCell className="text-right space-x-2">
+                  <Button variant="ghost" size="icon" onClick={() => handleEdit(image)}>
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => handleDelete(image.id)}>
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+            {galleryItems.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8">
+                  No images found. Add your first image.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      )}
       
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
@@ -266,11 +345,11 @@ const AdminGallery = () => {
               </div>
               
               <div>
-                <Label htmlFor="photographerNote">Photographer's Note</Label>
+                <Label htmlFor="photographer_note">Photographer's Note</Label>
                 <Textarea 
-                  id="photographerNote"
-                  name="photographerNote"
-                  value={formData.photographerNote}
+                  id="photographer_note"
+                  name="photographer_note"
+                  value={formData.photographer_note}
                   onChange={handleInputChange}
                   placeholder="Your personal note about taking this photograph"
                   rows={2}
@@ -321,9 +400,10 @@ const AdminGallery = () => {
               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit">
+              <Button type="submit" disabled={createImageMutation.isPending || updateImageMutation.isPending}>
                 <Save className="mr-2 h-4 w-4" />
-                {editingItemId ? 'Save Changes' : 'Add Image'}
+                {createImageMutation.isPending || updateImageMutation.isPending ? 'Saving...' : 
+                  editingItemId ? 'Save Changes' : 'Add Image'}
               </Button>
             </DialogFooter>
           </form>

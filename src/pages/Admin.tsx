@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { useNavigate, Navigate, Outlet } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Navigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { Input } from '@/components/ui/input';
@@ -11,49 +11,96 @@ import AdminGallery from '@/components/admin/AdminGallery';
 import AdminPrints from '@/components/admin/AdminPrints';
 import AdminBlogs from '@/components/admin/AdminBlogs';
 import { useToast } from '@/components/ui/use-toast';
-
-// Very basic authentication - in a real app, use a more secure method
-const ADMIN_PASSWORD = "jungle2024"; // This should be replaced with a proper auth system
+import { useSupabaseClient } from '@/lib/supabase';
 
 const Admin = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(localStorage.getItem('adminAuthenticated') === 'true');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [password, setPassword] = useState<string>('');
+  const [loginLoading, setLoginLoading] = useState<boolean>(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const supabase = useSupabaseClient();
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
-    // Simulate network request
-    setTimeout(() => {
-      if (password === ADMIN_PASSWORD) {
-        localStorage.setItem('adminAuthenticated', 'true');
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
         setIsAuthenticated(true);
-        toast({
-          title: "Authenticated successfully",
-          description: "Welcome to the admin dashboard",
-        });
-      } else {
-        toast({
-          title: "Authentication failed",
-          description: "Invalid password provided",
-          variant: "destructive",
-        });
       }
       setIsLoading(false);
-    }, 1000);
+    };
+
+    checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === 'SIGNED_IN') {
+          setIsAuthenticated(true);
+        } else if (event === 'SIGNED_OUT') {
+          setIsAuthenticated(false);
+        }
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [supabase]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginLoading(true);
+    
+    try {
+      // Using Supabase Auth with email/password
+      // You should first create this user in Supabase Auth dashboard
+      const { error } = await supabase.auth.signInWithPassword({
+        email: 'admin@jungleeghumakkad.com', // replace with your email
+        password: password
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Authenticated successfully",
+        description: "Welcome to the admin dashboard",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Authentication failed",
+        description: error.message || "Invalid credentials",
+        variant: "destructive",
+      });
+    } finally {
+      setLoginLoading(false);
+    }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('adminAuthenticated');
-    setIsAuthenticated(false);
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     toast({
       title: "Logged out",
       description: "You have been logged out successfully",
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <NavBar />
+        <main className="flex-grow flex items-center justify-center pt-24 px-6">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-4">Loading...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return (
@@ -84,9 +131,9 @@ const Admin = () => {
               <Button 
                 type="submit" 
                 className="w-full" 
-                disabled={isLoading}
+                disabled={loginLoading}
               >
-                {isLoading ? "Authenticating..." : "Log In"}
+                {loginLoading ? "Authenticating..." : "Log In"}
               </Button>
             </form>
           </div>

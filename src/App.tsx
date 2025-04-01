@@ -8,6 +8,8 @@ import { CartProvider } from "@/context/CartContext";
 import { getImageSrc } from "@/lib/data";
 import { AnimatePresence } from 'framer-motion';
 import PageTransition from "./components/PageTransition";
+import { SessionContextProvider } from '@supabase/auth-helpers-react';
+import { supabase } from "@/lib/supabase";
 
 // Pages
 import Index from "./pages/Index";
@@ -48,15 +50,17 @@ const AnimatedRoutes = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <CartProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AnimatedRoutes />
-        </BrowserRouter>
-      </CartProvider>
-    </TooltipProvider>
+    <SessionContextProvider supabaseClient={supabase}>
+      <TooltipProvider>
+        <CartProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AnimatedRoutes />
+          </BrowserRouter>
+        </CartProvider>
+      </TooltipProvider>
+    </SessionContextProvider>
   </QueryClientProvider>
 );
 
