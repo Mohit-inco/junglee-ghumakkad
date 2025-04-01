@@ -17,6 +17,7 @@ import Print from "./pages/Print";
 import Cart from "./pages/Cart";
 import NotFound from "./pages/NotFound";
 import Blogs from "./pages/Blogs";
+import Admin from "./pages/Admin";
 
 // Make getImageSrc available globally for our data
 // @ts-ignore - Adding getImageSrc to window
@@ -38,6 +39,7 @@ const AnimatedRoutes = () => {
         <Route path="/print/:id" element={<PageTransition><Print /></PageTransition>} />
         <Route path="/blogs" element={<PageTransition><Blogs /></PageTransition>} />
         <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
+        <Route path="/admin" element={<PageTransition><Admin /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>
