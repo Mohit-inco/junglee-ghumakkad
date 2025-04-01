@@ -13,12 +13,20 @@ This project uses Supabase for authentication and database functionality. Follow
 
 ### 2. Set Up Environment Variables
 
-Create a `.env` file in the root of the project and add these variables:
+Create a `.env` file in the root of the project (NOT in the src folder) and add these variables:
 
 ```
 VITE_SUPABASE_URL=your-supabase-url
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 ```
+
+**Example:**
+```
+VITE_SUPABASE_URL=https://abcdefghijklm.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+After adding these variables, restart your development server.
 
 ### 3. Set Up Database Schema
 
@@ -65,3 +73,11 @@ npm run build
 - The admin section is password-protected and only accessible to authenticated users
 - All image uploads are stored in Supabase Storage
 - Database queries use React Query for efficient caching and updates
+
+## Troubleshooting
+
+If you see "Supabase Configuration Missing" alert:
+1. Check that you've created a `.env` file in the root directory (not in src/)
+2. Ensure your environment variables are named correctly: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
+3. Restart your development server after making changes to the .env file
+4. If using production build, ensure these variables are set in your hosting environment

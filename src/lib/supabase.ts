@@ -2,11 +2,17 @@
 import { createClient } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
 
-// Initialize the Supabase client
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Initialize the Supabase client with fallbacks for development
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+// Check if environment variables are available
+const isSupabaseConfigured = supabaseUrl && supabaseKey;
+
+// Create the client only if properly configured
+export const supabase = isSupabaseConfigured 
+  ? createClient(supabaseUrl, supabaseKey)
+  : null;
 
 // Custom hook to use Supabase client
 export function useSupabaseClient() {
@@ -47,6 +53,11 @@ export interface BlogPost {
 
 // Database helper functions
 export async function fetchGalleryImages() {
+  if (!supabase) {
+    console.error('Supabase not configured');
+    return [];
+  }
+  
   const { data, error } = await supabase
     .from('gallery_images')
     .select('*')
@@ -60,6 +71,11 @@ export async function fetchGalleryImages() {
 }
 
 export async function createGalleryImage(image: Omit<GalleryImage, 'id' | 'created_at'>) {
+  if (!supabase) {
+    console.error('Supabase not configured');
+    return null;
+  }
+  
   const { data, error } = await supabase
     .from('gallery_images')
     .insert([image])
@@ -73,6 +89,11 @@ export async function createGalleryImage(image: Omit<GalleryImage, 'id' | 'creat
 }
 
 export async function updateGalleryImage(id: string, updates: Partial<Omit<GalleryImage, 'id' | 'created_at'>>) {
+  if (!supabase) {
+    console.error('Supabase not configured');
+    return null;
+  }
+  
   const { data, error } = await supabase
     .from('gallery_images')
     .update(updates)
@@ -87,6 +108,11 @@ export async function updateGalleryImage(id: string, updates: Partial<Omit<Galle
 }
 
 export async function deleteGalleryImage(id: string) {
+  if (!supabase) {
+    console.error('Supabase not configured');
+    return false;
+  }
+  
   const { error } = await supabase
     .from('gallery_images')
     .delete()
@@ -100,6 +126,11 @@ export async function deleteGalleryImage(id: string) {
 }
 
 export async function uploadImage(file: File, folderName: string) {
+  if (!supabase) {
+    console.error('Supabase not configured');
+    return '';
+  }
+  
   const fileExt = file.name.split('.').pop();
   const fileName = `${Date.now()}.${fileExt}`;
   const filePath = `${folderName}/${fileName}`;
@@ -121,6 +152,11 @@ export async function uploadImage(file: File, folderName: string) {
 
 // For Print options
 export async function fetchPrintOptions() {
+  if (!supabase) {
+    console.error('Supabase not configured');
+    return [];
+  }
+  
   const { data, error } = await supabase
     .from('print_options')
     .select('*')
@@ -135,6 +171,11 @@ export async function fetchPrintOptions() {
 
 // For Blog posts
 export async function fetchBlogPosts(onlyPublished = true) {
+  if (!supabase) {
+    console.error('Supabase not configured');
+    return [];
+  }
+  
   let query = supabase
     .from('blog_posts')
     .select('*')
@@ -154,6 +195,11 @@ export async function fetchBlogPosts(onlyPublished = true) {
 }
 
 export async function createBlogPost(post: Omit<BlogPost, 'id' | 'created_at'>) {
+  if (!supabase) {
+    console.error('Supabase not configured');
+    return null;
+  }
+  
   const { data, error } = await supabase
     .from('blog_posts')
     .insert([post])
@@ -173,6 +219,12 @@ export function useAuth() {
 
   useEffect(() => {
     const checkAuth = async () => {
+      if (!supabase) {
+        setIsAuthenticated(false);
+        setIsLoading(false);
+        return;
+      }
+      
       const { data: { session } } = await supabase.auth.getSession();
       setIsAuthenticated(!!session);
       setIsLoading(false);
@@ -180,16 +232,18 @@ export function useAuth() {
     
     checkAuth();
     
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setIsAuthenticated(!!session);
-        setIsLoading(false);
-      }
-    );
-    
-    return () => {
-      subscription.unsubscribe();
-    };
+    if (supabase) {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        (event, session) => {
+          setIsAuthenticated(!!session);
+          setIsLoading(false);
+        }
+      );
+      
+      return () => {
+        subscription.unsubscribe();
+      };
+    }
   }, []);
 
   return { isAuthenticated, isLoading };
