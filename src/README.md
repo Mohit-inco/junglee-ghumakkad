@@ -13,7 +13,7 @@ This project uses Supabase for authentication and database functionality. Follow
 
 ### 2. Set Up Environment Variables
 
-Create a `.env` file in the root of the project (NOT in the src folder) and add these variables:
+Create a `.env` file in the **ROOT** of the project (NOT in the src folder) and add these variables:
 
 ```
 VITE_SUPABASE_URL=your-supabase-url
@@ -25,6 +25,11 @@ VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 VITE_SUPABASE_URL=https://abcdefghijklm.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
+
+### Important Notes:
+- The `.env` file MUST be in the project root directory
+- Do NOT commit the `.env` file to version control
+- Restart your development server after adding these variables
 
 After adding these variables, restart your development server.
 
