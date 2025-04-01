@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { Input } from '@/components/ui/input';
@@ -11,52 +11,24 @@ import AdminGallery from '@/components/admin/AdminGallery';
 import AdminPrints from '@/components/admin/AdminPrints';
 import AdminBlogs from '@/components/admin/AdminBlogs';
 import { useToast } from '@/components/ui/use-toast';
-import { useSupabaseClient } from '@/lib/supabase';
+import { useSupabaseClient, useAuth } from '@/lib/supabase';
 
 const Admin = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [email, setEmail] = useState<string>('admin@jungleeghumakkad.com');
   const [password, setPassword] = useState<string>('');
   const [loginLoading, setLoginLoading] = useState<boolean>(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const supabase = useSupabaseClient();
-
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setIsAuthenticated(true);
-      }
-      setIsLoading(false);
-    };
-
-    checkSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (event === 'SIGNED_IN') {
-          setIsAuthenticated(true);
-        } else if (event === 'SIGNED_OUT') {
-          setIsAuthenticated(false);
-        }
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [supabase]);
+  const { isAuthenticated, isLoading } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginLoading(true);
     
     try {
-      // Using Supabase Auth with email/password
-      // You should first create this user in Supabase Auth dashboard
       const { error } = await supabase.auth.signInWithPassword({
-        email: 'admin@jungleeghumakkad.com', // replace with your email
+        email: email,
         password: password
       });
 
@@ -118,6 +90,16 @@ const Admin = () => {
             
             <form onSubmit={handleLogin} className="mt-8 space-y-6">
               <div>
+                <Input 
+                  type="email" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email"
+                  className="mb-3"
+                  required
+                  disabled
+                />
+                
                 <Input
                   type="password"
                   placeholder="Password"
