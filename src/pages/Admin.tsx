@@ -14,7 +14,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useSupabaseClient, useAuth } from '@/lib/supabase';
 
 const Admin = () => {
-  const [email, setEmail] = useState<string>('admin@jungleeghumakkad.com');
+  const [email, setEmail] = useState<string>('incognito0bc@gmail.com');
   const [password, setPassword] = useState<string>('');
   const [loginLoading, setLoginLoading] = useState<boolean>(false);
   const navigate = useNavigate();
