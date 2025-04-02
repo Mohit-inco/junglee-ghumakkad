@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -7,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Lock } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AdminGallery from '@/components/admin/AdminGallery';
-import AdminPrints from '@/components/admin/AdminPrints';
 import AdminBlogs from '@/components/admin/AdminBlogs';
 import { useToast } from '@/components/ui/use-toast';
 import { useSupabaseClient, useAuth } from '@/lib/supabase';
@@ -164,16 +164,12 @@ const Admin = () => {
           </div>
 
           <Tabs defaultValue="gallery" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="gallery">Gallery</TabsTrigger>
-              <TabsTrigger value="prints">Prints</TabsTrigger>
               <TabsTrigger value="blogs">Blogs</TabsTrigger>
             </TabsList>
             <TabsContent value="gallery" className="mt-4">
               <AdminGallery />
-            </TabsContent>
-            <TabsContent value="prints" className="mt-4">
-              <AdminPrints />
             </TabsContent>
             <TabsContent value="blogs" className="mt-4">
               <AdminBlogs />

@@ -228,6 +228,66 @@ export async function fetchPrintOptions() {
   return data;
 }
 
+export async function savePrintOption(printOption: Partial<PrintOption> & { id?: string }) {
+  if (!supabase) {
+    console.error('Supabase not configured');
+    return null;
+  }
+  
+  if (printOption.id) {
+    // Update existing option
+    const { data, error } = await supabase
+      .from('print_options')
+      .update({
+        size: printOption.size,
+        price: printOption.price,
+        in_stock: printOption.in_stock
+      })
+      .eq('id', printOption.id)
+      .select();
+    
+    if (error) {
+      throw error;
+    }
+    
+    return data;
+  } else {
+    // Create new option
+    const { data, error } = await supabase
+      .from('print_options')
+      .insert([{
+        size: printOption.size,
+        price: printOption.price,
+        in_stock: printOption.in_stock
+      }])
+      .select();
+    
+    if (error) {
+      throw error;
+    }
+    
+    return data;
+  }
+}
+
+export async function deletePrintOption(id: string) {
+  if (!supabase) {
+    console.error('Supabase not configured');
+    return false;
+  }
+  
+  const { error } = await supabase
+    .from('print_options')
+    .delete()
+    .eq('id', id);
+  
+  if (error) {
+    throw error;
+  }
+  
+  return true;
+}
+
 // For Blog posts
 export async function fetchBlogPosts(onlyPublished = true) {
   if (!supabase) {

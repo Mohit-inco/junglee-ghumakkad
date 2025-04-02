@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Plus, Edit, Trash, Image, Save } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Plus, Edit, Trash, Save } from 'lucide-react';
 import { fetchGalleryImages, createGalleryImage, updateGalleryImage, deleteGalleryImage, uploadImage, GalleryImage, PrintOption } from '@/lib/supabase';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useSupabaseClient } from '@/lib/supabase';
+import PrintOptionManager from './PrintOptionManager';
 
 const AdminGallery = () => {
   const { toast } = useToast();
@@ -32,7 +34,6 @@ const AdminGallery = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [printSizes, setPrintSizes] = useState<PrintOption[]>([]);
   const [selectedPrintOptions, setSelectedPrintOptions] = useState<string[]>([]);
   
   // Query to fetch gallery images
@@ -506,37 +507,50 @@ const AdminGallery = () => {
               </div>
               
               {formData.available_as_print && (
-                <div className="border rounded-md p-4 space-y-4">
-                  <h4 className="font-medium">Select available print sizes:</h4>
+                <>
+                  {/* Print sizes management section */}
+                  <PrintOptionManager 
+                    selectedPrintOptions={selectedPrintOptions}
+                    setSelectedPrintOptions={setSelectedPrintOptions}
+                    availablePrintOptions={availablePrintOptions}
+                    isLoading={printOptionsLoading}
+                  />
                   
-                  {printOptionsLoading ? (
-                    <div className="py-4 text-center">Loading print options...</div>
-                  ) : availablePrintOptions.length === 0 ? (
-                    <div className="py-4 text-center text-muted-foreground">
-                      No print options available. Please add them in the Prints tab first.
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {availablePrintOptions.map((option: PrintOption) => (
-                        <div key={option.id} className="flex items-start space-x-2">
-                          <Checkbox 
-                            id={`print-${option.id}`}
-                            checked={selectedPrintOptions.includes(option.id)}
-                            onCheckedChange={() => handlePrintOptionToggle(option.id)}
-                          />
-                          <div className="grid gap-1.5 leading-none">
-                            <Label htmlFor={`print-${option.id}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                              {option.size}
-                            </Label>
-                            <p className="text-sm text-muted-foreground">
-                              ${option.price.toFixed(2)} {option.in_stock ? '(In Stock)' : '(Out of Stock)'}
-                            </p>
-                          </div>
+                  {/* Selected print options section */}
+                  <div className="mt-4 space-y-2">
+                    <h4 className="font-medium">Selected print sizes:</h4>
+                    <div className="border rounded-md p-4">
+                      {selectedPrintOptions.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {selectedPrintOptions.map(optionId => {
+                            const option = availablePrintOptions.find(opt => opt.id === optionId);
+                            return option ? (
+                              <div key={optionId} className="flex items-center justify-between border rounded p-2">
+                                <div>
+                                  <span className="font-medium">{option.size}</span>
+                                  <span className="text-sm text-muted-foreground ml-2">
+                                    ${option.price.toFixed(2)}
+                                  </span>
+                                </div>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  onClick={() => handlePrintOptionToggle(optionId)}
+                                >
+                                  <Trash className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ) : null;
+                          })}
                         </div>
-                      ))}
+                      ) : (
+                        <div className="text-center py-4 text-muted-foreground">
+                          No print sizes selected. Select sizes from the table above.
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
+                  </div>
+                </>
               )}
             </div>
             
