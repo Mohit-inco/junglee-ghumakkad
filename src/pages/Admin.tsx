@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -58,6 +57,29 @@ const Admin = () => {
       description: "You have been logged out successfully",
     });
   };
+
+  useEffect(() => {
+    const checkRLSAccess = async () => {
+      if (isAuthenticated) {
+        try {
+          const { error } = await supabase.from('print_options').select('*').limit(1);
+          
+          if (error) {
+            console.error("RLS permission error:", error);
+            toast({
+              title: "Access Issue Detected",
+              description: "You may need to update RLS policies in Supabase. Check the console for more details.",
+              variant: "destructive",
+            });
+          }
+        } catch (err) {
+          console.error("Error checking RLS access:", err);
+        }
+      }
+    };
+    
+    checkRLSAccess();
+  }, [isAuthenticated, supabase, toast]);
 
   if (isLoading) {
     return (

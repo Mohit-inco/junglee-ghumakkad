@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { Input } from '@/components/ui/input';
@@ -8,8 +7,11 @@ import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Plus, Edit, Trash, Image, Save } from 'lucide-react';
-import { fetchGalleryImages, createGalleryImage, updateGalleryImage, deleteGalleryImage, uploadImage, GalleryImage } from '@/lib/supabase';
+import { fetchGalleryImages, createGalleryImage, updateGalleryImage, deleteGalleryImage, uploadImage, GalleryImage, PrintOption } from '@/lib/supabase';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
+import { useSupabaseClient } from '@/lib/supabase';
 
 const AdminGallery = () => {
   const { toast } = useToast();
@@ -24,22 +26,70 @@ const AdminGallery = () => {
     image_url: '',
     alt: '',
     categories: '',
+    available_as_print: false,
   });
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [printSizes, setPrintSizes] = useState<PrintOption[]>([]);
+  const [selectedPrintOptions, setSelectedPrintOptions] = useState<string[]>([]);
   
   // Query to fetch gallery images
-  const { data: galleryItems = [], isLoading } = useQuery({
+  const { data: galleryItems = [], isLoading: imagesLoading } = useQuery({
     queryKey: ['galleryImages'],
     queryFn: fetchGalleryImages
   });
   
-  // Mutation to create a new gallery image
+  // Query to fetch print options for the integration
+  const { data: availablePrintOptions = [], isLoading: printOptionsLoading } = useQuery({
+    queryKey: ['printOptions'],
+    queryFn: async () => {
+      const { data, error } = await useSupabaseClient()
+        .from('print_options')
+        .select('*')
+        .order('price', { ascending: true });
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+  
+  // Function to handle print option selections
+  const handlePrintOptionToggle = (printId: string) => {
+    setSelectedPrintOptions(prevSelected => {
+      if (prevSelected.includes(printId)) {
+        return prevSelected.filter(id => id !== printId);
+      } else {
+        return [...prevSelected, printId];
+      }
+    });
+  };
+  
+  // Mutation to create a new gallery image with print options
   const createImageMutation = useMutation({
-    mutationFn: async (data: Omit<GalleryImage, 'id' | 'created_at'>) => {
-      return await createGalleryImage(data);
+    mutationFn: async (data: Omit<GalleryImage, 'id' | 'created_at'> & { print_options?: string[] }) => {
+      // First create the gallery image
+      const newImage = await createGalleryImage(data);
+      
+      // If available as print and print options selected, associate them
+      if (formData.available_as_print && selectedPrintOptions.length > 0 && newImage && newImage[0]) {
+        const imageId = newImage[0].id;
+        
+        // Associate selected print options with the image
+        const { error } = await useSupabaseClient()
+          .from('image_print_options')
+          .insert(
+            selectedPrintOptions.map(printId => ({
+              image_id: imageId,
+              print_option_id: printId
+            }))
+          );
+          
+        if (error) throw error;
+      }
+      
+      return newImage;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['galleryImages'] });
@@ -58,10 +108,38 @@ const AdminGallery = () => {
     }
   });
   
-  // Mutation to update an existing gallery image
+  // Mutation to update an existing gallery image with print options
   const updateImageMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string, data: Partial<Omit<GalleryImage, 'id' | 'created_at'>> }) => {
-      return await updateGalleryImage(id, data);
+      // First update the gallery image
+      const updatedImage = await updateGalleryImage(id, data);
+      
+      // Update print options associations
+      if (updatedImage) {
+        // Delete existing associations
+        const { error: deleteError } = await useSupabaseClient()
+          .from('image_print_options')
+          .delete()
+          .eq('image_id', id);
+          
+        if (deleteError) throw deleteError;
+        
+        // If available as print and options selected, create new associations
+        if (formData.available_as_print && selectedPrintOptions.length > 0) {
+          const { error } = await useSupabaseClient()
+            .from('image_print_options')
+            .insert(
+              selectedPrintOptions.map(printId => ({
+                image_id: id,
+                print_option_id: printId
+              }))
+            );
+            
+          if (error) throw error;
+        }
+      }
+      
+      return updatedImage;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['galleryImages'] });
@@ -80,33 +158,42 @@ const AdminGallery = () => {
     }
   });
   
-  // Mutation to delete a gallery image
-  const deleteImageMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return await deleteGalleryImage(id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['galleryImages'] });
-      toast({
-        title: "Image deleted",
-        description: "The image has been removed from the gallery.",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete image",
-        variant: "destructive",
-      });
+  // Load print options for an image when editing
+  const loadImagePrintOptions = async (imageId: string) => {
+    try {
+      const { data, error } = await useSupabaseClient()
+        .from('image_print_options')
+        .select('print_option_id')
+        .eq('image_id', imageId);
+        
+      if (error) throw error;
+      
+      if (data) {
+        setSelectedPrintOptions(data.map(item => item.print_option_id));
+        setFormData(prev => ({ ...prev, available_as_print: data.length > 0 }));
+      }
+    } catch (error) {
+      console.error("Error loading print options:", error);
     }
-  });
+  };
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
   
-  const handleEdit = (image: GalleryImage) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Create a preview URL
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
+    setImageFile(file);
+    setFormData({ ...formData, alt: file.name.split('.')[0] });
+  };
+  
+  const handleEdit = async (image: GalleryImage) => {
     setFormData({
       id: image.id,
       title: image.title,
@@ -117,10 +204,15 @@ const AdminGallery = () => {
       image_url: image.image_url,
       alt: image.alt,
       categories: image.categories.join(', '),
+      available_as_print: false, // Will be updated by loadImagePrintOptions
     });
     setEditingItemId(image.id);
     setImagePreview(image.image_url);
     setImageFile(null);
+    
+    // Load print options for this image
+    await loadImagePrintOptions(image.id);
+    
     setIsDialogOpen(true);
   };
   
@@ -135,22 +227,13 @@ const AdminGallery = () => {
       image_url: '',
       alt: '',
       categories: '',
+      available_as_print: false,
     });
     setEditingItemId(null);
     setImagePreview(null);
     setImageFile(null);
+    setSelectedPrintOptions([]);
     setIsDialogOpen(true);
-  };
-  
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    // Create a preview URL
-    const previewUrl = URL.createObjectURL(file);
-    setImagePreview(previewUrl);
-    setImageFile(file);
-    setFormData({ ...formData, alt: file.name.split('.')[0] });
   };
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -158,7 +241,7 @@ const AdminGallery = () => {
     
     try {
       // Convert categories string to array
-      const categoriesArray = formData.categories.split(',').map(cat => cat.trim());
+      const categoriesArray = formData.categories.split(',').map(cat => cat.trim()).filter(cat => cat);
       
       // Upload image if there's a new file
       let imageUrl = formData.image_url;
@@ -183,7 +266,7 @@ const AdminGallery = () => {
         updateImageMutation.mutate({ id: editingItemId, data: imageData });
       } else {
         // Add new item
-        createImageMutation.mutate(imageData as any);
+        createImageMutation.mutate({...imageData, print_options: formData.available_as_print ? selectedPrintOptions : []} as any);
       }
     } catch (error: any) {
       toast({
@@ -212,7 +295,7 @@ const AdminGallery = () => {
         </Button>
       </div>
       
-      {isLoading ? (
+      {imagesLoading ? (
         <div className="flex justify-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
@@ -394,6 +477,52 @@ const AdminGallery = () => {
                   Describe the image for screen readers and SEO
                 </p>
               </div>
+            </div>
+            
+            {/* Print options section */}
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <Switch
+                  id="available_as_print"
+                  checked={formData.available_as_print}
+                  onCheckedChange={(checked) => setFormData({...formData, available_as_print: checked})}
+                />
+                <Label htmlFor="available_as_print">Available as print</Label>
+              </div>
+              
+              {formData.available_as_print && (
+                <div className="border rounded-md p-4 space-y-4">
+                  <h4 className="font-medium">Select available print sizes:</h4>
+                  
+                  {printOptionsLoading ? (
+                    <div className="py-4 text-center">Loading print options...</div>
+                  ) : availablePrintOptions.length === 0 ? (
+                    <div className="py-4 text-center text-muted-foreground">
+                      No print options available. Please add them in the Prints tab first.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {availablePrintOptions.map((option: PrintOption) => (
+                        <div key={option.id} className="flex items-start space-x-2">
+                          <Checkbox 
+                            id={`print-${option.id}`}
+                            checked={selectedPrintOptions.includes(option.id)}
+                            onCheckedChange={() => handlePrintOptionToggle(option.id)}
+                          />
+                          <div className="grid gap-1.5 leading-none">
+                            <Label htmlFor={`print-${option.id}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                              {option.size}
+                            </Label>
+                            <p className="text-sm text-muted-foreground">
+                              ${option.price.toFixed(2)} {option.in_stock ? '(In Stock)' : '(Out of Stock)'}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             
             <DialogFooter>

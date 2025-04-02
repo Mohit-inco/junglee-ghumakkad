@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
 
@@ -38,6 +37,11 @@ export interface PrintOption {
   size: string;
   price: number;
   in_stock: boolean;
+}
+
+export interface ImagePrintOption {
+  image_id: string;
+  print_option_id: string;
 }
 
 export interface BlogPost {
@@ -148,6 +152,61 @@ export async function uploadImage(file: File, folderName: string) {
     .getPublicUrl(filePath);
     
   return urlData.publicUrl;
+}
+
+// For image print options
+export async function fetchImagePrintOptions(imageId: string) {
+  if (!supabase) {
+    console.error('Supabase not configured');
+    return [];
+  }
+  
+  const { data, error } = await supabase
+    .from('image_print_options')
+    .select('print_option_id, print_options(*)')
+    .eq('image_id', imageId);
+  
+  if (error) {
+    throw error;
+  }
+  
+  return data;
+}
+
+export async function addImagePrintOptions(imagePrintOptions: ImagePrintOption[]) {
+  if (!supabase) {
+    console.error('Supabase not configured');
+    return null;
+  }
+  
+  const { data, error } = await supabase
+    .from('image_print_options')
+    .insert(imagePrintOptions)
+    .select();
+  
+  if (error) {
+    throw error;
+  }
+  
+  return data;
+}
+
+export async function removeImagePrintOptions(imageId: string) {
+  if (!supabase) {
+    console.error('Supabase not configured');
+    return false;
+  }
+  
+  const { error } = await supabase
+    .from('image_print_options')
+    .delete()
+    .eq('image_id', imageId);
+  
+  if (error) {
+    throw error;
+  }
+  
+  return true;
 }
 
 // For Print options
