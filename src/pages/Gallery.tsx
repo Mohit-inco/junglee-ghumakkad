@@ -3,31 +3,24 @@ import React, { useState } from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import ImageGrid from '@/components/ImageGrid';
-import { useQuery } from '@tanstack/react-query';
-import { fetchGalleryImages, GalleryImage } from '@/lib/supabase';
-import { Loader } from 'lucide-react';
+import { images } from '@/lib/data';
 
 const Gallery = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   
-  const { data: images = [], isLoading, error } = useQuery({
-    queryKey: ['galleryImages'],
-    queryFn: fetchGalleryImages
-  });
-  
   // Extract all unique categories from images
   const allCategories = Array.from(
-    new Set(images.flatMap(image => image.categories || []))
+    new Set(images.flatMap(image => image.categories))
   ).sort();
   
   // Filter images based on category and search term
   const filteredImages = images.filter(image => {
-    const matchesCategory = selectedCategory ? (image.categories || []).includes(selectedCategory) : true;
+    const matchesCategory = selectedCategory ? image.categories.includes(selectedCategory) : true;
     const matchesSearch = searchTerm 
       ? image.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        (image.description?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
-        (image.location?.toLowerCase().includes(searchTerm.toLowerCase()) || false)
+        image.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        image.location.toLowerCase().includes(searchTerm.toLowerCase())
       : true;
     
     return matchesCategory && matchesSearch;
@@ -103,21 +96,7 @@ const Gallery = () => {
           </div>
           
           {/* Gallery Grid */}
-          {isLoading ? (
-            <div className="flex justify-center py-20">
-              <div className="flex flex-col items-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
-                <p className="text-muted-foreground">Loading gallery...</p>
-              </div>
-            </div>
-          ) : error ? (
-            <div className="text-center py-20">
-              <h3 className="text-xl font-medium mb-2">Error loading gallery</h3>
-              <p className="text-muted-foreground">
-                There was a problem loading the images. Please try again later.
-              </p>
-            </div>
-          ) : filteredImages.length > 0 ? (
+          {filteredImages.length > 0 ? (
             <ImageGrid images={filteredImages} columns={3} />
           ) : (
             <div className="text-center py-20">
@@ -129,7 +108,7 @@ const Gallery = () => {
           )}
           
           {/* Results count */}
-          {filteredImages.length > 0 && !isLoading && !error && (
+          {filteredImages.length > 0 && (
             <p className="text-sm text-muted-foreground mt-6">
               Showing {filteredImages.length} of {images.length} images
             </p>
