@@ -55,127 +55,24 @@ const AdminGallery = () => {
     }
   });
   
-  // Function to handle print option selections
-  const handlePrintOptionToggle = (printId: string) => {
-    setSelectedPrintOptions(prevSelected => {
-      if (prevSelected.includes(printId)) {
-        return prevSelected.filter(id => id !== printId);
-      } else {
-        return [...prevSelected, printId];
-      }
-    });
-  };
-  
-  // Mutation to create a new gallery image with print options
-  const createImageMutation = useMutation({
-    mutationFn: async (data: Omit<GalleryImage, 'id' | 'created_at'> & { print_options?: string[] }) => {
-      // First create the gallery image
-      const newImage = await createGalleryImage(data);
-      
-      // If available as print and print options selected, associate them
-      if (formData.available_as_print && selectedPrintOptions.length > 0 && newImage && newImage[0]) {
-        const imageId = newImage[0].id;
-        
-        // Associate selected print options with the image
-        const { error } = await useSupabaseClient()
-          .from('image_print_options')
-          .insert(
-            selectedPrintOptions.map(printId => ({
-              image_id: imageId,
-              print_option_id: printId
-            }))
-          );
-          
-        if (error) throw error;
-      }
-      
-      return newImage;
-    },
+  // Mutation to delete an image
+  const deleteImageMutation = useMutation({
+    mutationFn: deleteGalleryImage,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['galleryImages'] });
       toast({
-        title: "Image added",
-        description: `"${formData.title}" has been added to the gallery.`,
+        title: "Image deleted",
+        description: "The image has been removed from the gallery.",
       });
-      setIsDialogOpen(false);
     },
     onError: (error: any) => {
       toast({
         title: "Error",
-        description: error.message || "Failed to add image",
+        description: error.message || "Failed to delete image",
         variant: "destructive",
       });
     }
   });
-  
-  // Mutation to update an existing gallery image with print options
-  const updateImageMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string, data: Partial<Omit<GalleryImage, 'id' | 'created_at'>> }) => {
-      // First update the gallery image
-      const updatedImage = await updateGalleryImage(id, data);
-      
-      // Update print options associations
-      if (updatedImage) {
-        // Delete existing associations
-        const { error: deleteError } = await useSupabaseClient()
-          .from('image_print_options')
-          .delete()
-          .eq('image_id', id);
-          
-        if (deleteError) throw deleteError;
-        
-        // If available as print and options selected, create new associations
-        if (formData.available_as_print && selectedPrintOptions.length > 0) {
-          const { error } = await useSupabaseClient()
-            .from('image_print_options')
-            .insert(
-              selectedPrintOptions.map(printId => ({
-                image_id: id,
-                print_option_id: printId
-              }))
-            );
-            
-          if (error) throw error;
-        }
-      }
-      
-      return updatedImage;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['galleryImages'] });
-      toast({
-        title: "Image updated",
-        description: `"${formData.title}" has been updated successfully.`,
-      });
-      setIsDialogOpen(false);
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update image",
-        variant: "destructive",
-      });
-    }
-  });
-  
-  // Load print options for an image when editing
-  const loadImagePrintOptions = async (imageId: string) => {
-    try {
-      const { data, error } = await useSupabaseClient()
-        .from('image_print_options')
-        .select('print_option_id')
-        .eq('image_id', imageId);
-        
-      if (error) throw error;
-      
-      if (data) {
-        setSelectedPrintOptions(data.map(item => item.print_option_id));
-        setFormData(prev => ({ ...prev, available_as_print: data.length > 0 }));
-      }
-    } catch (error) {
-      console.error("Error loading print options:", error);
-    }
-  };
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -280,6 +177,124 @@ const AdminGallery = () => {
   const handleDelete = (id: string) => {
     if (confirm('Are you sure you want to delete this image?')) {
       deleteImageMutation.mutate(id);
+    }
+  };
+
+  const handlePrintOptionToggle = (printId: string) => {
+    setSelectedPrintOptions(prevSelected => {
+      if (prevSelected.includes(printId)) {
+        return prevSelected.filter(id => id !== printId);
+      } else {
+        return [...prevSelected, printId];
+      }
+    });
+  };
+  
+  const createImageMutation = useMutation({
+    mutationFn: async (data: Omit<GalleryImage, 'id' | 'created_at'> & { print_options?: string[] }) => {
+      // First create the gallery image
+      const newImage = await createGalleryImage(data);
+      
+      // If available as print and print options selected, associate them
+      if (formData.available_as_print && selectedPrintOptions.length > 0 && newImage && newImage[0]) {
+        const imageId = newImage[0].id;
+        
+        // Associate selected print options with the image
+        const { error } = await useSupabaseClient()
+          .from('image_print_options')
+          .insert(
+            selectedPrintOptions.map(printId => ({
+              image_id: imageId,
+              print_option_id: printId
+            }))
+          );
+          
+        if (error) throw error;
+      }
+      
+      return newImage;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['galleryImages'] });
+      toast({
+        title: "Image added",
+        description: `"${formData.title}" has been added to the gallery.`,
+      });
+      setIsDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add image",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  const updateImageMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string, data: Partial<Omit<GalleryImage, 'id' | 'created_at'>> }) => {
+      // First update the gallery image
+      const updatedImage = await updateGalleryImage(id, data);
+      
+      // Update print options associations
+      if (updatedImage) {
+        // Delete existing associations
+        const { error: deleteError } = await useSupabaseClient()
+          .from('image_print_options')
+          .delete()
+          .eq('image_id', id);
+          
+        if (deleteError) throw deleteError;
+        
+        // If available as print and options selected, create new associations
+        if (formData.available_as_print && selectedPrintOptions.length > 0) {
+          const { error } = await useSupabaseClient()
+            .from('image_print_options')
+            .insert(
+              selectedPrintOptions.map(printId => ({
+                image_id: id,
+                print_option_id: printId
+              }))
+            );
+            
+          if (error) throw error;
+        }
+      }
+      
+      return updatedImage;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['galleryImages'] });
+      toast({
+        title: "Image updated",
+        description: `"${formData.title}" has been updated successfully.`,
+      });
+      setIsDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update image",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  const loadImagePrintOptions = async (imageId: string) => {
+    try {
+      const { data, error } = await useSupabaseClient()
+        .from('image_print_options')
+        .select('print_option_id')
+        .eq('image_id', imageId);
+        
+      if (error) throw error;
+      
+      if (data) {
+        setSelectedPrintOptions(data.map(item => item.print_option_id));
+        setFormData(prev => ({ ...prev, available_as_print: data.length > 0 }));
+      }
+    } catch (error) {
+      console.error("Error loading print options:", error);
     }
   };
 
