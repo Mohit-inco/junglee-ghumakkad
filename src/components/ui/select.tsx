@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
 import { Check, ChevronDown, ChevronUp } from "lucide-react"
@@ -144,6 +145,28 @@ const SelectSeparator = React.forwardRef<
 ))
 SelectSeparator.displayName = SelectPrimitive.Separator.displayName
 
+// Create a custom MultiSelect component that wraps the standard Select components
+interface MultiSelectProps extends Omit<React.ComponentPropsWithoutRef<typeof Select>, 'value' | 'onValueChange'> {
+  value: string[];
+  onValueChange: (value: string[]) => void;
+}
+
+const MultiSelect = ({ children, value, onValueChange, ...props }: MultiSelectProps) => {
+  const handleValueChange = (newValue: string) => {
+    if (value.includes(newValue)) {
+      onValueChange(value.filter(v => v !== newValue));
+    } else {
+      onValueChange([...value, newValue]);
+    }
+  };
+
+  return (
+    <Select {...props}>
+      {children}
+    </Select>
+  );
+};
+
 export {
   Select,
   SelectGroup,
@@ -155,4 +178,5 @@ export {
   SelectSeparator,
   SelectScrollUpButton,
   SelectScrollDownButton,
+  MultiSelect
 }

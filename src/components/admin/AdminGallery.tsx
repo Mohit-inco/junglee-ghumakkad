@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, MultiSelect } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Plus, Edit, Trash, Save } from 'lucide-react';
@@ -53,13 +53,11 @@ const AdminGallery = () => {
   const [uploading, setUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch gallery images
   const { data: galleryImages = [], isLoading } = useQuery({
     queryKey: ['galleryImages'],
     queryFn: fetchGalleryImages
   });
 
-  // Mutations for CRUD operations
   const createMutation = useMutation({
     mutationFn: createGalleryImage,
     onSuccess: () => {
@@ -116,7 +114,6 @@ const AdminGallery = () => {
     }
   });
 
-  // File upload handler
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -140,7 +137,6 @@ const AdminGallery = () => {
     }
   };
 
-  // Form submission handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -167,7 +163,6 @@ const AdminGallery = () => {
     }
   };
 
-  // Handler to open the edit dialog
   const handleEdit = (image: GalleryImage) => {
     setEditingImage(image);
     setTitle(image.title);
@@ -181,7 +176,6 @@ const AdminGallery = () => {
     setIsDialogOpen(true);
   };
 
-  // Handler to open the add new dialog
   const handleAddNew = () => {
     setEditingImage(null);
     setTitle('');
@@ -195,14 +189,12 @@ const AdminGallery = () => {
     setIsDialogOpen(true);
   };
 
-  // Handler to delete an image
   const handleDelete = (id: string) => {
     if (confirm('Are you sure you want to delete this image?')) {
       deleteMutation.mutate(id);
     }
   };
 
-  // Category management functions
   const addCategory = () => {
     if (newCategory && !categories.includes(newCategory)) {
       setCategories([...categories, newCategory]);
@@ -214,7 +206,6 @@ const AdminGallery = () => {
     setCategories(categories.filter(category => category !== categoryToRemove));
   };
 
-  // Function to close the dialog and reset the form
   const closeDialog = () => {
     setIsDialogOpen(false);
     setEditingImage(null);
@@ -228,7 +219,6 @@ const AdminGallery = () => {
     setCategories([]);
   };
 
-  // Fetch print options for associating with images
   const { data: printOptions = [], isLoading: printOptionsLoading } = useQuery({
     queryKey: ['printOptions'],
     queryFn: fetchPrintOptions
@@ -236,10 +226,8 @@ const AdminGallery = () => {
 
   const handleManagePrintOptions = async (imageId: string, selectedPrintOptions: string[]) => {
     try {
-      // First, remove existing print options for this image
       await removeImagePrintOptions(imageId);
 
-      // Then add the new selected print options
       const printOptionMappings = selectedPrintOptions.map(printOptionId => ({
         image_id: imageId,
         print_option_id: printOptionId
@@ -252,7 +240,6 @@ const AdminGallery = () => {
         description: "Print options for the image have been successfully updated."
       });
 
-      // Refresh the gallery images to reflect the changes
       queryClient.invalidateQueries({ queryKey: ['galleryImages'] });
     } catch (error: any) {
       toast({
@@ -263,7 +250,6 @@ const AdminGallery = () => {
     }
   };
 
-  // In the existing image edit dialog, add a section for managing print options
   const renderPrintOptionsSection = (imageId: string) => {
     const [selectedPrintOptions, setSelectedPrintOptions] = useState<string[]>([]);
 
@@ -299,22 +285,28 @@ const AdminGallery = () => {
           {printOptionsLoading ? (
             <div>Loading print options...</div>
           ) : (
-            <Select 
-              multiple 
-              value={selectedPrintOptions}
-              onValueChange={setSelectedPrintOptions}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select print options" />
-              </SelectTrigger>
-              <SelectContent>
-                {printOptions.map(option => (
-                  <SelectItem key={option.id} value={option.id}>
+            <div className="space-y-2">
+              {printOptions.map(option => (
+                <div className="flex items-center gap-2" key={option.id}>
+                  <input 
+                    type="checkbox" 
+                    id={`print-option-${option.id}`}
+                    checked={selectedPrintOptions.includes(option.id)}
+                    onChange={() => {
+                      if (selectedPrintOptions.includes(option.id)) {
+                        setSelectedPrintOptions(selectedPrintOptions.filter(id => id !== option.id));
+                      } else {
+                        setSelectedPrintOptions([...selectedPrintOptions, option.id]);
+                      }
+                    }}
+                    className="w-4 h-4"
+                  />
+                  <label htmlFor={`print-option-${option.id}`}>
                     {option.size} - {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(option.price)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                  </label>
+                </div>
+              ))}
+            </div>
           )}
           <Button 
             size="sm" 
@@ -328,7 +320,6 @@ const AdminGallery = () => {
     );
   };
 
-  // Update the dialog content to include print options management
   const renderEditDialog = () => (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogContent className="sm:max-w-[600px]">
