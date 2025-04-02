@@ -72,6 +72,30 @@ const Admin = () => {
               variant: "destructive",
             });
           }
+          
+          // Check if the images bucket exists
+          const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+          const imagesBucketExists = buckets?.some(bucket => bucket.name === 'images');
+          
+          if (!imagesBucketExists) {
+            console.log("Images storage bucket not found. Creating it...");
+            const { error: createError } = await supabase.storage.createBucket('images', {
+              public: true,
+              allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
+              fileSizeLimit: 10485760 // 10MB
+            });
+            
+            if (createError) {
+              console.error("Error creating images bucket:", createError);
+              toast({
+                title: "Storage Initialization Error",
+                description: "Could not create the images storage bucket. Some functionality may be limited.",
+                variant: "destructive",
+              });
+            } else {
+              console.log("Images bucket created successfully");
+            }
+          }
         } catch (err) {
           console.error("Error checking RLS access:", err);
         }

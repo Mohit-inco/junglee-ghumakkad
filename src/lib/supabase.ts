@@ -139,19 +139,33 @@ export async function uploadImage(file: File, folderName: string) {
   const fileName = `${Date.now()}.${fileExt}`;
   const filePath = `${folderName}/${fileName}`;
   
-  const { data, error } = await supabase.storage
-    .from('images')
-    .upload(filePath, file);
+  console.log(`Uploading file: ${filePath}`);
   
-  if (error) {
-    throw error;
-  }
-  
-  const { data: urlData } = supabase.storage
-    .from('images')
-    .getPublicUrl(filePath);
+  try {
+    const { data, error } = await supabase.storage
+      .from('images')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
     
-  return urlData.publicUrl;
+    if (error) {
+      console.error('Upload error:', error);
+      throw error;
+    }
+    
+    console.log('Upload successful:', data);
+    
+    const { data: urlData } = supabase.storage
+      .from('images')
+      .getPublicUrl(filePath);
+      
+    console.log('Public URL:', urlData.publicUrl);
+    return urlData.publicUrl;
+  } catch (err) {
+    console.error('Upload exception:', err);
+    throw err;
+  }
 }
 
 // For image print options

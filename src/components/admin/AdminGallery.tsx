@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -54,7 +53,6 @@ const AdminGallery = () => {
   const [uploading, setUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // For print options
   const [selectedPrintOptions, setSelectedPrintOptions] = useState<string[]>([]);
 
   const { data: galleryImages = [], isLoading } = useQuery({
@@ -163,14 +161,12 @@ const AdminGallery = () => {
     try {
       if (editingImage) {
         await updateMutation.mutateAsync(imageData);
-        // If we're editing, we need to update the print options separately
         if (selectedPrintOptions.length > 0) {
           await handleManagePrintOptions(editingImage.id, selectedPrintOptions);
         }
       } else {
         const result = await createMutation.mutateAsync(imageData);
         
-        // After creating the image, set up print options if selected
         if (result && result[0] && result[0].id && selectedPrintOptions.length > 0) {
           await handleManagePrintOptions(result[0].id, selectedPrintOptions);
         }
@@ -193,7 +189,6 @@ const AdminGallery = () => {
     setAlt(image.alt || '');
     setCategories(image.categories || []);
     
-    // Fetch the print options for this image
     fetchImagePrintOptionsForImage(image.id);
     
     setIsDialogOpen(true);
@@ -432,18 +427,26 @@ const AdminGallery = () => {
                     onChange={(e) => setImageUrl(e.target.value)}
                     disabled={uploading}
                   />
-                  <Input
-                    type="file"
-                    id="imageUpload"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    disabled={uploading}
-                    className="hidden"
-                  />
-                  <Label htmlFor="imageUpload" className="cursor-pointer bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-md px-3 py-2 text-sm font-medium">
-                    {uploading ? 'Uploading...' : 'Upload'}
-                  </Label>
+                  <div className="relative">
+                    <Input
+                      type="file"
+                      id="imageUpload"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      disabled={uploading}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    <Button 
+                      type="button" 
+                      variant="secondary" 
+                      disabled={uploading}
+                      className="relative z-10"
+                    >
+                      {uploading ? 'Uploading...' : 'Upload'}
+                    </Button>
+                  </div>
                 </div>
+                {uploading && <p className="text-sm text-muted-foreground mt-2">Uploading image...</p>}
               </div>
 
               <div>
@@ -481,7 +484,6 @@ const AdminGallery = () => {
                 </div>
               </div>
 
-              {/* Print Options Section */}
               <div>
                 <Label>Available Print Options</Label>
                 <div className="flex flex-col space-y-2 mt-2">
