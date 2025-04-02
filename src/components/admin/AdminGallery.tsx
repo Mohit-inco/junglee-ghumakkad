@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, MultiSelect } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Plus, Edit, Trash, Save } from 'lucide-react';
@@ -53,6 +54,9 @@ const AdminGallery = () => {
   const [uploading, setUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // For print options
+  const [selectedPrintOptions, setSelectedPrintOptions] = useState<string[]>([]);
+
   const { data: galleryImages = [], isLoading } = useQuery({
     queryKey: ['galleryImages'],
     queryFn: fetchGalleryImages
@@ -69,6 +73,7 @@ const AdminGallery = () => {
       closeDialog();
     },
     onError: (error: any) => {
+      console.error("Create image error:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to add image",
@@ -88,6 +93,7 @@ const AdminGallery = () => {
       closeDialog();
     },
     onError: (error: any) => {
+      console.error("Update image error:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to update image",
@@ -106,6 +112,7 @@ const AdminGallery = () => {
       });
     },
     onError: (error: any) => {
+      console.error("Delete image error:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to delete image",
@@ -127,6 +134,7 @@ const AdminGallery = () => {
         description: "Image has been uploaded successfully.",
       });
     } catch (error: any) {
+      console.error("File upload error:", error);
       toast({
         title: "Upload failed",
         description: error.message || "Failed to upload image.",
@@ -155,9 +163,20 @@ const AdminGallery = () => {
     try {
       if (editingImage) {
         await updateMutation.mutateAsync(imageData);
+        // If we're editing, we need to update the print options separately
+        if (selectedPrintOptions.length > 0) {
+          await handleManagePrintOptions(editingImage.id, selectedPrintOptions);
+        }
       } else {
-        await createMutation.mutateAsync(imageData);
+        const result = await createMutation.mutateAsync(imageData);
+        
+        // After creating the image, set up print options if selected
+        if (result && result[0] && result[0].id && selectedPrintOptions.length > 0) {
+          await handleManagePrintOptions(result[0].id, selectedPrintOptions);
+        }
       }
+    } catch (error) {
+      console.error("Form submission error:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -166,14 +185,37 @@ const AdminGallery = () => {
   const handleEdit = (image: GalleryImage) => {
     setEditingImage(image);
     setTitle(image.title);
-    setDescription(image.description);
-    setPhotographerNote(image.photographer_note);
-    setLocation(image.location);
-    setDate(image.date);
+    setDescription(image.description || '');
+    setPhotographerNote(image.photographer_note || '');
+    setLocation(image.location || '');
+    setDate(image.date || '');
     setImageUrl(image.image_url);
-    setAlt(image.alt);
-    setCategories(image.categories);
+    setAlt(image.alt || '');
+    setCategories(image.categories || []);
+    
+    // Fetch the print options for this image
+    fetchImagePrintOptionsForImage(image.id);
+    
     setIsDialogOpen(true);
+  };
+
+  const fetchImagePrintOptionsForImage = async (imageId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('image_print_options')
+        .select('print_option_id')
+        .eq('image_id', imageId);
+
+      if (error) {
+        console.error("Error fetching print options:", error);
+        return;
+      }
+
+      const options = data?.map(item => item.print_option_id) || [];
+      setSelectedPrintOptions(options);
+    } catch (error) {
+      console.error("Error in fetchImagePrintOptionsForImage:", error);
+    }
   };
 
   const handleAddNew = () => {
@@ -186,6 +228,7 @@ const AdminGallery = () => {
     setImageUrl('');
     setAlt('');
     setCategories([]);
+    setSelectedPrintOptions([]);
     setIsDialogOpen(true);
   };
 
@@ -217,6 +260,7 @@ const AdminGallery = () => {
     setImageUrl('');
     setAlt('');
     setCategories([]);
+    setSelectedPrintOptions([]);
   };
 
   const { data: printOptions = [], isLoading: printOptionsLoading } = useQuery({
@@ -224,16 +268,18 @@ const AdminGallery = () => {
     queryFn: fetchPrintOptions
   });
 
-  const handleManagePrintOptions = async (imageId: string, selectedPrintOptions: string[]) => {
+  const handleManagePrintOptions = async (imageId: string, selectedOptions: string[]) => {
     try {
       await removeImagePrintOptions(imageId);
 
-      const printOptionMappings = selectedPrintOptions.map(printOptionId => ({
-        image_id: imageId,
-        print_option_id: printOptionId
-      }));
+      if (selectedOptions.length > 0) {
+        const printOptionMappings = selectedOptions.map(printOptionId => ({
+          image_id: imageId,
+          print_option_id: printOptionId
+        }));
 
-      await addImagePrintOptions(printOptionMappings);
+        await addImagePrintOptions(printOptionMappings);
+      }
 
       toast({
         title: "Print Options Updated",
@@ -242,6 +288,7 @@ const AdminGallery = () => {
 
       queryClient.invalidateQueries({ queryKey: ['galleryImages'] });
     } catch (error: any) {
+      console.error("Error managing print options:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to update print options",
@@ -250,216 +297,13 @@ const AdminGallery = () => {
     }
   };
 
-  const renderPrintOptionsSection = (imageId: string) => {
-    const [selectedPrintOptions, setSelectedPrintOptions] = useState<string[]>([]);
-
-    useEffect(() => {
-      const fetchInitialPrintOptions = async () => {
-        if (!imageId) return;
-  
-        try {
-          const { data, error } = await supabase
-            .from('image_print_options')
-            .select('print_option_id')
-            .eq('image_id', imageId);
-  
-          if (error) {
-            console.error("Error fetching initial print options:", error);
-            return;
-          }
-  
-          const initialOptions = data?.map(item => item.print_option_id) || [];
-          setSelectedPrintOptions(initialOptions);
-        } catch (error) {
-          console.error("Error fetching initial print options:", error);
-        }
-      };
-  
-      fetchInitialPrintOptions();
-    }, [imageId, supabase]);
-
-    return (
-      <div className="mt-4">
-        <Label>Available Print Options</Label>
-        <div className="flex flex-col space-y-2">
-          {printOptionsLoading ? (
-            <div>Loading print options...</div>
-          ) : (
-            <div className="space-y-2">
-              {printOptions.map(option => (
-                <div className="flex items-center gap-2" key={option.id}>
-                  <input 
-                    type="checkbox" 
-                    id={`print-option-${option.id}`}
-                    checked={selectedPrintOptions.includes(option.id)}
-                    onChange={() => {
-                      if (selectedPrintOptions.includes(option.id)) {
-                        setSelectedPrintOptions(selectedPrintOptions.filter(id => id !== option.id));
-                      } else {
-                        setSelectedPrintOptions([...selectedPrintOptions, option.id]);
-                      }
-                    }}
-                    className="w-4 h-4"
-                  />
-                  <label htmlFor={`print-option-${option.id}`}>
-                    {option.size} - {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(option.price)}
-                  </label>
-                </div>
-              ))}
-            </div>
-          )}
-          <Button 
-            size="sm" 
-            onClick={() => handleManagePrintOptions(imageId, selectedPrintOptions)}
-            disabled={printOptionsLoading}
-          >
-            Save Print Options
-          </Button>
-        </div>
-      </div>
-    );
+  const handlePrintOptionChange = (printOptionId: string) => {
+    if (selectedPrintOptions.includes(printOptionId)) {
+      setSelectedPrintOptions(selectedPrintOptions.filter(id => id !== printOptionId));
+    } else {
+      setSelectedPrintOptions([...selectedPrintOptions, printOptionId]);
+    }
   };
-
-  const renderEditDialog = () => (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>{editingImage ? 'Edit Image' : 'Add New Image'}</DialogTitle>
-          <DialogDescription>
-            {editingImage 
-              ? 'Update the details of your existing image.' 
-              : 'Add a new image to your gallery.'}
-          </DialogDescription>
-        </DialogHeader>
-        
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 gap-6">
-            <div>
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                placeholder="Image Title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="description">Description</Label>
-              <Input
-                id="description"
-                placeholder="Image Description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="photographerNote">Photographer's Note</Label>
-              <Input
-                id="photographerNote"
-                placeholder="Note for the photographer"
-                value={photographerNote}
-                onChange={(e) => setPhotographerNote(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="location">Location</Label>
-              <Input
-                id="location"
-                placeholder="Image Location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="date">Date</Label>
-              <Input
-                type="date"
-                id="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="imageUrl">Image URL</Label>
-              <div className="flex items-center space-x-4">
-                <Input
-                  id="imageUrl"
-                  placeholder="Image URL"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  disabled={uploading}
-                />
-                <Input
-                  type="file"
-                  id="imageUpload"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  disabled={uploading}
-                  className="hidden"
-                />
-                <Label htmlFor="imageUpload" className="cursor-pointer bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-md px-3 py-2 text-sm font-medium">
-                  {uploading ? 'Uploading...' : 'Upload'}
-                </Label>
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="alt">Alt Text</Label>
-              <Input
-                id="alt"
-                placeholder="Alt Text"
-                value={alt}
-                onChange={(e) => setAlt(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <Label>Categories</Label>
-              <div className="flex space-x-2 mb-2">
-                <Input
-                  type="text"
-                  placeholder="New Category"
-                  value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value)}
-                />
-                <Button type="button" size="sm" onClick={addCategory}>Add</Button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {categories.map((category) => (
-                  <Button
-                    key={category}
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => removeCategory(category)}
-                  >
-                    {category} <Trash className="ml-2 h-4 w-4" />
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-          
-          {editingImage && renderPrintOptionsSection(editingImage.id)}
-          
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              <Save className="mr-2 h-4 w-4" /> 
-              {isSubmitting ? 'Saving...' : 'Save Changes'}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
 
   return (
     <div className="space-y-6">
@@ -513,7 +357,171 @@ const AdminGallery = () => {
           </TableBody>
         </Table>
       )}
-      {renderEditDialog()}
+      
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>{editingImage ? 'Edit Image' : 'Add New Image'}</DialogTitle>
+            <DialogDescription>
+              {editingImage 
+                ? 'Update the details of your existing image.' 
+                : 'Add a new image to your gallery.'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 gap-6">
+              <div>
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  placeholder="Image Title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="description">Description</Label>
+                <Input
+                  id="description"
+                  placeholder="Image Description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="photographerNote">Photographer's Note</Label>
+                <Input
+                  id="photographerNote"
+                  placeholder="Note for the photographer"
+                  value={photographerNote}
+                  onChange={(e) => setPhotographerNote(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="location">Location</Label>
+                <Input
+                  id="location"
+                  placeholder="Image Location"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="date">Date</Label>
+                <Input
+                  type="date"
+                  id="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="imageUrl">Image URL</Label>
+                <div className="flex items-center space-x-4">
+                  <Input
+                    id="imageUrl"
+                    placeholder="Image URL"
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    disabled={uploading}
+                  />
+                  <Input
+                    type="file"
+                    id="imageUpload"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    disabled={uploading}
+                    className="hidden"
+                  />
+                  <Label htmlFor="imageUpload" className="cursor-pointer bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-md px-3 py-2 text-sm font-medium">
+                    {uploading ? 'Uploading...' : 'Upload'}
+                  </Label>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="alt">Alt Text</Label>
+                <Input
+                  id="alt"
+                  placeholder="Alt Text"
+                  value={alt}
+                  onChange={(e) => setAlt(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Label>Categories</Label>
+                <div className="flex space-x-2 mb-2">
+                  <Input
+                    type="text"
+                    placeholder="New Category"
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                  />
+                  <Button type="button" size="sm" onClick={addCategory}>Add</Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {categories.map((category) => (
+                    <Button
+                      key={category}
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => removeCategory(category)}
+                    >
+                      {category} <Trash className="ml-2 h-4 w-4" />
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Print Options Section */}
+              <div>
+                <Label>Available Print Options</Label>
+                <div className="flex flex-col space-y-2 mt-2">
+                  {printOptionsLoading ? (
+                    <div>Loading print options...</div>
+                  ) : (
+                    <div className="space-y-2">
+                      {printOptions.map(option => (
+                        <div className="flex items-center gap-2" key={option.id}>
+                          <input 
+                            type="checkbox" 
+                            id={`print-option-${option.id}`}
+                            checked={selectedPrintOptions.includes(option.id)}
+                            onChange={() => handlePrintOptionChange(option.id)}
+                            className="w-4 h-4"
+                          />
+                          <label htmlFor={`print-option-${option.id}`} className="text-sm">
+                            {option.size} - {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(option.price)}
+                            {!option.in_stock && ' (Out of Stock)'}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={closeDialog}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                <Save className="mr-2 h-4 w-4" /> 
+                {isSubmitting ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

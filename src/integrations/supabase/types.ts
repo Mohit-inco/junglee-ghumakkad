@@ -81,6 +81,39 @@ export type Database = {
         }
         Relationships: []
       }
+      image_print_options: {
+        Row: {
+          created_at: string | null
+          image_id: string
+          print_option_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          image_id: string
+          print_option_id: string
+        }
+        Update: {
+          created_at?: string | null
+          image_id?: string
+          print_option_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "image_print_options_image_id_fkey"
+            columns: ["image_id"]
+            isOneToOne: false
+            referencedRelation: "gallery_images"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "image_print_options_print_option_id_fkey"
+            columns: ["print_option_id"]
+            isOneToOne: false
+            referencedRelation: "print_options"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       print_options: {
         Row: {
           created_at: string | null
