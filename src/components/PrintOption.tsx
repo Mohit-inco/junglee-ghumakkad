@@ -1,8 +1,9 @@
 
 import React from 'react';
-import { Image, PrintOption as PrintOptionType, getImageSrc } from '@/lib/data';
+import { Image, getImageSrc } from '@/lib/data';
 import { useCart } from '@/context/CartContext';
 import { ShoppingCart, Check } from 'lucide-react';
+import { PrintOption as PrintOptionType } from '@/integrations/supabase/api';
 
 interface PrintOptionCardProps {
   image: Image;
@@ -13,7 +14,7 @@ const PrintOption: React.FC<PrintOptionCardProps> = ({ image, printOption }) => 
   const { addToCart } = useCart();
   
   const handleAddToCart = () => {
-    if (printOption.inStock) {
+    if (printOption.in_stock) {
       addToCart(image.id, printOption.id);
     }
   };
@@ -34,8 +35,8 @@ const PrintOption: React.FC<PrintOptionCardProps> = ({ image, printOption }) => 
         
         <div className="mt-auto">
           <div className="flex justify-between items-center mb-3">
-            <span className="font-medium text-xl">${printOption.price.toFixed(2)}</span>
-            {printOption.inStock ? (
+            <span className="font-medium text-xl">${Number(printOption.price).toFixed(2)}</span>
+            {printOption.in_stock ? (
               <span className="text-xs flex items-center text-green-600">
                 <Check className="h-3.5 w-3.5 mr-1" /> In Stock
               </span>
@@ -46,15 +47,15 @@ const PrintOption: React.FC<PrintOptionCardProps> = ({ image, printOption }) => 
           
           <button
             onClick={handleAddToCart}
-            disabled={!printOption.inStock}
+            disabled={!printOption.in_stock}
             className={`w-full flex items-center justify-center py-2.5 px-4 rounded-md text-sm font-medium transition-colors ${
-              printOption.inStock 
+              printOption.in_stock 
                 ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
                 : 'bg-muted text-muted-foreground cursor-not-allowed'
             }`}
           >
             <ShoppingCart className="h-4 w-4 mr-2" />
-            {printOption.inStock ? 'Add to Cart' : 'Out of Stock'}
+            {printOption.in_stock ? 'Add to Cart' : 'Out of Stock'}
           </button>
         </div>
       </div>
