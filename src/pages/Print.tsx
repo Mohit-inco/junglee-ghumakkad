@@ -114,7 +114,9 @@ const Print = () => {
                           <div key={option.id} className="flex justify-between items-center py-3 border-b last:border-b-0">
                             <div>
                               <p className="font-medium">{option.size}</p>
-                              <p className="text-sm text-muted-foreground">Archival Matte Paper</p>
+                              <p className="text-sm text-muted-foreground">
+                                {option.print_type || "Archival Matte Paper"}
+                              </p>
                             </div>
                             <div className="flex items-center">
                               <span className="font-medium mr-4">${parseFloat(option.price.toString()).toFixed(2)}</span>

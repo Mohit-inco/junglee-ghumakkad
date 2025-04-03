@@ -65,6 +65,21 @@ export async function getBlogs(): Promise<Blog[]> {
   return data || [];
 }
 
+export async function getBlog(blogId: string): Promise<Blog | null> {
+  const { data, error } = await supabase
+    .from('blogs')
+    .select('*')
+    .eq('id', blogId)
+    .single();
+  
+  if (error) {
+    console.error('Error fetching blog:', error);
+    return null;
+  }
+  
+  return data;
+}
+
 export async function getBlogImages(blogId: string): Promise<BlogImage[]> {
   const { data, error } = await supabase
     .from('blog_images')

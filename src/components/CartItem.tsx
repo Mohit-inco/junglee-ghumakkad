@@ -1,12 +1,15 @@
 
 import React from 'react';
 import { Trash, Minus, Plus } from 'lucide-react';
-import { CartItem as CartItemType } from '@/lib/data';
 import { useCart } from '@/context/CartContext';
-import { getImageSrc } from '@/lib/data';
 
 interface CartItemProps {
-  item: CartItemType;
+  item: {
+    id: string;
+    imageId: string;
+    printOptionId: string;
+    quantity: number;
+  };
 }
 
 const CartItem: React.FC<CartItemProps> = ({ item }) => {
@@ -17,13 +20,13 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
   
   if (!image || !printOption) return null;
   
-  const subtotal = (printOption.price * item.quantity).toFixed(2);
+  const subtotal = (Number(printOption.price) * item.quantity).toFixed(2);
   
   return (
     <div className="flex flex-col sm:flex-row gap-4 py-6 border-b last:border-b-0">
       <div className="sm:w-24 sm:h-24 rounded-md overflow-hidden bg-muted flex-shrink-0">
         <img 
-          src={getImageSrc(image.src)} 
+          src={image.image_url} 
           alt={image.title} 
           className="w-full h-full object-cover"
         />
@@ -33,8 +36,11 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
         <div className="flex justify-between items-start">
           <div>
             <h3 className="font-medium">{image.title}</h3>
-            <p className="text-sm text-muted-foreground">{printOption.size} print</p>
-            <p className="text-sm text-muted-foreground mt-1">${printOption.price.toFixed(2)} each</p>
+            <p className="text-sm text-muted-foreground">{printOption.size}</p>
+            <p className="text-sm text-muted-foreground">
+              {printOption.print_type || "Archival Matte Paper"}
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">${Number(printOption.price).toFixed(2)} each</p>
           </div>
           <div className="text-right">
             <p className="font-medium">${subtotal}</p>

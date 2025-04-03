@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { getBlogs } from '@/integrations/supabase/api';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
@@ -97,9 +98,12 @@ const Blogs = () => {
                     </div>
                   )}
                   
-                  <button className="text-primary font-medium hover:underline">
+                  <Link 
+                    to={`/blogs/${blog.id}`}
+                    className="text-primary font-medium hover:underline"
+                  >
                     Read more
-                  </button>
+                  </Link>
                 </div>
               ))}
             </div>

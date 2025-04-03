@@ -1,26 +1,72 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { toast } from "sonner";
-import { CartItem as CartItemType, Image, PrintOption, images, printOptions } from "@/lib/data";
+import { GalleryImage, PrintOption } from "@/integrations/supabase/api";
+
+interface CartItem {
+  id: string;
+  imageId: string;
+  printOptionId: string;
+  quantity: number;
+}
 
 interface CartContextType {
-  cartItems: CartItemType[];
-  addToCart: (imageId: number, printOptionId: number) => void;
+  cartItems: CartItem[];
+  addToCart: (imageId: string, printOptionId: string) => void;
   removeFromCart: (cartItemId: string) => void;
   updateQuantity: (cartItemId: string, quantity: number) => void;
   clearCart: () => void;
   cartTotal: number;
   cartCount: number;
-  getImage: (imageId: number) => Image | undefined;
-  getPrintOption: (printOptionId: number) => PrintOption | undefined;
+  getImage: (imageId: string) => GalleryImage | undefined;
+  getPrintOption: (printOptionId: string) => PrintOption | undefined;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [cartItems, setCartItems] = useState<CartItemType[]>([]);
+export const CartProvider: React.FC<{ 
+  children: React.ReactNode, 
+  images?: GalleryImage[], 
+  printOptions?: PrintOption[] 
+}> = ({ 
+  children, 
+  images = [], 
+  printOptions = [] 
+}) => {
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartTotal, setCartTotal] = useState(0);
   const [cartCount, setCartCount] = useState(0);
+  const [allImages, setAllImages] = useState<GalleryImage[]>(images);
+  const [allPrintOptions, setAllPrintOptions] = useState<PrintOption[]>(printOptions);
+
+  // Update cached images and print options when props change
+  useEffect(() => {
+    if (images.length > 0) {
+      setAllImages(prev => {
+        const newImages = [...prev];
+        images.forEach(image => {
+          if (!newImages.find(i => i.id === image.id)) {
+            newImages.push(image);
+          }
+        });
+        return newImages;
+      });
+    }
+  }, [images]);
+
+  useEffect(() => {
+    if (printOptions.length > 0) {
+      setAllPrintOptions(prev => {
+        const newOptions = [...prev];
+        printOptions.forEach(option => {
+          if (!newOptions.find(o => o.id === option.id)) {
+            newOptions.push(option);
+          }
+        });
+        return newOptions;
+      });
+    }
+  }, [printOptions]);
 
   // Load cart from localStorage on initial render
   useEffect(() => {
@@ -44,29 +90,29 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let count = 0;
     
     cartItems.forEach(item => {
-      const printOption = printOptions.find(option => option.id === item.printOptionId);
+      const printOption = allPrintOptions.find(option => option.id === item.printOptionId);
       if (printOption) {
-        total += printOption.price * item.quantity;
+        total += Number(printOption.price) * item.quantity;
         count += item.quantity;
       }
     });
     
     setCartTotal(total);
     setCartCount(count);
-  }, [cartItems]);
+  }, [cartItems, allPrintOptions]);
 
-  const getImage = (imageId: number) => {
-    return images.find(image => image.id === imageId);
+  const getImage = (imageId: string) => {
+    return allImages.find(image => image.id === imageId);
   };
 
-  const getPrintOption = (printOptionId: number) => {
-    return printOptions.find(option => option.id === printOptionId);
+  const getPrintOption = (printOptionId: string) => {
+    return allPrintOptions.find(option => option.id === printOptionId);
   };
 
-  const addToCart = (imageId: number, printOptionId: number) => {
+  const addToCart = (imageId: string, printOptionId: string) => {
     // Check if print option is in stock
-    const printOption = printOptions.find(option => option.id === printOptionId);
-    if (!printOption?.inStock) {
+    const printOption = allPrintOptions.find(option => option.id === printOptionId);
+    if (!printOption?.in_stock) {
       toast.error("This print size is currently out of stock.");
       return;
     }
@@ -84,7 +130,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       toast.success("Item quantity updated in cart");
     } else {
       // Add new item to cart
-      const newItem: CartItemType = {
+      const newItem: CartItem = {
         id: `${imageId}-${printOptionId}-${Date.now()}`,
         imageId,
         printOptionId,
