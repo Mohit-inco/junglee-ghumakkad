@@ -1,25 +1,32 @@
+
 import React, { useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { getImagesBySection } from '@/integrations/supabase/api';
 import Hero from '@/components/Hero';
 import ImageGrid from '@/components/ImageGrid';
 import Footer from '@/components/Footer';
 import NavBar from '@/components/NavBar';
 import ExpandingPanels from '@/components/ExpandingPanels';
-import { images } from '@/lib/data';
 
-// Add the street images to be used on the gallery page
-export const streetImages = [{
-  id: "street1",
-  src: "/lovable-uploads/cbe0dd82-8e11-4dbd-8762-a9623403952a.png",
-  title: "Neon City Streets",
-  location: "Urban",
-  description: "Vibrant neon lights illuminate the busy city street at night.",
-  alt: "Neon lit urban street at night with shops and stores",
-  category: "street",
-  tags: ["street", "urban", "night", "neon"]
-}];
 const Index = () => {
-  // Select a subset of images for the homepage - using images 1, 10, 13 for variety
-  const featuredImages = [images[0], images[9], images[12]];
+  // Fetch featured images from the database
+  const { data: featuredImages = [] } = useQuery({
+    queryKey: ['featured-images'],
+    queryFn: () => getImagesBySection('featured')
+  });
+
+  // Format the images for the ImageGrid component
+  const formattedFeaturedImages = featuredImages.map(image => ({
+    id: image.id,
+    src: image.image_url,
+    title: image.title,
+    description: image.description || '',
+    location: image.location || '',
+    date: image.date || '',
+    alt: image.title,
+    categories: image.categories || [],
+    photographerNote: image.photographers_note
+  }));
 
   // Add scroll animation effects
   useEffect(() => {
@@ -44,7 +51,9 @@ const Index = () => {
     // Clean up
     return () => window.removeEventListener('scroll', animateOnScroll);
   }, []);
-  return <div className="min-h-screen flex flex-col bg-black">
+
+  return (
+    <div className="min-h-screen flex flex-col bg-black">
       <NavBar />
       
       {/* Hero Section */}
@@ -63,12 +72,18 @@ const Index = () => {
           </div>
           
           <div className="scroll-animate opacity-0">
-            <ImageGrid images={featuredImages} columns={3} />
+            {formattedFeaturedImages.length > 0 ? (
+              <ImageGrid images={formattedFeaturedImages} columns={3} />
+            ) : (
+              <div className="text-center py-20 text-muted-foreground">
+                Featured images will appear here soon.
+              </div>
+            )}
           </div>
         </div>
       </section>
       
-      {/* Expanding Panels Section - Moved below Featured Work */}
+      {/* Expanding Panels Section */}
       <ExpandingPanels />
       
       {/* About Section Preview */}
@@ -85,7 +100,11 @@ const Index = () => {
               </p>
             </div>
             <div className="rounded-lg overflow-hidden bg-muted shadow-md scroll-animate opacity-0">
-              <img src={images[15].src} alt="Junglee Ghumakkad - Photographer" className="w-full h-auto" />
+              {featuredImages.length > 0 ? (
+                <img src={featuredImages[0].image_url} alt="Junglee Ghumakkad - Photographer" className="w-full h-auto" />
+              ) : (
+                <img src="/lovable-uploads/f6997cd3-02ac-462c-96c5-2e39d303511d.png" alt="Junglee Ghumakkad - Photographer" className="w-full h-auto" />
+              )}
             </div>
           </div>
         </div>
@@ -102,6 +121,8 @@ const Index = () => {
       </section>
       
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default Index;

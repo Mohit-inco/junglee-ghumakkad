@@ -9,7 +9,166 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      blog_images: {
+        Row: {
+          blog_id: string | null
+          caption: string | null
+          created_at: string
+          display_order: number | null
+          id: string
+          image_url: string
+        }
+        Insert: {
+          blog_id?: string | null
+          caption?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          image_url: string
+        }
+        Update: {
+          blog_id?: string | null
+          caption?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          image_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_images_blog_id_fkey"
+            columns: ["blog_id"]
+            isOneToOne: false
+            referencedRelation: "blogs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blogs: {
+        Row: {
+          author: string
+          content: string
+          cover_image: string | null
+          created_at: string
+          id: string
+          is_published: boolean | null
+          published_at: string | null
+          summary: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author: string
+          content: string
+          cover_image?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean | null
+          published_at?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author?: string
+          content?: string
+          cover_image?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean | null
+          published_at?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      gallery_images: {
+        Row: {
+          categories: string[]
+          created_at: string
+          date: string | null
+          description: string | null
+          enable_print: boolean | null
+          id: string
+          image_url: string
+          location: string | null
+          photographers_note: string | null
+          section: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          categories: string[]
+          created_at?: string
+          date?: string | null
+          description?: string | null
+          enable_print?: boolean | null
+          id?: string
+          image_url: string
+          location?: string | null
+          photographers_note?: string | null
+          section: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          categories?: string[]
+          created_at?: string
+          date?: string | null
+          description?: string | null
+          enable_print?: boolean | null
+          id?: string
+          image_url?: string
+          location?: string | null
+          photographers_note?: string | null
+          section?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      print_options: {
+        Row: {
+          created_at: string
+          id: string
+          image_id: string | null
+          in_stock: boolean | null
+          price: number
+          size: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_id?: string | null
+          in_stock?: boolean | null
+          price: number
+          size: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_id?: string | null
+          in_stock?: boolean | null
+          price?: number
+          size?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "print_options_image_id_fkey"
+            columns: ["image_id"]
+            isOneToOne: false
+            referencedRelation: "gallery_images"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

@@ -1,30 +1,59 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import ImageGrid from '@/components/ImageGrid';
-import { images } from '@/lib/data';
+import { getGalleryImages, GalleryImage } from '@/integrations/supabase/api';
+import { useQuery } from '@tanstack/react-query';
 
 const Gallery = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [allCategories, setAllCategories] = useState<string[]>([]);
+  
+  // Fetch images using React Query
+  const { data: images = [], isLoading, error } = useQuery({
+    queryKey: ['gallery-images'],
+    queryFn: getGalleryImages
+  });
   
   // Extract all unique categories from images
-  const allCategories = Array.from(
-    new Set(images.flatMap(image => image.categories))
-  ).sort();
+  useEffect(() => {
+    if (images.length > 0) {
+      const categories = Array.from(
+        new Set(images.flatMap(image => image.categories || []))
+      ).sort();
+      setAllCategories(categories);
+    }
+  }, [images]);
   
   // Filter images based on category and search term
   const filteredImages = images.filter(image => {
-    const matchesCategory = selectedCategory ? image.categories.includes(selectedCategory) : true;
+    const matchesCategory = selectedCategory 
+      ? image.categories?.includes(selectedCategory) 
+      : true;
+    
     const matchesSearch = searchTerm 
-      ? image.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        image.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        image.location.toLowerCase().includes(searchTerm.toLowerCase())
+      ? image.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        image.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        image.location?.toLowerCase().includes(searchTerm.toLowerCase())
       : true;
     
     return matchesCategory && matchesSearch;
   });
+
+  // Convert Supabase image data to the format expected by ImageGrid
+  const formattedImages = filteredImages.map(image => ({
+    id: image.id,
+    src: image.image_url,
+    title: image.title,
+    description: image.description || '',
+    location: image.location || '',
+    date: image.date || '',
+    alt: image.title,
+    categories: image.categories || [],
+    photographerNote: image.photographers_note
+  }));
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -95,23 +124,45 @@ const Gallery = () => {
             </div>
           </div>
           
-          {/* Gallery Grid */}
-          {filteredImages.length > 0 ? (
-            <ImageGrid images={filteredImages} columns={3} />
-          ) : (
+          {/* Loading state */}
+          {isLoading && (
             <div className="text-center py-20">
-              <h3 className="text-xl font-medium mb-2">No matching images found</h3>
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
+              <p className="mt-4 text-muted-foreground">Loading gallery...</p>
+            </div>
+          )}
+          
+          {/* Error state */}
+          {error && (
+            <div className="text-center py-20">
+              <h3 className="text-xl font-medium mb-2 text-destructive">Failed to load images</h3>
               <p className="text-muted-foreground">
-                Try adjusting your search criteria or browse all images by selecting 'All'.
+                There was an error loading the gallery. Please try again later.
               </p>
             </div>
           )}
           
-          {/* Results count */}
-          {filteredImages.length > 0 && (
-            <p className="text-sm text-muted-foreground mt-6">
-              Showing {filteredImages.length} of {images.length} images
-            </p>
+          {/* Gallery Grid */}
+          {!isLoading && !error && (
+            <>
+              {filteredImages.length > 0 ? (
+                <ImageGrid images={formattedImages} columns={3} />
+              ) : (
+                <div className="text-center py-20">
+                  <h3 className="text-xl font-medium mb-2">No matching images found</h3>
+                  <p className="text-muted-foreground">
+                    Try adjusting your search criteria or browse all images by selecting 'All'.
+                  </p>
+                </div>
+              )}
+              
+              {/* Results count */}
+              {filteredImages.length > 0 && (
+                <p className="text-sm text-muted-foreground mt-6">
+                  Showing {filteredImages.length} of {images.length} images
+                </p>
+              )}
+            </>
           )}
         </div>
       </main>
