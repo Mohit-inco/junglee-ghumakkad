@@ -5,7 +5,7 @@ import { images } from '@/lib/data';
 const Hero: React.FC = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   // Using image indices 3, 4, and 6 as requested (which are at index 2, 3, and 5 in the array)
-  const featuredImages = [2, 7, 1]; 
+  const featuredImages = [2, 3, 5]; 
   const parallaxRef = useRef<HTMLDivElement>(null);
   
   // Handle parallax effect on scroll
