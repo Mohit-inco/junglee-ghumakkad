@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
@@ -11,6 +12,8 @@ import BlogPost from '@/pages/BlogPost';
 import Print from '@/pages/Print';
 import Cart from '@/pages/Cart';
 import NotFound from '@/pages/NotFound';
+import Admin from '@/pages/Admin';
+import AdminLogin from '@/pages/AdminLogin';
 
 function App() {
   const queryClient = new QueryClient({
@@ -35,6 +38,8 @@ function App() {
             <Route path="/print" element={<PageTransition><Print /></PageTransition>} />
             <Route path="/print/:id" element={<PageTransition><Print /></PageTransition>} />
             <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Router>
