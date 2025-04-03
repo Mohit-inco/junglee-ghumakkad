@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import ImageGrid from '@/components/ImageGrid';
 import { getGalleryImages, GalleryImage } from '@/integrations/supabase/api';
 import { useQuery } from '@tanstack/react-query';
+import { Image } from '@/lib/data';
 
 const Gallery = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -14,7 +15,7 @@ const Gallery = () => {
   // Fetch images using React Query
   const { data: images = [], isLoading, error } = useQuery({
     queryKey: ['gallery-images'],
-    queryFn: getGalleryImages
+    queryFn: () => getGalleryImages('gallery')
   });
   
   // Extract all unique categories from images
@@ -43,7 +44,7 @@ const Gallery = () => {
   });
 
   // Convert Supabase image data to the format expected by ImageGrid
-  const formattedImages = filteredImages.map(image => ({
+  const formattedImages: Image[] = filteredImages.map(image => ({
     id: image.id,
     src: image.image_url,
     title: image.title,
@@ -52,7 +53,9 @@ const Gallery = () => {
     date: image.date || '',
     alt: image.title,
     categories: image.categories || [],
-    photographerNote: image.photographers_note
+    photographerNote: image.photographers_note || '',
+    width: 0,  // Add placeholder values
+    height: 0
   }));
   
   return (

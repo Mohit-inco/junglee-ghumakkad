@@ -1,4 +1,3 @@
-
 import { supabase } from './client';
 import { Tables } from './types';
 
@@ -7,11 +6,17 @@ export type PrintOption = Tables<'print_options'>;
 export type Blog = Tables<'blogs'>;
 export type BlogImage = Tables<'blog_images'>;
 
-export async function getGalleryImages(): Promise<GalleryImage[]> {
-  const { data, error } = await supabase
+export async function getGalleryImages(section?: string): Promise<GalleryImage[]> {
+  let query = supabase
     .from('gallery_images')
     .select('*')
     .order('created_at', { ascending: false });
+  
+  if (section) {
+    query = query.contains('sections', [section]);
+  }
+  
+  const { data, error } = await query;
   
   if (error) {
     console.error('Error fetching gallery images:', error);
@@ -40,7 +45,8 @@ export async function getPrintOptions(imageId: string): Promise<PrintOption[]> {
   const { data, error } = await supabase
     .from('print_options')
     .select('*')
-    .eq('image_id', imageId);
+    .eq('image_id', imageId)
+    .eq('in_stock', true);
   
   if (error) {
     console.error('Error fetching print options:', error);

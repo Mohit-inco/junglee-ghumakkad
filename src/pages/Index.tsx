@@ -1,22 +1,23 @@
 
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getImagesBySection } from '@/integrations/supabase/api';
+import { getGalleryImages } from '@/integrations/supabase/api';
 import Hero from '@/components/Hero';
 import ImageGrid from '@/components/ImageGrid';
 import Footer from '@/components/Footer';
 import NavBar from '@/components/NavBar';
 import ExpandingPanels from '@/components/ExpandingPanels';
+import { Image } from '@/lib/data';
 
 const Index = () => {
   // Fetch featured images from the database
   const { data: featuredImages = [] } = useQuery({
     queryKey: ['featured-images'],
-    queryFn: () => getImagesBySection('featured')
+    queryFn: () => getGalleryImages('featured')
   });
 
   // Format the images for the ImageGrid component
-  const formattedFeaturedImages = featuredImages.map(image => ({
+  const formattedFeaturedImages: Image[] = featuredImages.map(image => ({
     id: image.id,
     src: image.image_url,
     title: image.title,
@@ -25,7 +26,9 @@ const Index = () => {
     date: image.date || '',
     alt: image.title,
     categories: image.categories || [],
-    photographerNote: image.photographers_note
+    photographerNote: image.photographers_note || '',
+    width: 0,  // Add placeholder values
+    height: 0
   }));
 
   // Add scroll animation effects

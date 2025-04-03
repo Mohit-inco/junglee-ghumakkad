@@ -97,7 +97,7 @@ export type Database = {
           image_url: string
           location: string | null
           photographers_note: string | null
-          section: string
+          sections: string[] | null
           tags: string[] | null
           title: string
           updated_at: string
@@ -112,7 +112,7 @@ export type Database = {
           image_url: string
           location?: string | null
           photographers_note?: string | null
-          section: string
+          sections?: string[] | null
           tags?: string[] | null
           title: string
           updated_at?: string
@@ -127,7 +127,7 @@ export type Database = {
           image_url?: string
           location?: string | null
           photographers_note?: string | null
-          section?: string
+          sections?: string[] | null
           tags?: string[] | null
           title?: string
           updated_at?: string
@@ -141,6 +141,7 @@ export type Database = {
           image_id: string | null
           in_stock: boolean | null
           price: number
+          print_type: string | null
           size: string
         }
         Insert: {
@@ -149,6 +150,7 @@ export type Database = {
           image_id?: string | null
           in_stock?: boolean | null
           price: number
+          print_type?: string | null
           size: string
         }
         Update: {
@@ -157,6 +159,7 @@ export type Database = {
           image_id?: string | null
           in_stock?: boolean | null
           price?: number
+          print_type?: string | null
           size?: string
         }
         Relationships: [
