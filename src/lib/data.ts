@@ -149,4 +149,3 @@ export const photographerInfo = {
     "Really Right Stuff BH-55 Ball Head"
   ]
 };
-

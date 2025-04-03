@@ -1,3 +1,4 @@
+
 import { supabase } from './client';
 import { Tables } from './types';
 
@@ -30,7 +31,7 @@ export async function getImagesBySection(section: string): Promise<GalleryImage[
   const { data, error } = await supabase
     .from('gallery_images')
     .select('*')
-    .eq('section', section)
+    .contains('sections', [section])
     .order('created_at', { ascending: false });
   
   if (error) {
@@ -45,8 +46,7 @@ export async function getPrintOptions(imageId: string): Promise<PrintOption[]> {
   const { data, error } = await supabase
     .from('print_options')
     .select('*')
-    .eq('image_id', imageId)
-    .eq('in_stock', true);
+    .eq('image_id', imageId);
   
   if (error) {
     console.error('Error fetching print options:', error);
@@ -105,4 +105,10 @@ export async function getBlogImages(blogId: string): Promise<BlogImage[]> {
 export function getStorageUrl(path: string): string {
   const { data } = supabase.storage.from('images').getPublicUrl(path);
   return data.publicUrl;
+}
+
+// Function to get available website sections
+export function getAvailableSections(): string[] {
+  // These are the sections currently used in the application
+  return ['featured', 'wildlife', 'landscape', 'astro', 'portrait', 'about', 'gallery'];
 }

@@ -16,6 +16,9 @@ const PrintOption: React.FC<PrintOptionCardProps> = ({ image, printOption }) => 
   const handleAddToCart = () => {
     if (printOption.in_stock) {
       addToCart(image.id, printOption.id);
+      console.log('Added to cart:', {imageId: image.id, printOptionId: printOption.id});
+    } else {
+      console.log('Cannot add to cart, item out of stock');
     }
   };
   
@@ -31,7 +34,10 @@ const PrintOption: React.FC<PrintOptionCardProps> = ({ image, printOption }) => 
         </div>
         
         <h3 className="font-medium text-lg">{image.title}</h3>
-        <p className="text-muted-foreground text-sm mb-4">{printOption.size} print</p>
+        <p className="text-muted-foreground text-sm mb-1">{printOption.size} print</p>
+        <p className="text-muted-foreground text-sm mb-4">
+          {printOption.print_type || "Archival Matte Paper"}
+        </p>
         
         <div className="mt-auto">
           <div className="flex justify-between items-center mb-3">
