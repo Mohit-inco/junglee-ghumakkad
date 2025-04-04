@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -13,11 +14,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { ChevronDown, ImagePlus, Upload, Loader2, X } from 'lucide-react';
 import { getAvailableSections } from '@/integrations/supabase/api';
 import { GalleryImage } from '@/integrations/supabase/api';
 import PrintOptionsForm from './PrintOptionsForm';
+import { Session } from '@supabase/supabase-js';
 
 interface ImageFormData {
   title: string;
@@ -31,7 +33,11 @@ interface ImageFormData {
   tags: string[];
 }
 
-const ImageUploadPanel: React.FC = () => {
+interface Props {
+  session: Session | null;
+}
+
+const ImageUploadPanel: React.FC<Props> = ({ session }) => {
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -133,7 +139,7 @@ const ImageUploadPanel: React.FC = () => {
             photographers_note: data.photographers_note,
             enable_print: data.enable_print,
             sections: data.sections,
-            categories: data.categories,
+            categories: data.categories || [],
             tags: data.tags,
             ...(imageUrl && { image_url: imageUrl }),
             updated_at: new Date().toISOString()
@@ -154,7 +160,7 @@ const ImageUploadPanel: React.FC = () => {
             photographers_note: data.photographers_note,
             enable_print: data.enable_print,
             sections: data.sections,
-            categories: data.categories,
+            categories: data.categories || [],
             tags: data.tags,
             image_url: imageUrl
           });
@@ -173,6 +179,7 @@ const ImageUploadPanel: React.FC = () => {
       }
     } catch (error: any) {
       toast.error(`Error: ${error.message}`);
+      console.error('Detailed error:', error);
     } finally {
       setUploading(false);
     }

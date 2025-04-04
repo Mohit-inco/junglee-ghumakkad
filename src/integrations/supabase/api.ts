@@ -148,12 +148,26 @@ export function getAvailableSections(): string[] {
 // Function to create or update an image in the gallery
 export async function saveGalleryImage(image: Partial<GalleryImage> & { id?: string }): Promise<GalleryImage | null> {
   try {
+    // Make sure categories is not optional
+    if (!image.categories) {
+      image.categories = [];
+    }
+    
     if (image.id) {
       // Update existing image
       const { data, error } = await supabase
         .from('gallery_images')
         .update({
-          ...image,
+          title: image.title,
+          description: image.description,
+          location: image.location,
+          date: image.date,
+          photographers_note: image.photographers_note,
+          enable_print: image.enable_print,
+          sections: image.sections,
+          categories: image.categories,
+          tags: image.tags,
+          image_url: image.image_url,
           updated_at: new Date().toISOString()
         })
         .eq('id', image.id)
@@ -167,9 +181,16 @@ export async function saveGalleryImage(image: Partial<GalleryImage> & { id?: str
       const { data, error } = await supabase
         .from('gallery_images')
         .insert({
-          ...image,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          title: image.title!,
+          description: image.description,
+          location: image.location,
+          date: image.date,
+          photographers_note: image.photographers_note,
+          enable_print: image.enable_print,
+          sections: image.sections,
+          categories: image.categories,
+          tags: image.tags,
+          image_url: image.image_url!
         })
         .select()
         .single();

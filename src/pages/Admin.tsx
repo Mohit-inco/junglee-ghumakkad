@@ -5,13 +5,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ImageUploadPanel from '@/components/admin/ImageUploadPanel';
 import BlogManagementPanel from '@/components/admin/BlogManagementPanel';
-import { User } from '@supabase/supabase-js';
+import { User, Session } from '@supabase/supabase-js';
 import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 import { toast } from 'sonner';
+import SectionsGuide from '@/components/SectionsGuide';
 
 const Admin: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -26,7 +28,11 @@ const Admin: React.FC = () => {
       }
       
       setUser(data.session.user);
+      setSession(data.session);
       setLoading(false);
+      
+      // Set the session in Supabase client
+      supabase.auth.setSession(data.session);
     };
     
     checkAuth();
@@ -36,6 +42,8 @@ const Admin: React.FC = () => {
         navigate('/admin-login');
       } else if (session) {
         setUser(session.user);
+        setSession(session);
+        supabase.auth.setSession(session);
       }
     });
     
@@ -72,6 +80,10 @@ const Admin: React.FC = () => {
         </div>
       </div>
       
+      <div className="mb-6">
+        <SectionsGuide />
+      </div>
+      
       <Tabs defaultValue="images" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="images">Image Management</TabsTrigger>
@@ -79,7 +91,7 @@ const Admin: React.FC = () => {
         </TabsList>
         
         <TabsContent value="images">
-          <ImageUploadPanel />
+          <ImageUploadPanel session={session} />
         </TabsContent>
         
         <TabsContent value="blogs">
