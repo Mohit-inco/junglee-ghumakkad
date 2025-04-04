@@ -1,3 +1,4 @@
+
 import { supabase } from './client';
 import { Tables } from './types';
 
@@ -157,6 +158,11 @@ export async function saveGalleryImage(image: Partial<GalleryImage> & { id?: str
       image.sections = [];
     }
     
+    // Ensure tags is an array
+    if (!image.tags) {
+      image.tags = [];
+    }
+    
     if (image.id) {
       // Update existing image
       const { data, error } = await supabase
@@ -237,7 +243,8 @@ export async function savePrintOption(printOption: Partial<PrintOption> & { id?:
           price: printOption.price!,
           print_type: printOption.print_type,
           size: printOption.size!,
-          in_stock: printOption.in_stock
+          in_stock: printOption.in_stock,
+          created_at: new Date().toISOString()
         })
         .select()
         .single();

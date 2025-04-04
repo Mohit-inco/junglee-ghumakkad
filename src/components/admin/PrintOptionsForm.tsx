@@ -90,7 +90,9 @@ const PrintOptionsForm: React.FC<PrintOptionsFormProps> = ({ imageId, onClose })
         price: formattedPrice,
         print_type: data.print_type,
         in_stock: data.in_stock,
-        image_id: imageId
+        image_id: imageId,
+        // Add this to ensure the option is linked to a valid gallery image
+        created_at: new Date().toISOString()
       };
       
       if (editingId) {

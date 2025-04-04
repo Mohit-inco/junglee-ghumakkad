@@ -140,7 +140,7 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
             enable_print: data.enable_print,
             sections: data.sections,
             categories: data.categories || [],
-            tags: data.tags,
+            tags: data.tags || [],
             ...(imageUrl && { image_url: imageUrl }),
             updated_at: new Date().toISOString()
           })
@@ -161,7 +161,7 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
             enable_print: data.enable_print,
             sections: data.sections,
             categories: data.categories || [],
-            tags: data.tags,
+            tags: data.tags || [],
             image_url: imageUrl
           });
           
@@ -174,7 +174,7 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
       fetchImages();
       
       // Show print options form if enabled
-      if (data.enable_print) {
+      if (data.enable_print && selectedImage) {
         setShowPrintOptions(true);
       }
     } catch (error: any) {
@@ -448,13 +448,14 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
                     <FormLabel>Tags</FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder="Enter tags separated by commas"
+                        placeholder="Enter tags separated by commas" 
                         value={field.value?.join(', ') || ''} 
                         onChange={(e) => {
                           const value = e.target.value;
                           const tags = value.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
                           field.onChange(tags);
                         }}
+                        className="w-full"
                       />
                     </FormControl>
                     <FormDescription>

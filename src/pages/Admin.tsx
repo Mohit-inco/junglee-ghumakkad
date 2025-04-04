@@ -30,9 +30,6 @@ const Admin: React.FC = () => {
         
         setUser(data.session.user);
         setSession(data.session);
-        
-        // Set the session in Supabase client
-        await supabase.auth.setSession(data.session);
         setLoading(false);
       } catch (error) {
         console.error("Authentication error:", error);
