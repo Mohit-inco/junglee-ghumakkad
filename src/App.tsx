@@ -37,6 +37,7 @@ function App() {
           <Route path="/print" element={<PageTransition><Print /></PageTransition>} />
           <Route path="/print/:id" element={<PageTransition><Print /></PageTransition>} />
           <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
+          {/* Admin routes without PageTransition */}
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="*" element={<NotFound />} />

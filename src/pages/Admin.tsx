@@ -48,7 +48,6 @@ const Admin: React.FC = () => {
       } else if (session) {
         setUser(session.user);
         setSession(session);
-        supabase.auth.setSession(session);
       }
     });
     
