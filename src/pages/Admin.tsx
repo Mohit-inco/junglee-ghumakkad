@@ -20,19 +20,24 @@ const Admin: React.FC = () => {
   useEffect(() => {
     // Check if user is logged in
     const checkAuth = async () => {
-      const { data } = await supabase.auth.getSession();
-      
-      if (!data.session) {
+      try {
+        const { data } = await supabase.auth.getSession();
+        
+        if (!data.session) {
+          navigate('/admin-login');
+          return;
+        }
+        
+        setUser(data.session.user);
+        setSession(data.session);
+        
+        // Set the session in Supabase client
+        await supabase.auth.setSession(data.session);
+        setLoading(false);
+      } catch (error) {
+        console.error("Authentication error:", error);
         navigate('/admin-login');
-        return;
       }
-      
-      setUser(data.session.user);
-      setSession(data.session);
-      setLoading(false);
-      
-      // Set the session in Supabase client
-      supabase.auth.setSession(data.session);
     };
     
     checkAuth();
@@ -95,7 +100,7 @@ const Admin: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="blogs">
-          <BlogManagementPanel />
+          <BlogManagementPanel session={session} />
         </TabsContent>
       </Tabs>
     </div>
