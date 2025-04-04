@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
 import { CartProvider } from '@/context/CartContext';
@@ -28,21 +28,19 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <CartProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<PageTransition><Index /></PageTransition>} />
-            <Route path="/gallery" element={<PageTransition><Gallery /></PageTransition>} />
-            <Route path="/about" element={<PageTransition><About /></PageTransition>} />
-            <Route path="/blogs" element={<PageTransition><Blogs /></PageTransition>} />
-            <Route path="/blogs/:id" element={<PageTransition><BlogPost /></PageTransition>} />
-            <Route path="/print" element={<PageTransition><Print /></PageTransition>} />
-            <Route path="/print/:id" element={<PageTransition><Print /></PageTransition>} />
-            <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/admin-login" element={<AdminLogin />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Router>
+        <Routes>
+          <Route path="/" element={<PageTransition><Index /></PageTransition>} />
+          <Route path="/gallery" element={<PageTransition><Gallery /></PageTransition>} />
+          <Route path="/about" element={<PageTransition><About /></PageTransition>} />
+          <Route path="/blogs" element={<PageTransition><Blogs /></PageTransition>} />
+          <Route path="/blogs/:id" element={<PageTransition><BlogPost /></PageTransition>} />
+          <Route path="/print" element={<PageTransition><Print /></PageTransition>} />
+          <Route path="/print/:id" element={<PageTransition><Print /></PageTransition>} />
+          <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
         <Toaster />
       </CartProvider>
     </QueryClientProvider>
