@@ -244,6 +244,16 @@
     animation: textReveal 2s ease forwards;
   }
 
+  /* Text cutout effect for splash screen */
+  .splash-text-cutout {
+    color: transparent;
+    -webkit-text-stroke: 2px rgba(255, 255, 255, 0.7);
+    mix-blend-mode: overlay;
+    background-clip: text;
+    -webkit-background-clip: text;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+  }
+
   @keyframes textReveal {
     0% {
       transform: translateY(100%);

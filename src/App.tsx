@@ -47,8 +47,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <CartProvider>
-        {/* Render both the main app and the splash screen overlay */}
-        <div className="relative">
+        <div className="relative overflow-hidden">
           <Routes>
             <Route path="/" element={<PageTransition><Index /></PageTransition>} />
             <Route path="/gallery" element={<PageTransition><Gallery /></PageTransition>} />

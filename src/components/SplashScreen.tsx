@@ -36,43 +36,50 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
     <AnimatePresence>
       {animationPhase !== 'complete' && (
         <motion.div 
-          className="fixed inset-0 flex items-center justify-center bg-black/90 backdrop-blur-md z-50"
+          className="fixed inset-0 flex items-center justify-center bg-black z-50"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <motion.div
-            className="text-center relative"
-            initial={{ scale: 1 }}
-            animate={{ 
-              scale: animationPhase === 'zooming' ? 3 : 1,
-              opacity: animationPhase === 'zooming' ? 0 : 1
-            }}
-            transition={{ 
-              duration: 2,
-              ease: "easeInOut"
-            }}
-          >
-            <motion.h1 
-              className="font-brilliante text-5xl md:text-7xl lg:text-8xl text-white/80 mix-blend-difference"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
-            >
-              Junglee Ghumakkad
-            </motion.h1>
+          <div className="relative w-full h-full flex items-center justify-center">
+            {/* Background content that will be visible through the text */}
+            <div className="absolute inset-0 bg-black opacity-90">
+              {/* This is where the background of the website would show through */}
+            </div>
             
+            {/* Text with transparent cutout effect */}
             <motion.div
-              className="mt-6"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8, duration: 0.5 }}
+              className="relative z-10 text-center"
+              initial={{ scale: 1 }}
+              animate={{ 
+                scale: animationPhase === 'zooming' ? 5 : 1,
+              }}
+              transition={{ 
+                duration: 2,
+                ease: "easeInOut"
+              }}
             >
-              <span className="inline-block h-[1px] w-16 bg-white/60"></span>
-              <p className="text-white/70 mt-3 font-nature text-xl tracking-wide">Capturing moments, one click at a time</p>
+              <motion.h1 
+                className="font-brilliante text-7xl md:text-8xl lg:text-9xl splash-text-cutout"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3, duration: 0.8 }}
+              >
+                Junglee Ghumakkad
+              </motion.h1>
+              
+              <motion.div
+                className="mt-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8, duration: 0.5 }}
+              >
+                <span className="inline-block h-[1px] w-16 bg-white/60"></span>
+                <p className="text-white/70 mt-3 font-nature text-xl tracking-wide">Capturing moments, one click at a time</p>
+              </motion.div>
             </motion.div>
-          </motion.div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
