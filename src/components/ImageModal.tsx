@@ -2,6 +2,7 @@
 import React, { useEffect, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight, Info } from 'lucide-react';
 import { Image, getImageSrc } from '@/lib/data';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ImageModalProps {
   image: Image;
@@ -17,7 +18,9 @@ const ImageModal: React.FC<ImageModalProps> = ({
   onPrev
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
   const [showInfo, setShowInfo] = React.useState(false);
+  const isMobile = useIsMobile();
 
   // Handle key presses for navigation and closing
   useEffect(() => {
@@ -40,9 +43,11 @@ const ImageModal: React.FC<ImageModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose, onNext, onPrev]);
 
-  // Close when clicking outside of content
+  // Close when clicking outside of image
   const handleBackdropClick = (e: React.MouseEvent) => {
-    if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+    // Only close if the click is not on the image or the info panel
+    if (imageRef.current && !imageRef.current.contains(e.target as Node) && 
+        modalRef.current && !modalRef.current.contains(e.target as Node)) {
       onClose();
     }
   };
@@ -63,34 +68,39 @@ const ImageModal: React.FC<ImageModalProps> = ({
             
             <div className="flex items-center justify-center h-full">
               <img 
+                ref={imageRef}
                 src={getImageSrc(image.src)} 
                 alt={image.alt} 
                 className="max-h-full max-w-full object-contain shadow-xl shadow-black/30 rounded" 
               />
             </div>
             
-            {/* Navigation buttons */}
-            <button 
-              className="absolute left-4 top-1/2 -translate-y-1/2 p-2 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" 
-              onClick={(e) => {
-                e.stopPropagation();
-                onPrev();
-              }} 
-              aria-label="Previous image"
-            >
-              <ChevronLeft className="h-6 w-6" />
-            </button>
-            
-            <button 
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" 
-              onClick={(e) => {
-                e.stopPropagation();
-                onNext();
-              }} 
-              aria-label="Next image"
-            >
-              <ChevronRight className="h-6 w-6" />
-            </button>
+            {/* Navigation buttons - hidden on mobile */}
+            {!isMobile && (
+              <>
+                <button 
+                  className="absolute left-4 top-1/2 -translate-y-1/2 p-2 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onPrev();
+                  }} 
+                  aria-label="Previous image"
+                >
+                  <ChevronLeft className="h-6 w-6" />
+                </button>
+                
+                <button 
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNext();
+                  }} 
+                  aria-label="Next image"
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </button>
+              </>
+            )}
             
             {/* Image info panel */}
             <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/0 text-white p-6 transform transition-transform duration-300 ${showInfo ? 'translate-y-0' : 'translate-y-full'}`}>
