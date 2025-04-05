@@ -1,9 +1,11 @@
 
+import { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
 import { CartProvider } from '@/context/CartContext';
 import PageTransition from '@/components/PageTransition';
+import SplashScreen from '@/components/SplashScreen';
 import Index from '@/pages/Index';
 import Gallery from '@/pages/Gallery';
 import About from '@/pages/About';
@@ -16,6 +18,8 @@ import Admin from '@/pages/Admin';
 import AdminLogin from '@/pages/AdminLogin';
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
+  
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -24,6 +28,26 @@ function App() {
       },
     },
   });
+
+  // Check if this is the first visit in this session
+  useEffect(() => {
+    const hasVisited = sessionStorage.getItem('hasVisited');
+    if (hasVisited) {
+      setShowSplash(false);
+    } else {
+      setShowSplash(true);
+    }
+  }, []);
+
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+    sessionStorage.setItem('hasVisited', 'true');
+  };
+
+  // If we're showing the splash screen, only render that
+  if (showSplash && window.location.pathname === '/') {
+    return <SplashScreen onComplete={handleSplashComplete} />;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
