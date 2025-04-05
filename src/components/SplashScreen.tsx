@@ -36,17 +36,17 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
     <AnimatePresence>
       {animationPhase !== 'complete' && (
         <motion.div 
-          className="fixed inset-0 flex items-center justify-center bg-black z-50"
+          className="fixed inset-0 flex items-center justify-center bg-black/90 backdrop-blur-md z-50"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8 }}
         >
           <motion.div
-            className="text-center"
+            className="text-center relative"
             initial={{ scale: 1 }}
             animate={{ 
-              scale: animationPhase === 'zooming' ? 1.8 : 1,
+              scale: animationPhase === 'zooming' ? 3 : 1,
               opacity: animationPhase === 'zooming' ? 0 : 1
             }}
             transition={{ 
@@ -55,7 +55,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
             }}
           >
             <motion.h1 
-              className="font-brilliante text-5xl md:text-7xl lg:text-8xl text-white"
+              className="font-brilliante text-5xl md:text-7xl lg:text-8xl text-white/80 mix-blend-difference"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.8 }}
