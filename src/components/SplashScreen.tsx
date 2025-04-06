@@ -21,13 +21,13 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
         // Allow time for exit animation before completing
         const completeTimer = setTimeout(() => {
           onComplete();
-        }, 800);
+        }, 1000);
         
         return () => clearTimeout(completeTimer);
-      }, 2000);
+      }, 2500);
       
       return () => clearTimeout(zoomTimer);
-    }, 1000);
+    }, 1200);
     
     return () => clearTimeout(initialTimer);
   }, [onComplete]);
@@ -36,36 +36,38 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
     <AnimatePresence>
       {animationPhase !== 'complete' && (
         <motion.div 
-          className="fixed inset-0 flex items-center justify-center bg-[#4A7A3B] z-50"
+          className="fixed inset-0 flex items-center justify-center bg-[#4A7A3B] z-50 overflow-hidden"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8 }}
         >
+          <div className="absolute inset-0">
+            {/* Full screen background image */}
+            <img 
+              src="/lovable-uploads/5ff23800-6713-4ec4-be4c-da8cdf5ab8ad.png" 
+              alt="Junglee Ghumakkad Background" 
+              className="w-full h-full object-cover"
+            />
+          </div>
+          
           <div className="relative w-full h-full flex items-center justify-center">
-            {/* Container for the logo image */}
+            {/* Logo container with zoom effect */}
             <motion.div
-              className="relative z-10 text-center max-w-3xl w-full px-6"
-              initial={{ scale: 1 }}
+              className="relative z-10"
+              initial={{ scale: 0.8, opacity: 0 }}
               animate={{ 
-                scale: animationPhase === 'zooming' ? 5 : 1,
+                scale: animationPhase === 'zooming' ? [1, 1.2, 1.8, 3] : 1,
+                opacity: animationPhase === 'zooming' ? [1, 0.8, 0.5, 0] : 1
               }}
               transition={{ 
-                duration: 2,
-                ease: "easeInOut"
+                duration: 2.5,
+                ease: "easeInOut",
+                times: [0, 0.3, 0.6, 1]
               }}
             >
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3, duration: 0.8 }}
-              >
-                <img 
-                  src="/lovable-uploads/ed0ffd24-a3ce-4a40-9a4a-6856a09be0e1.png" 
-                  alt="Junglee Ghumakkad Logo" 
-                  className="w-full h-auto"
-                />
-              </motion.div>
+              {/* For visual purposes only, empty div that scales */}
+              <div className="w-[80vw] max-w-4xl h-auto aspect-[3/1.2]"></div>
             </motion.div>
           </div>
         </motion.div>
