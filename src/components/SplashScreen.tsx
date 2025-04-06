@@ -6,21 +6,27 @@ interface SplashScreenProps {
 }
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
-  const [isAnimating, setIsAnimating] = useState(true);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsAnimating(false);
-      
-      // Allow time for the exit animation to complete
-      setTimeout(onComplete, 500);
-    }, 1800); // Adjusted to 1.8 seconds as requested
+    // Start animation after a short delay
+    const animationDelay = setTimeout(() => {
+      setIsAnimating(true);
+    }, 600); // 0.6 seconds delay before starting zoom animation
+    
+    // Complete animation and transition to main page
+    const completeTimer = setTimeout(() => {
+      setTimeout(onComplete, 500); // Allow time for exit animation
+    }, 1800); // Total animation time
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(animationDelay);
+      clearTimeout(completeTimer);
+    };
   }, [onComplete]);
 
   return (
-    <div className={`splash-screen ${!isAnimating ? 'splash-exit' : ''}`}>
+    <div className={`splash-screen ${isAnimating ? 'zoom-active' : ''}`}>
       <div className="splash-content">
         <img 
           src="/lovable-uploads/79dc3092-5eaf-49f0-9fbb-5445cafebe74.png" 
