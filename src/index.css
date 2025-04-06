@@ -234,55 +234,6 @@
       @apply scale-110;
     }
   }
-
-  /* Splash screen animations */
-  .splash-text {
-    @apply relative inline-block;
-  }
-
-  .splash-text-reveal {
-    animation: textReveal 2s ease forwards;
-  }
-
-  /* Text cutout effect for splash screen */
-  .splash-text-cutout {
-    color: transparent;
-    -webkit-text-stroke: 2px rgba(255, 255, 255, 0.7);
-    mix-blend-mode: overlay;
-    background-clip: text;
-    -webkit-background-clip: text;
-    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
-  }
-
-  @keyframes textReveal {
-    0% {
-      transform: translateY(100%);
-      opacity: 0;
-    }
-    100% {
-      transform: translateY(0);
-      opacity: 1;
-    }
-  }
-
-  .splash-zoom {
-    animation: splashZoom 2.5s ease-in-out forwards;
-  }
-
-  @keyframes splashZoom {
-    0% {
-      transform: scale(1);
-      opacity: 1;
-    }
-    80% {
-      transform: scale(1.8);
-      opacity: 0.6;
-    }
-    100% {
-      transform: scale(2.2);
-      opacity: 0;
-    }
-  }
 }
 
 /* Animation keyframes */
@@ -306,3 +257,4 @@
     height: 40vh;
   }
 }
+
