@@ -14,7 +14,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
       
       // Allow time for the exit animation to complete
       setTimeout(onComplete, 500);
-    }, 2500); // Total animation duration
+    }, 1800); // Adjusted to 1.8 seconds as requested
 
     return () => clearTimeout(timer);
   }, [onComplete]);
@@ -25,7 +25,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
         <img 
           src="/lovable-uploads/79dc3092-5eaf-49f0-9fbb-5445cafebe74.png" 
           alt="Junglee Ghumakkad" 
-          className="splash-logo"
+          className="splash-logo-fullscreen"
         />
       </div>
     </div>
