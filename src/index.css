@@ -93,7 +93,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: #4C7A43; /* Green background */
+  background-color: transparent; /* No background color */
   z-index: 9999;
   display: flex;
   justify-content: center;
@@ -116,10 +116,17 @@
 }
 
 .splash-logo-fullscreen {
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   object-fit: cover;
-  animation: zoomIn 1.8s ease-in-out forwards;
+  transform: scale(1);
+  opacity: 1;
+  transition: transform 1.8s ease-in-out, opacity 1.8s ease-in-out;
+}
+
+.zoom-active .splash-logo-fullscreen {
+  transform: scale(1.4);
+  opacity: 0;
 }
 
 @keyframes zoomIn {
