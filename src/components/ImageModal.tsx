@@ -61,7 +61,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
             </div>
             
             <div className="flex items-center justify-center h-full">
-              <img ref={imageRef} src={getImageSrc(image.src)} alt={image.alt} className="\nmax-h-80 max-w-80shadow-xl shadow-black/30 rounded object-contain\n" />
+              <img ref={imageRef} src={getImageSrc(image.src)} alt={image.alt} className="max-h-80 max-w-full shadow-80 shadow-black/30 rounded object-contain" />
             </div>
             
             {/* Navigation buttons - hidden on mobile */}
