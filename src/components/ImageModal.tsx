@@ -23,7 +23,6 @@ const ImageModal: React.FC<ImageModalProps> = ({
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [currentImage, setCurrentImage] = useState(image);
   const [imageOpacity, setImageOpacity] = useState(1);
-  const [transitionDuration, setTransitionDuration] = useState("500ms"); // Initial fade-out duration
   
   // Update internal image when prop changes
   useEffect(() => {
@@ -63,14 +62,11 @@ const ImageModal: React.FC<ImageModalProps> = ({
     }
   };
 
-  // Handle navigation with asymmetric fade transition
+  // Handle navigation with fade transition
   const handleNavigate = (direction: 'next' | 'prev') => {
     if (isTransitioning) return;
     
     setIsTransitioning(true);
-    
-    // Slow fade-out (500ms)
-    setTransitionDuration("500ms");
     setImageOpacity(0);
     
     // Wait for fade out to complete before changing image
@@ -84,21 +80,12 @@ const ImageModal: React.FC<ImageModalProps> = ({
       // Update the current image after navigation
       setCurrentImage(image);
       
-      // Set fast fade-in speed (150ms) before fading in
-      setTransitionDuration("150ms");
-      
       // Fade in the new image
       setTimeout(() => {
         setImageOpacity(1);
-        
-        // Wait for fade-in to complete before allowing new transitions
-        setTimeout(() => {
-          setIsTransitioning(false);
-          // Reset to slow fade-out for the next navigation
-          setTransitionDuration("500ms");
-        }, 150);
+        setIsTransitioning(false);
       }, 50);
-    }, 500); // Match the fade-out duration
+    }, 300); // Same as the transition duration in CSS
   };
 
   // Handle key presses for navigation and closing
@@ -164,11 +151,8 @@ const ImageModal: React.FC<ImageModalProps> = ({
                 ref={imageRef} 
                 src={getImageSrc(currentImage.src)} 
                 alt={currentImage.alt} 
-                className={`max-h-[80vh] shadow-xl shadow-black/30 rounded object-contain ${isMobile ? 'w-[90vw]' : 'w-[60vw]'}`}
-                style={{ 
-                  opacity: imageOpacity,
-                  transition: `opacity ${transitionDuration} ease-in-out`
-                }}
+                className={`max-h-[80vh] shadow-xl shadow-black/30 rounded object-contain transition-opacity duration-300 ease-in-out ${isMobile ? 'w-[90vw]' : 'w-[60vw]'}`}
+                style={{ opacity: imageOpacity }}
               />
             </div>
             
@@ -202,7 +186,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
             )}
             
             {/* Image info panel */}
-            <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/0 text-white p-6 transform transition-transform duration-300 ${showInfo ? 'translate-y-0' : 'translate-y-full'}`}>
+            <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/0 text-white p-6 transform transition-transform duration-400 ${showInfo ? 'translate-y-0' : 'translate-y-full'}`}>
               <h2 className="text-xl font-medium mb-2">{currentImage.title}</h2>
               <p className="text-white/80 mb-3">{currentImage.description}</p>
               
