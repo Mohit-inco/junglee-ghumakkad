@@ -151,7 +151,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
                 ref={imageRef} 
                 src={getImageSrc(currentImage.src)} 
                 alt={currentImage.alt} 
-                className={`max-h-[80vh] max-w-4xl shadow-xl shadow-black/30 rounded object-contain transition-all duration-700 ease-[cubic-bezier(0.4, 0, 0.2, 1)] ${isMobile ? 'w-full' : 'w-[60vw]'}`}
+                className={`max-h-[80vh] shadow-xl shadow-black/30 rounded object-contain transition-opacity duration-600 ease-in-out ${isMobile ? 'w-[90vw]' : 'w-[60vw]'}`}
                 style={{ opacity: imageOpacity }}
               />
             </div>
@@ -186,7 +186,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
             )}
             
             {/* Image info panel */}
-            <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/0 text-white p-6 transform transition-transform duration-400 ${showInfo ? 'translate-y-0' : 'translate-y-full'}`}>
+            <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/0 text-white p-6 transform transition-opacity duration-600 ease-in-out ${showInfo ? 'translate-y-0' : 'translate-y-full'}`}>
               <h2 className="text-xl font-medium mb-2">{currentImage.title}</h2>
               <p className="text-white/80 mb-3">{currentImage.description}</p>
               
