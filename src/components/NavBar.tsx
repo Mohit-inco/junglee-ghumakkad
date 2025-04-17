@@ -1,11 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, ShoppingCart, Instagram, BookOpen } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { cn } from "@/lib/utils";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
-
 const NavBar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -33,7 +31,7 @@ const NavBar: React.FC = () => {
 
   // Navbar text style classes
   const navTextClasses = "text-white drop-shadow-md";
-  return <header className={cn("fixed top-0 left-0 right-0 z-50 px-6 transition-all duration-300 ease-in-out", isScrolled || isMenuOpen ? "py-3 bg-background/80 shadow-sm backdrop-blur-md border-b" : "py-6 bg-background/0")}>
+  return <header className={cn("fixed top-0 left-0 right-0 z-50 px-6 transition-all duration-300 ease-in-out", isScrolled ? "py-3 bg-background/80 shadow-sm backdrop-blur-md border-b" : "py-6 bg-background/0")}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex flex-col items-start">
           <Link to="/" className="brand-name text-xl md:text-2xl text-white font-brilliante tracking-wider drop-shadow-md">
@@ -59,13 +57,7 @@ const NavBar: React.FC = () => {
           <Link to="/about" className={cn("nav-link glow-hover", isActive("/about") && "active", navTextClasses)}>
             About
           </Link>
-          <a 
-            href="https://www.instagram.com/junglee_ghumakkad/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className={cn("p-2 hover:opacity-80 transition-colors duration-200 glow-hover", navTextClasses)}
-            aria-label="Instagram"
-          >
+          <a href="https://www.instagram.com/junglee_ghumakkad/" target="_blank" rel="noopener noreferrer" className={cn("p-2 hover:opacity-80 transition-colors duration-200 glow-hover", navTextClasses)} aria-label="Instagram">
             <Instagram className="h-5 w-5" />
           </a>
           <Link to="/cart" className={cn("relative p-2 hover:opacity-80 transition-colors duration-200 glow-hover", navTextClasses)} aria-label="Shopping Cart">
@@ -78,13 +70,7 @@ const NavBar: React.FC = () => {
 
         {/* Mobile Navigation */}
         <div className="flex items-center md:hidden">
-          <a 
-            href="https://www.instagram.com/junglee_ghumakkad/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className={cn("p-2 mr-2 hover:opacity-80 transition-colors duration-200", navTextClasses)}
-            aria-label="Instagram"
-          >
+          <a href="https://www.instagram.com/junglee_ghumakkad/" target="_blank" rel="noopener noreferrer" className={cn("p-2 mr-2 hover:opacity-80 transition-colors duration-200", navTextClasses)} aria-label="Instagram">
             <Instagram className="h-5 w-5" />
           </a>
           <Link to="/cart" className={cn("relative p-2 mr-2 hover:opacity-80 transition-colors duration-200", navTextClasses)} aria-label="Shopping Cart">
@@ -99,9 +85,9 @@ const NavBar: React.FC = () => {
           </button>
         </div>
       </div>
-    {/* md:hidden absolute top-full left-0 right-0 bg-background/95 backdrop-blur-md border-b shadow-sm animate-slide-down*/}
+
       {/* Mobile Menu */}
-      {isMenuOpen && <div className="md:hidden absolute top-full left-0 right-0 h-screen z-50 bg-background/80 shadow-sm backdrop-blur-md border-b shadow-sm animate-slide-down">
+      {isMenuOpen && <div className="md:hidden absolute top-full left-0 right-0 bg-background/95 backdrop-blur-xl border-b shadow-sm animate-slide-down">
           <nav className="flex flex-col p-6 space-y-4">
             <Link to="/" className={cn("text-lg nav-link", isActive("/") && "active", "text-foreground")}>
               Home
