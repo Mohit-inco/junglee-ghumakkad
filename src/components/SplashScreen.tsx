@@ -29,7 +29,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
     <div className={`splash-screen ${isAnimating ? 'zoom-active' : ''}`}>
       <div className="splash-content">
         <img 
-          src="/lovable-uploads/79dc3092-5eaf-49f0-9fbb-5445cafebe74.png" 
+          src="/lovable-uploads/79dc3092-5eaf-49f0-9fbb-5445cafebe741.png" 
           alt="Junglee Ghumakkad" 
           className="splash-logo-fullscreen"
         />
