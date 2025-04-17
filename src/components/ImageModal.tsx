@@ -23,6 +23,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [currentImage, setCurrentImage] = useState(image);
   const [imageOpacity, setImageOpacity] = useState(1);
+  const [transitionDuration, setTransitionDuration] = useState("500ms"); // Initial fade-out duration
   
   // Update internal image when prop changes
   useEffect(() => {
@@ -62,11 +63,14 @@ const ImageModal: React.FC<ImageModalProps> = ({
     }
   };
 
-  // Handle navigation with fade transition
+  // Handle navigation with asymmetric fade transition
   const handleNavigate = (direction: 'next' | 'prev') => {
     if (isTransitioning) return;
     
     setIsTransitioning(true);
+    
+    // Slow fade-out (500ms)
+    setTransitionDuration("500ms");
     setImageOpacity(0);
     
     // Wait for fade out to complete before changing image
@@ -80,12 +84,21 @@ const ImageModal: React.FC<ImageModalProps> = ({
       // Update the current image after navigation
       setCurrentImage(image);
       
+      // Set fast fade-in speed (150ms) before fading in
+      setTransitionDuration("150ms");
+      
       // Fade in the new image
       setTimeout(() => {
         setImageOpacity(1);
-        setIsTransitioning(false);
+        
+        // Wait for fade-in to complete before allowing new transitions
+        setTimeout(() => {
+          setIsTransitioning(false);
+          // Reset to slow fade-out for the next navigation
+          setTransitionDuration("500ms");
+        }, 150);
       }, 50);
-    }, 300); // Same as the transition duration in CSS
+    }, 500); // Match the fade-out duration
   };
 
   // Handle key presses for navigation and closing
@@ -151,8 +164,11 @@ const ImageModal: React.FC<ImageModalProps> = ({
                 ref={imageRef} 
                 src={getImageSrc(currentImage.src)} 
                 alt={currentImage.alt} 
-                className={`max-h-[80vh] shadow-xl shadow-black/30 rounded object-contain transition-opacity duration-650 ease-in-out ${isMobile ? 'w-[90vw]' : 'w-[60vw]'}`}
-                style={{ opacity: imageOpacity }}
+                className={`max-h-[80vh] shadow-xl shadow-black/30 rounded object-contain ${isMobile ? 'w-[90vw]' : 'w-[60vw]'}`}
+                style={{ 
+                  opacity: imageOpacity,
+                  transition: `opacity ${transitionDuration} ease-in-out`
+                }}
               />
             </div>
             
