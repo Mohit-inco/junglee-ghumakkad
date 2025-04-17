@@ -101,7 +101,7 @@ const NavBar: React.FC = () => {
       </div>
     {/* md:hidden absolute top-full left-0 right-0 bg-background/95 backdrop-blur-md border-b shadow-sm animate-slide-down*/}
       {/* Mobile Menu */}
-      {isMenuOpen && <div className="md:hidden absolute top-full left-0 right-0 h-screen z-50 bg-white/30 dark:bg-black/80 backdrop-blur-md border-b shadow-sm animate-slide-down">
+      {isMenuOpen && <div className="md:hidden absolute top-full left-0 right-0 h-screen z-50 bg-background/80 shadow-sm backdrop-blur-md border-b shadow-sm animate-slide-down">
           <nav className="flex flex-col p-6 space-y-4">
             <Link to="/" className={cn("text-lg nav-link", isActive("/") && "active", "text-foreground")}>
               Home
