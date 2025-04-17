@@ -151,7 +151,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
                 ref={imageRef} 
                 src={getImageSrc(currentImage.src)} 
                 alt={currentImage.alt} 
-                className={`max-h-[80vh] shadow-xl shadow-black/30 rounded object-contain transition-opacity duration-300 ease-in-out ${isMobile ? 'w-[90vw]' : 'w-[60vw]'}`}
+                className={`max-h-[80vh] shadow-xl shadow-black/30 rounded object-contain transition-opacity duration-650 ease-in-out ${isMobile ? 'w-[90vw]' : 'w-[60vw]'}`}
                 style={{ opacity: imageOpacity }}
               />
             </div>
