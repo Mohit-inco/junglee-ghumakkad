@@ -30,7 +30,8 @@ export function getImageSrc(src: string): string {
 export const images = [
   {
     id: "1",
-    src: "/lovable-uploads/0107ed8a-5098-4509-924e-9cd60c8ce934.png",
+ //   src: "/lovable-uploads/0107ed8a-5098-4509-924e-9cd60c8ce934.png", 
+    src : "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//20240630_062328.jpg",
     title: "Tiger in Forest",
     description: "Royal Bengal Tiger walking through dense forest",
     location: "Corbett National Park, India",
@@ -43,7 +44,8 @@ export const images = [
   },
   {
     id: "2",
-    src: "/lovable-uploads/0e2ba0f0-296e-4549-92bf-6460d3329b27.png",
+   // src: "/lovable-uploads/0e2ba0f0-296e-4549-92bf-6460d3329b27.png",
+    src : "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//DSC_0340.jpg",
     title: "Elephant Family",
     description: "Family of elephants crossing a river",
     location: "Kaziranga National Park, India",
@@ -56,7 +58,8 @@ export const images = [
   },
   {
     id: "3",
-    src: "/lovable-uploads/0f8fd122-54f5-40c6-bc1a-42b844709c07.png",
+   // src: "/lovable-uploads/0f8fd122-54f5-40c6-bc1a-42b844709c07.png",
+    src : "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//DSC06666-2.jpg",
     title: "Himalayan Landscape",
     description: "Beautiful mountain range at sunset",
     location: "Uttarakhand, India",
@@ -69,7 +72,8 @@ export const images = [
   },
   {
     id: "4",
-    src: "/lovable-uploads/1d80cd32-061c-407d-9078-7a72fe1e1f2d.png",
+  //  src: "/lovable-uploads/1d80cd32-061c-407d-9078-7a72fe1e1f2d.png",
+    src : "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//IMG_4355-2.jpg",
     title: "Kingfisher Diving",
     description: "Common Kingfisher diving for fish",
     location: "Kerala backwaters, India",
@@ -82,7 +86,8 @@ export const images = [
   },
   {
     id: "5",
-    src: "/lovable-uploads/1d80cd32-061c-407d-9078-7a72fe1e1f2d.png",
+   // src: "/lovable-uploads/1d80cd32-061c-407d-9078-7a72fe1e1f2d.png",
+    src : "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//IMG_9714-2%20(1).jpg",
     title: "IIT Roorkee Campus",
     description: "Historic buildings of IIT Roorkee",
     location: "Roorkee, India",
@@ -95,7 +100,8 @@ export const images = [
   },
   {
     id: "6",
-    src: "/lovable-uploads/24663f0b-a8e6-49dc-b1c1-15ab70519306.png",
+    //src: "/lovable-uploads/24663f0b-a8e6-49dc-b1c1-15ab70519306.png",
+    src: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//DSC_0703.jpg",
     title: "Leopard in Tree",
     description: "Leopard resting on a tree branch",
     location: "Bandipur National Park, India",
@@ -108,7 +114,8 @@ export const images = [
   },
   {
     id: "7",
-    src: "/lovable-uploads/3e101c4e-19d2-45b8-b24c-0cde4bb503a3.png",
+   // src: "/lovable-uploads/3e101c4e-19d2-45b8-b24c-0cde4bb503a3.png",
+    src: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//1000035613_enhanced.jpg.png",
     title: "Milky Way Over Desert",
     description: "Night sky over Thar Desert",
     location: "Rajasthan, India",
