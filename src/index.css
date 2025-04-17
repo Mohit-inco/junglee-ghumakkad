@@ -221,8 +221,8 @@
 
   .image-modal-content {
     @apply relative max-w-7xl w-full bg-transparent rounded-lg overflow-hidden animate-scale-up shadow-2xl;
-    height: 90vh;
-    max-height: 90vh;
+    height: 100vh;
+    max-height: 100vh;
   }
 
   .slide-enter {
