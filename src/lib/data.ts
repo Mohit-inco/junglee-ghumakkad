@@ -69,7 +69,7 @@ export const images = [
   },
   {
     id: "4",
-    src: "/lovable-uploads/147b0bde-3442-427e-9887-b90b89dd512b.png",
+    src: "/lovable-uploads/1d80cd32-061c-407d-9078-7a72fe1e1f2d.png",
     title: "Kingfisher Diving",
     description: "Common Kingfisher diving for fish",
     location: "Kerala backwaters, India",
