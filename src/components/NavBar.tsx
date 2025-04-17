@@ -33,7 +33,7 @@ const NavBar: React.FC = () => {
 
   // Navbar text style classes
   const navTextClasses = "text-white drop-shadow-md";
-  return <header className={cn("fixed top-0 left-0 right-0 z-50 px-6 transition-all duration-300 ease-in-out", isScrolled ? "py-3 bg-background/80 shadow-sm backdrop-blur-md border-b" : "py-6 bg-background/0")}>
+  return <header className={cn("fixed top-0 left-0 right-0 z-50 px-6 transition-all duration-300 ease-in-out", isScrolled || isMenuOpen ? "py-3 bg-background/80 shadow-sm backdrop-blur-md border-b" : "py-6 bg-background/0")}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex flex-col items-start">
           <Link to="/" className="brand-name text-xl md:text-2xl text-white font-brilliante tracking-wider drop-shadow-md">
@@ -101,7 +101,7 @@ const NavBar: React.FC = () => {
       </div>
     {/* md:hidden absolute top-full left-0 right-0 bg-background/95 backdrop-blur-md border-b shadow-sm animate-slide-down*/}
       {/* Mobile Menu */}
-      {isMenuOpen && <div className="md:hidden absolute top-full left-0 right-0 h-screen z-50 bg-white/30 dark:bg-black/30 backdrop-blur-md border-b shadow-sm animate-slide-down">
+      {isMenuOpen && <div className="md:hidden absolute top-full left-0 right-0 h-screen z-50 bg-white/30 dark:bg-black/80 backdrop-blur-md border-b shadow-sm animate-slide-down">
           <nav className="flex flex-col p-6 space-y-4">
             <Link to="/" className={cn("text-lg nav-link", isActive("/") && "active", "text-foreground")}>
               Home
