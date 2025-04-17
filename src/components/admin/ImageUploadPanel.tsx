@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Card, CardContent, CardDescription, CardHeader, CardTitle 
@@ -41,6 +41,9 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [showPrintOptions, setShowPrintOptions] = useState(false);
+  
+  // Add a ref to the form card for scrolling
+  const formCardRef = useRef<HTMLDivElement>(null);
   
   const form = useForm<ImageFormData>({
     defaultValues: {
@@ -180,6 +183,16 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
     }
   };
 
+  // Scroll to form function
+  const scrollToForm = () => {
+    if (formCardRef.current) {
+      formCardRef.current.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
   const handleEditImage = (image: GalleryImage) => {
     setSelectedImage(image);
     setIsEditing(true);
@@ -201,6 +214,11 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
     if (image.image_url) {
       setPreviewUrl(image.image_url);
     }
+    
+    // Scroll to the form after a short delay to ensure state is updated
+    setTimeout(() => {
+      scrollToForm();
+    }, 100);
   };
 
   const resetForm = () => {
@@ -233,7 +251,7 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
 
   return (
     <div className="space-y-6">
-      <Card className="w-full">
+      <Card className="w-full" ref={formCardRef}>
         <CardHeader>
           <CardTitle>{isEditing ? 'Edit Image' : 'Upload New Image'}</CardTitle>
           <CardDescription>
