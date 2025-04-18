@@ -23,7 +23,7 @@ const panels: PanelProps[] = [
   {
     id: 2,
     title: "Blogs",
-    image: "url('https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//Print.png')", 
+    image: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//Print.png", 
     link: "/blogs",
     icon: <BookOpen className="w-5 h-5" />
   },
