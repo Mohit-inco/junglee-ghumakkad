@@ -16,7 +16,7 @@ const panels: PanelProps[] = [
   {
     id: 1,
     title: "Print",
-    image: "url('https://unsplash.com/photos/a-potted-plant-sitting-next-to-three-pictures-on-a-wall-7QliyG__8lg')",
+    image: "https://unsplash.com/photos/a-potted-plant-sitting-next-to-three-pictures-on-a-wall-7QliyG__8lg",
     link: "/print",
     icon: <FileText className="w-5 h-5" />
   },
@@ -30,21 +30,21 @@ const panels: PanelProps[] = [
   {
     id: 3,
     title: "About me",
-    image: "url('https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//About.jpg')", 
+    image: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//About.jpg", 
     link: "/about",
     icon: <Instagram className="w-5 h-5" />
   },
   {
     id: 4,
     title: "Street pallete",
-    image: "url('https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//DSC_2451.jpg')",
+    image: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//DSC_2451.jpg",
     link: "/gallery",
     icon: <MapPin className="w-5 h-5" />
   },
   {
     id: 5,
     title: "Instagram",
-    image: "url('https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//DSC_0319%20(3).png')",
+    image: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//DSC_0319%20(3).png",
     link: "https://www.instagram.com/junglee_ghumakkad/",
     icon: <Camera className="w-5 h-5" />
   }
