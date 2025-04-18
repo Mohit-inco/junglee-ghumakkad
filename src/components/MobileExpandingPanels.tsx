@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Instagram, BookOpen, FileText, Camera, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,7 +15,8 @@ const panels: PanelProps[] = [
   {
     id: 1,
     title: "Print",
-    image: "https://unsplash.com/photos/a-potted-plant-sitting-next-to-three-pictures-on-a-wall-7QliyG__8lg",
+    // Fixed image URL - replace with an actual direct image URL
+    image: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//IMG_4511.jpg", // Replace with your actual image path
     link: "/print",
     icon: <FileText className="w-5 h-5" />
   },
@@ -52,6 +52,24 @@ const panels: PanelProps[] = [
 
 const MobileExpandingPanels: React.FC = () => {
   const [activePanel, setActivePanel] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  // Handle responsive behavior
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    // Set initially
+    checkIfMobile();
+    
+    // Update on resize
+    window.addEventListener('resize', checkIfMobile);
+    
+    return () => {
+      window.removeEventListener('resize', checkIfMobile);
+    };
+  }, []);
 
   const handlePanelClick = (id: number) => {
     if (activePanel === id) {
@@ -70,14 +88,21 @@ const MobileExpandingPanels: React.FC = () => {
           <div
             key={panel.id}
             className={`relative overflow-hidden transition-all duration-700 ease-in-out cursor-pointer 
-              ${isActive ? 'h-[40vh]' : 'h-[12vh]'}`}
+              ${isActive ? (isMobile ? 'h-48' : 'h-96') : (isMobile ? 'h-24' : 'h-32')}`}
             onClick={() => handlePanelClick(panel.id)}
           >
-            <div 
-              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-in-out"
+            {/* Use an img element instead of background-image for better loading control */}
+            <img 
+              src={panel.image}
+              alt={panel.title}
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-in-out"
               style={{ 
-                backgroundImage: `url(${panel.image})`,
                 transform: isActive ? 'scale(1.05)' : 'scale(1)'
+              }}
+              onError={(e) => {
+                // Fallback to placeholder if image fails to load
+                const target = e.target as HTMLImageElement;
+                target.src = `/api/placeholder/800/600?text=${panel.title}`;
               }}
             />
             
@@ -92,7 +117,7 @@ const MobileExpandingPanels: React.FC = () => {
                 </h3>
                 
                 {isActive && (
-                  <div className="flex flex-col items-center mt-4 opacity-0 animate-fade-in">
+                  <div className="flex flex-col items-center mt-4 animate-fade-in">
                     <Button 
                       variant="outline"
                       className="bg-black/60 hover:bg-black/80 text-white border-white/30 hover:border-white/50"
