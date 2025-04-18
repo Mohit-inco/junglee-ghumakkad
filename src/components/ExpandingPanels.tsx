@@ -14,31 +14,31 @@ interface PanelProps {
 const panels: PanelProps[] = [{
   id: 1,
   title: "Print",
-  image: "/lovable-uploads/0e2ba0f0-296e-4549-92bf-6460d3329b27.png",
+  image: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//IMG_4511.jpg",
   link: "/print",
   icon: <FileText className="w-6 h-6" />
 }, {
   id: 2,
   title: "Blogs",
-  image: "/lovable-uploads/78c195fe-7a73-4a8a-9544-b17bff810417.png",
+  image: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//Print.png",
   link: "/blogs",
   icon: <BookOpen className="w-6 h-6" />
 }, {
   id: 3,
   title: "About me",
-  image: "/lovable-uploads/cc6ae3f0-2470-451e-bfd8-a64d479c47c9.png",
+  image: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//About.jpg",
   link: "/about",
   icon: <Instagram className="w-6 h-6" />
 }, {
   id: 4,
   title: "Street pallete",
-  image: "/lovable-uploads/cbe0dd82-8e11-4dbd-8762-a9623403952a.png",
+  image: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//DSC_2451.jpg",
   link: "/gallery",
   icon: <MapPin className="w-6 h-6" />
 }, {
   id: 5,
   title: "Instagram",
-  image: "/lovable-uploads/b49a2f95-d89f-4124-a032-f2a4b78eeac6.png",
+  image: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//DSC_0319%20(3).png",
   link: "https://www.instagram.com/junglee_ghumakkad/",
   icon: <Camera className="w-6 h-6" />
 }];
