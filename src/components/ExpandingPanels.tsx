@@ -38,7 +38,7 @@ const panels: PanelProps[] = [{
 }, {
   id: 5,
   title: "Instagram",
-  image: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//DSC_0319%20(3).png",
+  image: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//Insta.jpg",
   link: "https://www.instagram.com/junglee_ghumakkad/",
   icon: <Camera className="w-6 h-6" />
 }];
