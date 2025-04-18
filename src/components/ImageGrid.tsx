@@ -7,7 +7,7 @@ interface ImageGridProps {
   columns?: number;
 }
 
-const ImageGrid: React.FC<ImageGridProps> = ({ images, columns = 3 }) => {
+const ImageGrid: React.FC<ImageGridProps> = ({ images, columns = 2 }) => {
   const [selectedImage, setSelectedImage] = useState<Image | null>(null);
   const [columnArrays, setColumnArrays] = useState<Image[][]>([]);
   
