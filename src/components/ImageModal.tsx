@@ -22,7 +22,6 @@ const ImageModal: React.FC<ImageModalProps> = ({
   const isMobile = useIsMobile();
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [currentImage, setCurrentImage] = useState(image);
-  const [imageOpacity, setImageOpacity] = useState(1);
   const [rotateValue, setRotateValue] = useState(0);
   
   // Update internal image when prop changes
@@ -63,7 +62,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
     }
   };
 
-  // Handle navigation with slide transition
+  // Handle navigation without image transition animation
   const handleNavigate = (direction: 'next' | 'prev') => {
     if (isTransitioning) return;
     
@@ -76,26 +75,16 @@ const ImageModal: React.FC<ImageModalProps> = ({
       setRotateValue(rotateValue - 90);
     }
     
-    // Fade out current image
-    setImageOpacity(0);
+    // Navigate immediately without animation
+    if (direction === 'next') {
+      onNext();
+    } else {
+      onPrev();
+    }
     
-    // Wait for fade out to complete before changing image
-    setTimeout(() => {
-      if (direction === 'next') {
-        onNext();
-      } else {
-        onPrev();
-      }
-      
-      // Update the current image after navigation
-      setCurrentImage(image);
-      
-      // Fade in the new image
-      setTimeout(() => {
-        setImageOpacity(1);
-        setIsTransitioning(false);
-      }, 50);
-    }, 300); // Same as the transition duration in CSS
+    // Update the current image and reset transition state
+    setCurrentImage(image);
+    setIsTransitioning(false);
   };
 
   // Handle key presses for navigation and closing
@@ -132,16 +121,16 @@ const ImageModal: React.FC<ImageModalProps> = ({
   return (
     <div className="fixed inset-0 bg-black z-50 flex items-center justify-center" onClick={handleBackdropClick}>
       <div ref={modalRef} className="relative w-full h-full flex items-center justify-center">
-        <div className="absolute top-4 right-4 z-10 flex space-x-2">
+        <div className="absolute top-4 right-4 z-10 flex space-x-4">
           <button 
-            className="p-1.5 text-white hover:text-gray-300 transition-colors" 
+            className="p-2 text-white bg-black/20 rounded-full hover:bg-black/40 transition-colors" 
             onClick={() => setShowInfo(!showInfo)} 
             aria-label="Toggle information"
           >
             <Info className="h-5 w-5" />
           </button>
           <button 
-            className="p-1.5 text-white hover:text-gray-300 transition-colors" 
+            className="p-2 text-white bg-black/20 rounded-full hover:bg-black/40 transition-colors" 
             onClick={onClose} 
             aria-label="Close modal"
             style={{ transform: `rotate(${rotateValue}deg)`, transition: 'transform 0.3s ease' }}
@@ -160,13 +149,14 @@ const ImageModal: React.FC<ImageModalProps> = ({
             ref={imageRef} 
             src={getImageSrc(currentImage.src)} 
             alt={currentImage.alt} 
-            className={`max-h-[80vh] object-contain transition-opacity duration-300 ease-in-out ${isMobile ? 'w-[90vw]' : 'w-[60vw]'}`}
-            style={{ opacity: imageOpacity }}
+            className={`max-h-[80vh] object-contain ${isMobile ? 'w-[90vw]' : 'w-[60vw]'}`}
           />
         </div>
         
-        {/* Image info panel */}
-        <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/0 text-white p-6 transform transition-opacity duration-300 ease-in-out ${showInfo ? 'translate-y-0' : 'translate-y-full'}`}>
+        {/* Image info panel with slide transition */}
+        <div 
+          className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/0 text-white p-6 transform transition-transform duration-300 ease-in-out ${showInfo ? 'translate-y-0' : 'translate-y-full'}`}
+        >
           <h2 className="text-xl font-medium mb-2">{currentImage.title}</h2>
           <p className="text-white/80 mb-3">{currentImage.description}</p>
           
