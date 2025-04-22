@@ -221,7 +221,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
             ref={imageRef} 
             src={getImageSrc(currentImage.src)} 
             alt={currentImage.alt} 
-            className={`max-h-[80vh] object-contain ${isMobile ? 'w-[90vw]' : 'w-[60vw]'} ${isClosing ? 'transform translate-y-full transition-transform duration-300' : ''}`}
+            className={`max-h-[80vh] object-contain ${isMobile ? 'w-[90vw] pb-[15vh] block' : 'w-[60vw]'} ${isClosing ? 'transform translate-y-full transition-transform duration-300' : ''}`}
             onClick={e => e.stopPropagation()} // Prevent closing when clicking on image
           />
         </div>
