@@ -210,7 +210,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
         </div>
         
         <div 
-          className={`flex items-center justify-center h-full ${isMobile ? 'mt-6' : ''}`}
+          className={`${     isMobile       ? 'absolute bottom-[60%] left-1/2 transform -translate-x-1/2'       : 'flex items-center justify-center h-full'   }`}
           onTouchStart={handleTouchStart} 
           onTouchMove={handleTouchMove} 
           onTouchEnd={handleTouchEnd}
