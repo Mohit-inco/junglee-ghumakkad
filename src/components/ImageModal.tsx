@@ -116,7 +116,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
   };
   return <div className="fixed inset-0 bg-black z-50 flex items-center justify-center" onClick={handleBackdropClick}>
       <div ref={modalRef} className="relative w-full h-full flex items-center justify-center">
-        <div className="absolute top-1/2 left-20 z-10 px-0">
+        <div className="absolute top-1/2 left-[12%] z-10 px-0">
           <button className="p-2 text-white bg-black/20 rounded-full hover:bg-black/40 transition-colors" onClick={e => {
           e.stopPropagation();
           handleNavigate('prev');
@@ -124,11 +124,11 @@ const ImageModal: React.FC<ImageModalProps> = ({
           transform: `rotate(${rotateValue}deg)`,
           transition: 'transform 0.3s ease'
         }}>
-            <X className="h-5 w-5" />
+            <X className="h-6 w-6" />
           </button>
         </div>
         
-        <div className="absolute top-1/2 right-20 z-10">
+        <div className="absolute top-1/2 right-[12%] z-10">
           <button className="p-2 text-white bg-black/20 rounded-full hover:bg-black/40 transition-colors" onClick={e => {
           e.stopPropagation();
           handleNavigate('next');
@@ -136,7 +136,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
           transform: `rotate(${rotateValue}deg)`,
           transition: 'transform 0.3s ease'
         }}>
-            <X className="h-5 w-5" />
+            <X className="h-6 w-6" />
           </button>
         </div>
         
@@ -145,7 +145,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
           e.stopPropagation();
           setShowInfo(!showInfo);
         }} aria-label="Toggle information">
-            <Info className="h-5 w-5" />
+            <Info className="h-7 w-7" />
           </button>
         </div>
         
