@@ -32,7 +32,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({
   };
   return <>
       <div className="columns-1 sm:columns-2 md:columns-2 xl:columns-3 gap-4 space-y-4">
-        {images.map(image => <div key={image.id} className="break-inside-avoid group overflow-hidden">
+        {images.map(image => <div key={image.id} className="break-inside-avoid group rounded-md overflow-hidden">
             <div className="hover-image-card bg-muted relative cursor-pointer" onClick={() => openModal(image)}>
               <img src={image.src} alt={image.alt} className="w-full h-auto object-cover" loading="lazy" />
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3 bg-[#000a0e]/0 rounded-2xl">
