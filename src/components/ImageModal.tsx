@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { X, ChevronLeft, ChevronRight, Info } from 'lucide-react';
+import { X, Info } from 'lucide-react';
 import { Image, getImageSrc } from '@/lib/data';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -23,6 +23,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [currentImage, setCurrentImage] = useState(image);
   const [imageOpacity, setImageOpacity] = useState(1);
+  const [rotateValue, setRotateValue] = useState(0);
   
   // Update internal image when prop changes
   useEffect(() => {
@@ -62,11 +63,20 @@ const ImageModal: React.FC<ImageModalProps> = ({
     }
   };
 
-  // Handle navigation with fade transition
+  // Handle navigation with slide transition
   const handleNavigate = (direction: 'next' | 'prev') => {
     if (isTransitioning) return;
     
     setIsTransitioning(true);
+    
+    // Rotate the X icon
+    if (direction === 'next') {
+      setRotateValue(rotateValue + 90);
+    } else {
+      setRotateValue(rotateValue - 90);
+    }
+    
+    // Fade out current image
     setImageOpacity(0);
     
     // Wait for fade out to complete before changing image
@@ -109,7 +119,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose, isTransitioning]);
+  }, [onClose, isTransitioning, rotateValue]);
 
   // Close when clicking outside of image
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -120,102 +130,70 @@ const ImageModal: React.FC<ImageModalProps> = ({
   };
   
   return (
-    <div className="blur-backdrop" onClick={handleBackdropClick}>
-      <div className="image-modal">
-        <div ref={modalRef} className="image-modal-content">
-          <div className="relative h-full">
-            <div className="absolute top-4 right-4 z-10 flex space-x-2">
-              <button 
-                className="p-1.5 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" 
-                onClick={() => setShowInfo(!showInfo)} 
-                aria-label="Toggle information"
-              >
-                <Info className="h-5 w-5" />
-              </button>
-              <button 
-                className="p-1.5 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors" 
-                onClick={onClose} 
-                aria-label="Close modal"
-              >
-                <X className="h-5 w-5" />
-              </button>
+    <div className="fixed inset-0 bg-black z-50 flex items-center justify-center" onClick={handleBackdropClick}>
+      <div ref={modalRef} className="relative w-full h-full flex items-center justify-center">
+        <div className="absolute top-4 right-4 z-10 flex space-x-2">
+          <button 
+            className="p-1.5 text-white hover:text-gray-300 transition-colors" 
+            onClick={() => setShowInfo(!showInfo)} 
+            aria-label="Toggle information"
+          >
+            <Info className="h-5 w-5" />
+          </button>
+          <button 
+            className="p-1.5 text-white hover:text-gray-300 transition-colors" 
+            onClick={onClose} 
+            aria-label="Close modal"
+            style={{ transform: `rotate(${rotateValue}deg)`, transition: 'transform 0.3s ease' }}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div 
+          className="flex items-center justify-center h-full"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          <img 
+            ref={imageRef} 
+            src={getImageSrc(currentImage.src)} 
+            alt={currentImage.alt} 
+            className={`max-h-[80vh] object-contain transition-opacity duration-300 ease-in-out ${isMobile ? 'w-[90vw]' : 'w-[60vw]'}`}
+            style={{ opacity: imageOpacity }}
+          />
+        </div>
+        
+        {/* Image info panel */}
+        <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/0 text-white p-6 transform transition-opacity duration-300 ease-in-out ${showInfo ? 'translate-y-0' : 'translate-y-full'}`}>
+          <h2 className="text-xl font-medium mb-2">{currentImage.title}</h2>
+          <p className="text-white/80 mb-3">{currentImage.description}</p>
+          
+          <div className="flex flex-wrap gap-y-3 gap-x-6 text-sm text-white/70">
+            <div>
+              <span className="font-medium block text-white">Location</span>
+              <span>{currentImage.location}</span>
             </div>
-            
-            <div 
-              className="flex items-center justify-center h-full"
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-            >
-              <img 
-                ref={imageRef} 
-                src={getImageSrc(currentImage.src)} 
-                alt={currentImage.alt} 
-                className={`max-h-[80vh] shadow-xl shadow-black/30 rounded object-contain transition-opacity duration-400 ease-[cubic-bezier(0, 0, 0.25, 1)] ${isMobile ? 'w-[90vw]' : 'w-[60vw]'}`}
-                style={{ opacity: imageOpacity }}
-              />
+            <div>
+              <span className="font-medium block text-white">Date</span>
+              <span>{currentImage.date}</span>
             </div>
-            
-            {/* Navigation buttons - hidden on mobile */}
-            {!isMobile && (
-              <>
-                <button 
-                  className="absolute left-4 top-1/2 -translate-y-1/2 p-2 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors"
-                  onClick={e => {
-                    e.stopPropagation();
-                    if (!isTransitioning) handleNavigate('prev');
-                  }} 
-                  disabled={isTransitioning}
-                  aria-label="Previous image"
-                >
-                  <ChevronLeft className="h-6 w-6" />
-                </button>
-                
-                <button 
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors"
-                  onClick={e => {
-                    e.stopPropagation();
-                    if (!isTransitioning) handleNavigate('next');
-                  }}
-                  disabled={isTransitioning}
-                  aria-label="Next image"
-                >
-                  <ChevronRight className="h-6 w-6" />
-                </button>
-              </>
+            {currentImage.photographerNote && (
+              <div className="w-full mt-1">
+                <span className="font-medium block text-white">Photographer's Note</span>
+                <span className="text-white/80 italic">{currentImage.photographerNote}</span>
+              </div>
             )}
-            
-            {/* Image info panel */}
-            <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/0 text-white p-6 transform transition-opacity duration-400 ease-[cubic-bezier(0, 0, 0.25, 1)] ${showInfo ? 'translate-y-0' : 'translate-y-full'}`}>
-              <h2 className="text-xl font-medium mb-2">{currentImage.title}</h2>
-              <p className="text-white/80 mb-3">{currentImage.description}</p>
-              
-              <div className="flex flex-wrap gap-y-3 gap-x-6 text-sm text-white/70">
-                <div>
-                  <span className="font-medium block text-white">Location</span>
-                  <span>{currentImage.location}</span>
-                </div>
-                <div>
-                  <span className="font-medium block text-white">Date</span>
-                  <span>{currentImage.date}</span>
-                </div>
-                {currentImage.photographerNote && (
-                  <div className="w-full mt-1">
-                    <span className="font-medium block text-white">Photographer's Note</span>
-                    <span className="text-white/80 italic">{currentImage.photographerNote}</span>
-                  </div>
-                )}
-              </div>
-              
-              <div className="mt-4 pt-3 border-t border-white/20 flex justify-between items-center">
-                <div className="flex gap-2">
-                  {currentImage.categories.map((category, index) => (
-                    <span key={index} className="text-xs bg-white/20 text-white px-2 py-1 rounded-full">
-                      {category}
-                    </span>
-                  ))}
-                </div>
-              </div>
+          </div>
+          
+          <div className="mt-4 pt-3 border-t border-white/20 flex justify-between items-center">
+            <div className="flex gap-2">
+              {currentImage.categories.map((category, index) => (
+                <span key={index} className="text-xs bg-white/20 text-white px-2 py-1 rounded-full">
+                  {category}
+                </span>
+              ))}
             </div>
           </div>
         </div>
