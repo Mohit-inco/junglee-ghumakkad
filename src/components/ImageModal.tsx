@@ -124,7 +124,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
           transform: `rotate(${rotateValue}deg)`,
           transition: 'transform 0.3s ease'
         }}>
-            <X className="h-6 w-6" />
+            <X className="h-5.5 w-5.5" />
           </button>
         </div>
         
@@ -136,7 +136,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
           transform: `rotate(${rotateValue}deg)`,
           transition: 'transform 0.3s ease'
         }}>
-            <X className="h-6 w-6" />
+            <X className="h-5.5 w-5.5" />
           </button>
         </div>
         
@@ -145,7 +145,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
           e.stopPropagation();
           setShowInfo(!showInfo);
         }} aria-label="Toggle information">
-            <Info className="h-7 w-7" />
+            <Info className="h-6 w-6" />
           </button>
         </div>
         
