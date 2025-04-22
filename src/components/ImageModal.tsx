@@ -62,7 +62,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
     }
   };
 
-  // Handle navigation without image transition animation
+  // Handle navigation with X button rotation
   const handleNavigate = (direction: 'next' | 'prev') => {
     if (isTransitioning) return;
     
@@ -110,10 +110,16 @@ const ImageModal: React.FC<ImageModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose, isTransitioning, rotateValue]);
 
-  // Close when clicking outside of image
+  // Handle clicks outside image and info panel
   const handleBackdropClick = (e: React.MouseEvent) => {
-    // Only close if the click is not on the image or the info panel
-    if (imageRef.current && !imageRef.current.contains(e.target as Node) && modalRef.current && !modalRef.current.contains(e.target as Node)) {
+    // If info panel is showing, close it first
+    if (showInfo) {
+      setShowInfo(false);
+      return;
+    }
+    
+    // Only close if the click is not on the image
+    if (imageRef.current && !imageRef.current.contains(e.target as Node)) {
       onClose();
     }
   };
@@ -121,21 +127,44 @@ const ImageModal: React.FC<ImageModalProps> = ({
   return (
     <div className="fixed inset-0 bg-black z-50 flex items-center justify-center" onClick={handleBackdropClick}>
       <div ref={modalRef} className="relative w-full h-full flex items-center justify-center">
-        <div className="absolute top-4 right-4 z-10 flex space-x-4">
+        <div className="absolute top-1/2 left-4 z-10">
           <button 
             className="p-2 text-white bg-black/20 rounded-full hover:bg-black/40 transition-colors" 
-            onClick={() => setShowInfo(!showInfo)} 
-            aria-label="Toggle information"
-          >
-            <Info className="h-5 w-5" />
-          </button>
-          <button 
-            className="p-2 text-white bg-black/20 rounded-full hover:bg-black/40 transition-colors" 
-            onClick={onClose} 
-            aria-label="Close modal"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleNavigate('prev');
+            }} 
+            aria-label="Previous image"
             style={{ transform: `rotate(${rotateValue}deg)`, transition: 'transform 0.3s ease' }}
           >
             <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div className="absolute top-1/2 right-4 z-10">
+          <button 
+            className="p-2 text-white bg-black/20 rounded-full hover:bg-black/40 transition-colors" 
+            onClick={(e) => {
+              e.stopPropagation();
+              handleNavigate('next');
+            }} 
+            aria-label="Next image"
+            style={{ transform: `rotate(${rotateValue}deg)`, transition: 'transform 0.3s ease' }}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div className="absolute top-4 right-4 z-10">
+          <button 
+            className="p-2 text-white bg-black/20 rounded-full hover:bg-black/40 transition-colors" 
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowInfo(!showInfo);
+            }} 
+            aria-label="Toggle information"
+          >
+            <Info className="h-5 w-5" />
           </button>
         </div>
         
@@ -150,12 +179,14 @@ const ImageModal: React.FC<ImageModalProps> = ({
             src={getImageSrc(currentImage.src)} 
             alt={currentImage.alt} 
             className={`max-h-[80vh] object-contain ${isMobile ? 'w-[90vw]' : 'w-[60vw]'}`}
+            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on image
           />
         </div>
         
         {/* Image info panel with slide transition */}
         <div 
           className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/0 text-white p-6 transform transition-transform duration-300 ease-in-out ${showInfo ? 'translate-y-0' : 'translate-y-full'}`}
+          onClick={(e) => e.stopPropagation()} // Prevent closing modal when clicking on info panel
         >
           <h2 className="text-xl font-medium mb-2">{currentImage.title}</h2>
           <p className="text-white/80 mb-3">{currentImage.description}</p>
