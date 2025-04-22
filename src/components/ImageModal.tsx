@@ -63,13 +63,13 @@ const ImageModal: React.FC<ImageModalProps> = ({
     
     // Determine if the swipe is more horizontal or vertical
     if (Math.abs(xDistance) > Math.abs(yDistance)) {
-      // Horizontal swipe - for navigation
+      // Horizontal swipe - for navigation (works on both mobile and desktop)
       const isLeftSwipe = xDistance > minSwipeDistance;
       const isRightSwipe = xDistance < -minSwipeDistance;
       
-      if (isLeftSwipe && !isMobile) {
+      if (isLeftSwipe) {
         handleNavigate('next');
-      } else if (isRightSwipe && !isMobile) {
+      } else if (isRightSwipe) {
         handleNavigate('prev');
       }
     } else {
@@ -96,11 +96,13 @@ const ImageModal: React.FC<ImageModalProps> = ({
     if (isTransitioning) return;
     setIsTransitioning(true);
 
-    // Rotate the X icon
-    if (direction === 'next') {
-      setRotateValue(rotateValue + 90);
-    } else {
-      setRotateValue(rotateValue - 90);
+    // Rotate the X icon (only for desktop where buttons are visible)
+    if (!isMobile) {
+      if (direction === 'next') {
+        setRotateValue(rotateValue + 90);
+      } else {
+        setRotateValue(rotateValue - 90);
+      }
     }
 
     // Navigate immediately without animation
@@ -124,10 +126,10 @@ const ImageModal: React.FC<ImageModalProps> = ({
           handleCloseWithAnimation();
           break;
         case 'ArrowRight':
-          if (!isMobile) handleNavigate('next');
+          handleNavigate('next');
           break;
         case 'ArrowLeft':
-          if (!isMobile) handleNavigate('prev');
+          handleNavigate('prev');
           break;
         default:
           break;
@@ -135,7 +137,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose, isTransitioning, rotateValue, isMobile]);
+  }, [onClose, isTransitioning, rotateValue]);
 
   // Handle clicks outside image and info panel
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -210,7 +212,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
         </div>
         
         <div 
-          className={`${     isMobile       ? 'absolute bottom-[60%] left-1/2 transform -translate-x-1/2'       : 'flex items-center justify-center h-full'   }`}
+          className={`flex items-center justify-center h-full ${isMobile ? 'items-start pt-20' : ''}`}
           onTouchStart={handleTouchStart} 
           onTouchMove={handleTouchMove} 
           onTouchEnd={handleTouchEnd}
