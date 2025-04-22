@@ -128,7 +128,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
           </button>
         </div>
         
-        <div className="absolute top-1/2 right-4 z-10">
+        <div className="absolute top-1/2 right-20 z-10">
           <button className="p-2 text-white bg-black/20 rounded-full hover:bg-black/40 transition-colors" onClick={e => {
           e.stopPropagation();
           handleNavigate('next');
