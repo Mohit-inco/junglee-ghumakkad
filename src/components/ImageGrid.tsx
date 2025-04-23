@@ -11,7 +11,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({
 }) => {
   const [selectedImage, setSelectedImage] = useState<Image | null>(null);
   const [hoveredImageId, setHoveredImageId] = useState<string | null>(null);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [animationState, setAnimationState] = useState<'idle' | 'opening' | 'open' | 'closing'>('idle');
   const [clickedImagePosition, setClickedImagePosition] = useState({ 
     x: 0, y: 0, width: 0, height: 0, src: ''
   });
@@ -31,25 +31,28 @@ const ImageGrid: React.FC<ImageGridProps> = ({
         src: imgElement.src
       });
       
-      // Start animation
-      setIsAnimating(true);
+      // Start opening animation
+      setAnimationState('opening');
       document.body.style.overflow = 'hidden';
       
-      // After a brief delay, show the modal
+      // After animation completes, show the modal
       setTimeout(() => {
         setSelectedImage(image);
+        setAnimationState('open');
       }, 300); // Match this with animation duration
     }
   };
 
   // Function to handle closing the modal
   const handleCloseModal = () => {
-    setSelectedImage(null);
-    document.body.style.overflow = '';
+    // Start closing animation
+    setAnimationState('closing');
     
-    // Reset animation state after a delay
+    // Remove the modal after animation completes
     setTimeout(() => {
-      setIsAnimating(false);
+      setSelectedImage(null);
+      document.body.style.overflow = '';
+      setAnimationState('idle');
     }, 300);
   };
 
@@ -70,13 +73,16 @@ const ImageGrid: React.FC<ImageGridProps> = ({
     }
   };
 
+  // Determine if the grid should be dimmed
+  const isGridDimmed = animationState !== 'idle';
+
   return (
     <>
       {/* Main image grid */}
       <div 
         ref={gridRef}
         className={`columns-1 sm:columns-2 md:columns-2 xl:columns-3 gap-4 space-y-4 transition-all duration-300 ${
-          isAnimating || selectedImage ? 'opacity-20 scale-98' : 'opacity-100 scale-100'
+          isGridDimmed ? 'opacity-20 scale-98' : 'opacity-100 scale-100'
         }`}
       >
         {images.map(image => (
@@ -108,18 +114,18 @@ const ImageGrid: React.FC<ImageGridProps> = ({
         ))}
       </div>
       
-      {/* Animation overlay - shows while transitioning to modal */}
-      {isAnimating && !selectedImage && (
+      {/* Animation overlay - shows only during opening animation */}
+      {animationState === 'opening' && (
         <div className="fixed inset-0 z-40 pointer-events-none">
           <div 
-            className="absolute transition-all duration-300"
+            className="absolute"
             style={{
               position: 'fixed',
               left: clickedImagePosition.x,
               top: clickedImagePosition.y,
               width: clickedImagePosition.width,
               height: clickedImagePosition.height,
-              animation: 'zoom-to-center 300ms forwards',
+              animation: 'zoom-to-center 300ms ease-out forwards',
               zIndex: 45
             }}
           >
@@ -146,7 +152,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({
           100% {
             left: 50%;
             top: 50%;
-            width: ${window.innerWidth > 768 ? '60vw' : '90vw'};
+            width: ${typeof window !== 'undefined' && window.innerWidth > 768 ? '60vw' : '90vw'};
             height: 80vh;
             transform: translate(-50%, -50%);
             object-fit: contain;
