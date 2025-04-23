@@ -1,19 +1,21 @@
 import React, { useState, useRef } from 'react';
 import { Image } from '@/lib/data';
 import ImageModal from './ImageModal';
-
 interface ImageGridProps {
   images: Image[];
 }
-
 const ImageGrid: React.FC<ImageGridProps> = ({
   images
 }) => {
   const [selectedImage, setSelectedImage] = useState<Image | null>(null);
   const [hoveredImageId, setHoveredImageId] = useState<string | null>(null);
   const [animationState, setAnimationState] = useState<'idle' | 'opening' | 'open' | 'closing'>('idle');
-  const [clickedImagePosition, setClickedImagePosition] = useState({ 
-    x: 0, y: 0, width: 0, height: 0, src: ''
+  const [clickedImagePosition, setClickedImagePosition] = useState({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    src: ''
   });
   const gridRef = useRef<HTMLDivElement>(null);
 
@@ -30,11 +32,11 @@ const ImageGrid: React.FC<ImageGridProps> = ({
         height: rect.height,
         src: imgElement.src
       });
-      
+
       // Start opening animation
       setAnimationState('opening');
       document.body.style.overflow = 'hidden';
-      
+
       // After animation completes, show the modal
       setTimeout(() => {
         setSelectedImage(image);
@@ -47,7 +49,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({
   const handleCloseModal = () => {
     // Start closing animation
     setAnimationState('closing');
-    
+
     // Remove the modal after animation completes
     setTimeout(() => {
       setSelectedImage(null);
@@ -64,7 +66,6 @@ const ImageGrid: React.FC<ImageGridProps> = ({
       setSelectedImage(images[nextIndex]);
     }
   };
-
   const handlePrevImage = () => {
     if (selectedImage) {
       const currentIndex = images.findIndex(img => img.id === selectedImage.id);
@@ -75,69 +76,35 @@ const ImageGrid: React.FC<ImageGridProps> = ({
 
   // Determine if the grid should be dimmed
   const isGridDimmed = animationState !== 'idle';
-
-  return (
-    <>
+  return <>
       {/* Main image grid */}
-      <div 
-        ref={gridRef}
-        className={`columns-1 sm:columns-2 md:columns-2 xl:columns-3 gap-4 space-y-4 transition-all duration-300 ${
-          isGridDimmed ? 'opacity-20 scale-98' : 'opacity-100 scale-100'
-        }`}
-      >
-        {images.map(image => (
-          <div 
-            key={image.id} 
-            className="break-inside-avoid mb-4"
-            onMouseEnter={() => setHoveredImageId(image.id)}
-            onMouseLeave={() => setHoveredImageId(null)}
-          >
-            <div 
-              className="bg-muted relative cursor-pointer overflow-hidden" 
-              onClick={(e) => handleOpenModal(image, e)}
-            >
-              <img 
-                src={image.src} 
-                alt={image.alt || ''} 
-                className={`w-full h-auto object-cover transition-all duration-300 ${
-                  hoveredImageId === image.id ? 'brightness-110 scale-105' : 
-                  hoveredImageId !== null ? 'brightness-50' : 'brightness-100'
-                }`} 
-                loading="lazy" 
-              />
+      <div ref={gridRef} className={`columns-1 sm:columns-2 md:columns-2 xl:columns-3 gap-4 space-y-4 transition-all duration-300 ${isGridDimmed ? 'opacity-20 scale-98' : 'opacity-100 scale-100'}`}>
+        {images.map(image => <div key={image.id} className="break-inside-avoid mb-4" onMouseEnter={() => setHoveredImageId(image.id)} onMouseLeave={() => setHoveredImageId(null)}>
+            <div className="bg-muted relative cursor-pointer overflow-hidden" onClick={e => handleOpenModal(image, e)}>
+              <img src={image.src} alt={image.alt || ''} className={`w-full h-auto object-cover transition-all duration-300 ${hoveredImageId === image.id ? 'brightness-110 scale-105' : hoveredImageId !== null ? 'brightness-50' : 'brightness-100'}`} loading="lazy" />
               <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity flex flex-col justify-end p-3 bg-gradient-to-t from-black/50 to-transparent">
-                <h3 className="font-medium text-white text-lg mb-1">{image.title || 'Image'}</h3>
-                <p className="text-white/80 text-sm">{image.location || ''}</p>
+                <h3 className="text-white mb-1 text-base font-light">{image.title || 'Image'}</h3>
+                
               </div>
             </div>
-          </div>
-        ))}
+          </div>)}
       </div>
       
       {/* Animation overlay - shows only during opening animation */}
-      {animationState === 'opening' && (
-        <div className="fixed inset-0 z-40 pointer-events-none">
-          <div 
-            className="absolute"
-            style={{
-              position: 'fixed',
-              left: clickedImagePosition.x,
-              top: clickedImagePosition.y,
-              width: clickedImagePosition.width,
-              height: clickedImagePosition.height,
-              animation: 'zoom-to-center 300ms ease-out forwards',
-              zIndex: 45
-            }}
-          >
-            <img 
-              src={clickedImagePosition.src} 
-              alt="Zooming image"
-              className="w-full h-full object-cover"
-            />
+      {animationState === 'opening' && <div className="fixed inset-0 z-40 pointer-events-none">
+          <div className="absolute" style={{
+        position: 'fixed',
+        left: clickedImagePosition.x,
+        top: clickedImagePosition.y,
+        width: clickedImagePosition.width,
+        height: clickedImagePosition.height,
+        animation: 'zoom-to-center 300ms ease-out forwards',
+        zIndex: 45
+      }}>
+            <img src={clickedImagePosition.src} alt="Zooming image" className="w-full h-full object-cover" />
           </div>
           <div className="absolute inset-0 bg-black opacity-0 animate-fade-in z-40"></div>
-        </div>
-      )}
+        </div>}
       
       {/* Keyframe animations */}
       <style jsx global>{`
@@ -174,16 +141,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({
       `}</style>
       
       {/* Render the image modal when an image is selected */}
-      {selectedImage && (
-        <ImageModal 
-          image={selectedImage} 
-          onClose={handleCloseModal} 
-          onNext={handleNextImage} 
-          onPrev={handlePrevImage} 
-        />
-      )}
-    </>
-  );
+      {selectedImage && <ImageModal image={selectedImage} onClose={handleCloseModal} onNext={handleNextImage} onPrev={handlePrevImage} />}
+    </>;
 };
-
 export default ImageGrid;
