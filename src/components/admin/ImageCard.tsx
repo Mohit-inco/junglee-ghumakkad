@@ -10,7 +10,7 @@ interface ImageCardProps {
   onManagePrints: (image: GalleryImage) => void;
 }
 
-const ImageCard: React.FC<ImageCardProps> = ({ image, onEdit, onManagePrints }) => {
+export const ImageCard: React.FC<ImageCardProps> = ({ image, onEdit, onManagePrints }) => {
   return (
     <Card key={image.id} className="overflow-hidden">
       <div className="aspect-video w-full overflow-hidden">

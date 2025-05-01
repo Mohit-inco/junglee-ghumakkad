@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -69,8 +70,10 @@ const Print = () => {
     refetchOnWindowFocus: false,
     staleTime: Infinity,
     retry: 1,
-    onError: (error) => {
-      console.error('Error fetching print options:', error);
+    meta: {
+      onError: (error: any) => {
+        console.error('Error fetching print options:', error);
+      }
     }
   });
   
