@@ -7,6 +7,28 @@ import { ArrowLeft } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useQuery } from '@tanstack/react-query';
 
+// Helper function to properly convert various types to boolean
+function convertToBoolean(value) {
+  // If value is null or undefined, assume it's in stock
+  if (value === null || value === undefined) return true;
+  
+  // If it's already a boolean, return it
+  if (typeof value === 'boolean') return value;
+  
+  // If it's a string, check for false values
+  if (typeof value === 'string') {
+    const lowercased = value.toLowerCase();
+    return !(lowercased === 'false' || lowercased === '0' || 
+              lowercased === 'f' || lowercased === 'no');
+  }
+  
+  // If it's a number, 0 is false, anything else is true
+  if (typeof value === 'number') return value !== 0;
+  
+  // Default to true for any other case
+  return true;
+}
+
 const Print = () => {
   const { id } = useParams<{ id?: string }>();
   const [selectedImage, setSelectedImage] = useState<string | null>(id || null);
@@ -63,15 +85,6 @@ const Print = () => {
   const currentImage = selectedImage 
     ? printableImages.find(img => img.id === selectedImage) 
     : null;
-
-  // Debug function to check the actual value of in_stock
-  const debugInStock = (value) => {
-    console.log('in_stock value type:', typeof value, 'value:', value);
-    // Convert various possible formats to boolean
-    // Default to true if value is null or undefined (assume in stock unless explicitly marked false)
-    if (value === null || value === undefined) return true;
-    return !(value === false || value === 'false' || value === 0 || value === '0' || value === 'f' || value === 'F' || value === 'no' || value === 'No');
-  };
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -144,7 +157,7 @@ const Print = () => {
                       <div className="space-y-4">
                         {printOptions.map((option) => {
                           // Convert in_stock to boolean explicitly to handle different data types
-                          const isInStock = debugInStock(option.in_stock);
+                          const isInStock = convertToBoolean(option.in_stock);
                           
                           return (
                             <div key={option.id} className="flex justify-between items-center py-3 border-b last:border-b-0">
