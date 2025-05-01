@@ -6,7 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ImageFormFields } from './ImageFormFields';
 import { ImageUploadSection } from './ImageUploadSection';
 import { supabase } from '@/integrations/supabase/client';
-import { PrintOptionsForm } from './PrintOptionsForm';
+import PrintOptionsForm from './PrintOptionsForm';
 
 export const ImageUploadPanel = () => {
   const [title, setTitle] = useState('');

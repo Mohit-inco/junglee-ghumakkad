@@ -5,28 +5,47 @@ import { Input } from '@/components/ui/input';
 import ImagePreview from './ImagePreview';
 
 interface ImageUploadSectionProps {
-  onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  previewUrl: string | null;
-  onClearPreview: () => void;
-  isEditing: boolean;
-  file: File | null;
+  setImageFile: (file: File | null) => void;
+  setImagePreview: (url: string | null) => void;
+  imagePreview: string | null;
 }
 
-const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
-  onFileChange,
-  previewUrl,
-  onClearPreview,
-  isEditing,
-  file
+export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
+  setImageFile,
+  setImagePreview,
+  imagePreview
 }) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    
+    if (file) {
+      setImageFile(file);
+      
+      // Create a preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setImageFile(null);
+      setImagePreview(null);
+    }
+  };
+
+  const handleClearPreview = () => {
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
   return (
     <div className="space-y-2">
       <FormLabel>Image</FormLabel>
       <div className="flex flex-col items-center gap-4 md:flex-row">
-        {previewUrl && (
+        {imagePreview && (
           <ImagePreview 
-            previewUrl={previewUrl} 
-            onClear={onClearPreview}
+            previewUrl={imagePreview} 
+            onClear={handleClearPreview}
           />
         )}
         
@@ -35,16 +54,14 @@ const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
             id="image"
             type="file"
             accept="image/*"
-            onChange={onFileChange}
+            onChange={handleFileChange}
             className="cursor-pointer"
           />
           <p className="text-xs text-muted-foreground mt-1">
-            {isEditing && !file ? "Leave empty to keep the current image" : "Upload a high-quality image"}
+            Upload a high-quality image
           </p>
         </div>
       </div>
     </div>
   );
 };
-
-export default ImageUploadSection;

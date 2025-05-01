@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import ImageUploadPanel from '@/components/admin/ImageUploadPanel';
+import { ImageUploadPanel } from '@/components/admin/ImageUploadPanel';
 import BlogManagementPanel from '@/components/admin/BlogManagementPanel';
 import { User, Session } from '@supabase/supabase-js';
 import { Button } from '@/components/ui/button';
@@ -92,7 +91,7 @@ const Admin: React.FC = () => {
         </TabsList>
         
         <TabsContent value="images">
-          <ImageUploadPanel session={session} />
+          <ImageUploadPanel />
         </TabsContent>
         
         <TabsContent value="blogs">
