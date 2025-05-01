@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from '@/components/ui/form';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -50,90 +49,92 @@ const SectionCategorySelector: React.FC<SelectorProps> = ({
   };
 
   return (
-    <FormField
-      control={form.control}
-      name={name}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>{label}</FormLabel>
-          <div className="flex items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full justify-between">
-                  {field.value.length > 0 
-                    ? `${field.value.length} ${name} selected` 
-                    : placeholder}
-                  <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
+    <>
+      <FormField
+        control={form.control}
+        name={name}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{label}</FormLabel>
+            <div className="flex items-center gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="w-full justify-between">
+                    {field.value.length > 0 
+                      ? `${field.value.length} ${name} selected` 
+                      : placeholder}
+                    <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-full">
+                  {options.map((option) => (
+                    <DropdownMenuCheckboxItem
+                      key={option}
+                      checked={field.value.includes(option)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          field.onChange([...field.value, option]);
+                        } else {
+                          field.onChange(field.value.filter((val) => val !== option));
+                        }
+                      }}
+                    >
+                      {option}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
+              {name === 'categories' && onAddCategory && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setIsDialogOpen(true)}
+                  title="Add new category"
+                >
+                  <Plus className="h-4 w-4" />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-full">
-                {options.map((option) => (
-                  <DropdownMenuCheckboxItem
-                    key={option}
-                    checked={field.value.includes(option)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        field.onChange([...field.value, option]);
-                      } else {
-                        field.onChange(field.value.filter((val) => val !== option));
-                      }
-                    }}
-                  >
-                    {option}
-                  </DropdownMenuCheckboxItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            
-            {name === 'categories' && onAddCategory && (
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() => setIsDialogOpen(true)}
-                title="Add new category"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-          <FormDescription>
-            {description}
-          </FormDescription>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-    
-    {/* Dialog for adding a new category */}
-    {name === 'categories' && onAddCategory && (
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Add New Category</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Input
-                id="newCategory"
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value)}
-                placeholder="Enter new category name"
-                className="col-span-4"
-              />
+              )}
             </div>
-          </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="button" onClick={handleAddCategory}>
-              Add Category
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    )}
+            <FormDescription>
+              {description}
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      
+      {/* Dialog for adding a new category */}
+      {name === 'categories' && onAddCategory && (
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Add New Category</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Input
+                  id="newCategory"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  placeholder="Enter new category name"
+                  className="col-span-4"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="button" onClick={handleAddCategory}>
+                Add Category
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
   );
 };
 
