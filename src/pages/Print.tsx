@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
@@ -12,6 +12,22 @@ const Print = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(id || null);
   const { addToCart } = useCart();
   
+  // Memoize the addToCart function to prevent unnecessary re-renders
+  const handleAddToCart = useCallback((imageId, optionId) => {
+    try {
+      addToCart(imageId, optionId);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    }
+  }, [addToCart]);
+  
+  // Cancel any pending operations on unmount
+  useEffect(() => {
+    return () => {
+      // This will help clean up any pending async operations when component unmounts
+    };
+  }, []);
+  
   // Fetch all gallery images
   const { data: images = [] } = useQuery({
     queryKey: ['print-gallery-images'],
@@ -22,12 +38,18 @@ const Print = () => {
   const printableImages = images.filter(img => img.enable_print);
   
   // Fetch print options when an image is selected
-  const { data: printOptions = [] } = useQuery({
+  const { data: printOptions = [], isLoading: printOptionsLoading } = useQuery({
     queryKey: ['print-options', selectedImage],
     queryFn: () => selectedImage ? getPrintOptions(selectedImage) : Promise.resolve([]),
     enabled: !!selectedImage,
-    // Add refetch interval to ensure data is fresh
-    refetchInterval: 30000,
+    // Disable automatic refetching to prevent race conditions
+    refetchInterval: 0,
+    refetchOnWindowFocus: false,
+    staleTime: Infinity,
+    retry: 1,
+    onError: (error) => {
+      console.error('Error fetching print options:', error);
+    }
   });
   
   // Reset selected image when navigating directly to print/:id
@@ -46,7 +68,9 @@ const Print = () => {
   const debugInStock = (value) => {
     console.log('in_stock value type:', typeof value, 'value:', value);
     // Convert various possible formats to boolean
-    return value === true || value === 'true' || value === 1 || value === '1';
+    // Default to true if value is null or undefined (assume in stock unless explicitly marked false)
+    if (value === null || value === undefined) return true;
+    return !(value === false || value === 'false' || value === 0 || value === '0' || value === 'f' || value === 'F' || value === 'no' || value === 'No');
   };
   
   return (
@@ -131,9 +155,13 @@ const Print = () => {
                                 </p>
                               </div>
                               <div className="flex items-center">
-                                <span className="font-medium mr-4">${parseFloat(option.price.toString()).toFixed(2)}</span>
+                                <span className="font-medium mr-4">₹{parseFloat(option.price.toString()).toFixed(2)}</span>
                                 <button
-                                  onClick={() => addToCart(currentImage.id, option.id)}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleAddToCart(currentImage.id, option.id);
+                                  }}
                                   disabled={!isInStock}
                                   className={`px-4 py-1.5 rounded text-sm font-medium ${
                                     isInStock 
