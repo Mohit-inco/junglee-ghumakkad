@@ -25,7 +25,6 @@ interface ImageFormData {
   enable_print: boolean;
   sections: string[];
   categories: string[];
-  tags: string[];
 }
 
 interface Props {
@@ -37,6 +36,7 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [availableSections] = useState<string[]>(getAvailableSections());
+  const [availableCategories, setAvailableCategories] = useState<string[]>(['wildlife', 'landscape', 'portrait', 'street', 'astro', 'macro']);
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -55,12 +55,13 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
       enable_print: false,
       sections: [],
       categories: [],
-      tags: []
     }
   });
   
   useEffect(() => {
     fetchImages();
+    // Fetch all unique categories from existing images
+    fetchCategories();
   }, []);
 
   const fetchImages = async () => {
@@ -75,6 +76,40 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
     } catch (error: any) {
       toast.error(`Error fetching images: ${error.message}`);
     }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('gallery_images')
+        .select('categories');
+
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        // Extract all categories from all images and flatten the array
+        const allCategories = data
+          .map(item => item.categories || [])
+          .flat()
+          .filter(Boolean);
+        
+        // Remove duplicates
+        const uniqueCategories = [...new Set(allCategories)];
+        
+        // Merge with default categories
+        const defaultCategories = ['wildlife', 'landscape', 'portrait', 'street', 'astro', 'macro'];
+        const mergedCategories = [...new Set([...defaultCategories, ...uniqueCategories])];
+        
+        setAvailableCategories(mergedCategories);
+      }
+    } catch (error: any) {
+      console.error('Error fetching categories:', error);
+      // Keep the default categories if there's an error
+    }
+  };
+
+  const handleAddCategory = (category: string) => {
+    setAvailableCategories(prev => [...prev, category]);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -138,9 +173,8 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
             enable_print: data.enable_print,
             sections: data.sections,
             categories: data.categories || [],
-            tags: data.tags || [],
+            updated_at: new Date().toISOString(),
             ...(imageUrl && { image_url: imageUrl }),
-            updated_at: new Date().toISOString()
           })
           .eq('id', selectedImage.id);
           
@@ -159,7 +193,6 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
             enable_print: data.enable_print,
             sections: data.sections,
             categories: data.categories || [],
-            tags: data.tags || [],
             image_url: imageUrl
           });
           
@@ -207,7 +240,6 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
       enable_print: image.enable_print || false,
       sections: image.sections || [],
       categories: image.categories || [],
-      tags: image.tags || []
     });
     
     // Set preview URL if available
@@ -231,7 +263,6 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
       enable_print: false,
       sections: [],
       categories: [],
-      tags: []
     });
     setFile(null);
     setPreviewUrl(null);
@@ -274,6 +305,8 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
               <ImageFormFields 
                 form={form} 
                 availableSections={availableSections} 
+                availableCategories={availableCategories}
+                onAddCategory={handleAddCategory}
               />
               
               <div className="flex gap-2 pt-4">

@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { UseFormReturn } from 'react-hook-form';
 import SectionCategorySelector from './SectionCategorySelector';
+import { toast } from 'sonner';
 
 interface ImageFormData {
   title: string;
@@ -16,15 +17,30 @@ interface ImageFormData {
   enable_print: boolean;
   sections: string[];
   categories: string[];
-  tags: string[];
 }
 
 interface ImageFormFieldsProps {
   form: UseFormReturn<ImageFormData>;
   availableSections: string[];
+  availableCategories: string[];
+  onAddCategory: (category: string) => void;
 }
 
-const ImageFormFields: React.FC<ImageFormFieldsProps> = ({ form, availableSections }) => {
+const ImageFormFields: React.FC<ImageFormFieldsProps> = ({ 
+  form, 
+  availableSections, 
+  availableCategories,
+  onAddCategory
+}) => {
+  const handleAddCategory = (category: string) => {
+    if (availableCategories.includes(category)) {
+      toast.error('This category already exists');
+      return;
+    }
+    onAddCategory(category);
+    toast.success(`Added new category: ${category}`);
+  };
+
   return (
     <>
       {/* Title */}
@@ -109,8 +125,9 @@ const ImageFormFields: React.FC<ImageFormFieldsProps> = ({ form, availableSectio
         name="categories"
         label="Categories"
         description="Select one or more categories for this image"
-        options={['wildlife', 'landscape', 'portrait', 'street', 'astro', 'macro']}
+        options={availableCategories}
         placeholder="Select categories"
+        onAddCategory={handleAddCategory}
       />
       
       {/* Sections */}
@@ -121,33 +138,6 @@ const ImageFormFields: React.FC<ImageFormFieldsProps> = ({ form, availableSectio
         description="Choose which sections this image should appear in"
         options={availableSections}
         placeholder="Select sections"
-      />
-      
-      {/* Tags */}
-      <FormField
-        control={form.control}
-        name="tags"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Tags</FormLabel>
-            <FormControl>
-              <Input 
-                placeholder="Enter tags separated by commas" 
-                value={field.value?.join(', ') || ''} 
-                onChange={(e) => {
-                  const value = e.target.value;
-                  const tags = value.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
-                  field.onChange(tags);
-                }}
-                className="w-full"
-              />
-            </FormControl>
-            <FormDescription>
-              Add relevant tags to help with searching and filtering
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
       />
       
       {/* Enable Print */}
