@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import { Image } from '@/lib/data';
 import ImageModal from './ImageModal';
 
 interface ImageGridProps {
   images: Image[];
+  columns?: number; // Add optional columns prop
 }
 
 const ImageGrid: React.FC<ImageGridProps> = ({

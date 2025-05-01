@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { GalleryImage } from '@/integrations/supabase/api';
-import ImageCard from './ImageCard';
+import { ImageCard } from './ImageCard';
 
 interface ImageGalleryProps {
   images: GalleryImage[];

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -167,8 +166,8 @@ export const ImageUploadPanel = () => {
         
         {enablePrint && (
           <PrintOptionsForm 
-            printOptions={printOptions}
-            setPrintOptions={setPrintOptions}
+            options={printOptions}
+            setOptions={setPrintOptions}
           />
         )}
         

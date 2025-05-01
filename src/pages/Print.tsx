@@ -68,10 +68,7 @@ const Print = () => {
     refetchInterval: 0,
     refetchOnWindowFocus: false,
     staleTime: Infinity,
-    retry: 1,
-    onError: (error) => {
-      console.error('Error fetching print options:', error);
-    }
+    retry: 1
   });
   
   // Reset selected image when navigating directly to print/:id
