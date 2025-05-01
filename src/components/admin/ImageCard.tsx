@@ -59,5 +59,3 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image, onEdit, onManagePri
     </Card>
   );
 };
-
-export default ImageCard;

@@ -1,13 +1,16 @@
+
 import React, { useState } from 'react';
 import { Image } from '@/lib/data';
 import ImageModal from './ImageModal';
 
 interface ImageGridProps {
   images: Image[];
+  columns?: number; // Make this prop optional with a default value
 }
 
 const ImageGrid: React.FC<ImageGridProps> = ({
-  images
+  images,
+  columns = 3 // Default to 3 columns if not specified
 }) => {
   const [selectedImage, setSelectedImage] = useState<Image | null>(null);
   const [hoveredImageId, setHoveredImageId] = useState<string | null>(null);
@@ -38,9 +41,20 @@ const ImageGrid: React.FC<ImageGridProps> = ({
     }
   };
   
+  // Generate the appropriate column class based on the columns prop
+  const getColumnClass = () => {
+    switch(columns) {
+      case 1: return 'columns-1';
+      case 2: return 'columns-1 sm:columns-2';
+      case 3: return 'columns-1 sm:columns-2 md:columns-2 xl:columns-3';
+      case 4: return 'columns-1 sm:columns-2 md:columns-3 xl:columns-4';
+      default: return 'columns-1 sm:columns-2 md:columns-2 xl:columns-3';
+    }
+  };
+  
   return (
     <>
-      <div className="columns-1 sm:columns-2 md:columns-2 xl:columns-3 gap-4 space-y-4">
+      <div className={`${getColumnClass()} gap-4 space-y-4`}>
         {images.map(image => (
           <div 
             key={image.id} 
