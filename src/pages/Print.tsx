@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -26,7 +25,9 @@ const Print = () => {
   const { data: printOptions = [] } = useQuery({
     queryKey: ['print-options', selectedImage],
     queryFn: () => selectedImage ? getPrintOptions(selectedImage) : Promise.resolve([]),
-    enabled: !!selectedImage
+    enabled: !!selectedImage,
+    // Add refetch interval to ensure data is fresh
+    refetchInterval: 30000,
   });
   
   // Reset selected image when navigating directly to print/:id
@@ -40,6 +41,13 @@ const Print = () => {
   const currentImage = selectedImage 
     ? printableImages.find(img => img.id === selectedImage) 
     : null;
+
+  // Debug function to check the actual value of in_stock
+  const debugInStock = (value) => {
+    console.log('in_stock value type:', typeof value, 'value:', value);
+    // Convert various possible formats to boolean
+    return value === true || value === 'true' || value === 1 || value === '1';
+  };
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -110,30 +118,35 @@ const Print = () => {
                     <h3 className="text-lg font-medium mb-2">Available Print Options</h3>
                     {printOptions.length > 0 ? (
                       <div className="space-y-4">
-                        {printOptions.map((option) => (
-                          <div key={option.id} className="flex justify-between items-center py-3 border-b last:border-b-0">
-                            <div>
-                              <p className="font-medium">{option.size}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {option.print_type || "Archival Matte Paper"}
-                              </p>
+                        {printOptions.map((option) => {
+                          // Convert in_stock to boolean explicitly to handle different data types
+                          const isInStock = debugInStock(option.in_stock);
+                          
+                          return (
+                            <div key={option.id} className="flex justify-between items-center py-3 border-b last:border-b-0">
+                              <div>
+                                <p className="font-medium">{option.size}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  {option.print_type || "Archival Matte Paper"}
+                                </p>
+                              </div>
+                              <div className="flex items-center">
+                                <span className="font-medium mr-4">${parseFloat(option.price.toString()).toFixed(2)}</span>
+                                <button
+                                  onClick={() => addToCart(currentImage.id, option.id)}
+                                  disabled={!isInStock}
+                                  className={`px-4 py-1.5 rounded text-sm font-medium ${
+                                    isInStock 
+                                      ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                                      : 'bg-muted text-muted-foreground cursor-not-allowed'
+                                  }`}
+                                >
+                                  {isInStock ? 'Add to Cart' : 'Out of Stock'}
+                                </button>
+                              </div>
                             </div>
-                            <div className="flex items-center">
-                              <span className="font-medium mr-4">${parseFloat(option.price.toString()).toFixed(2)}</span>
-                              <button
-                                onClick={() => addToCart(currentImage.id, option.id)}
-                                disabled={!option.in_stock}
-                                className={`px-4 py-1.5 rounded text-sm font-medium ${
-                                  option.in_stock 
-                                    ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
-                                    : 'bg-muted text-muted-foreground cursor-not-allowed'
-                                }`}
-                              >
-                                {option.in_stock ? 'Add to Cart' : 'Out of Stock'}
-                              </button>
-                            </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     ) : (
                       <p className="text-muted-foreground">No print options available for this image.</p>
