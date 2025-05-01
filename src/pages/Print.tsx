@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -71,7 +70,7 @@ const Print = () => {
     staleTime: Infinity,
     retry: 1,
     meta: {
-      onError: (error: any) => {
+      errorHandler: (error: any) => {
         console.error('Error fetching print options:', error);
       }
     }
