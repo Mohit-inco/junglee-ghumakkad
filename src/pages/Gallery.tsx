@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
@@ -7,11 +8,11 @@ import { useQuery } from '@tanstack/react-query';
 import { Image } from '@/lib/data';
 
 const Gallery = () => {
-  const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
+  const [selectedGenre, setSelectedGenre] = useState<string>('Wildlife');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
   const [allCategories, setAllCategories] = useState<string[]>([]);
   const [allGenres, setAllGenres] = useState<string[]>(['Wildlife', 'StreetPalette', 'AstroShot', 'Landscape']);
+  const [genreCategories, setGenreCategories] = useState<string[]>([]);
   
   // Fetch images using React Query
   const { data: images = [], isLoading, error } = useQuery({
@@ -38,8 +39,33 @@ const Gallery = () => {
           return combinedGenres;
         });
       }
+      
+      // Update genre-specific categories
+      updateGenreCategories(selectedGenre, images);
     }
   }, [images]);
+  
+  // Update categories when genre changes
+  useEffect(() => {
+    updateGenreCategories(selectedGenre, images);
+  }, [selectedGenre, images]);
+  
+  // Function to update categories based on selected genre
+  const updateGenreCategories = (genre: string, imagesList: GalleryImage[]) => {
+    const genreImages = imagesList.filter(image => 
+      image.genres?.includes(genre)
+    );
+    
+    const categories = Array.from(
+      new Set(genreImages.flatMap(image => image.categories || []))
+    ).sort();
+    
+    setGenreCategories(categories);
+    // Reset category selection if current selected category is not in the new genre
+    if (selectedCategory && !categories.includes(selectedCategory)) {
+      setSelectedCategory(null);
+    }
+  };
   
   // Filter images based on genre and category
   const filteredImages = images.filter(image => {
@@ -75,25 +101,26 @@ const Gallery = () => {
       
       <main className="flex-grow pt-24 px-6">
         <div className="max-w-5xl mx-auto">
-          {/* Genre Filters - Styled like headings */}
+          {/* Genre Filters - Styled like headings with Helvetica Bold */}
           <div className="mb-10 flex flex-wrap gap-6 md:gap-8">
             {allGenres.map(genre => (
               <button
                 key={genre}
-                onClick={() => setSelectedGenre(selectedGenre === genre ? null : genre)}
-                className={`relative font-serif text-2xl md:text-3xl transition-all border-b-2 pb-1 ${
+                onClick={() => setSelectedGenre(selectedGenre === genre ? genre : genre)}
+                className={`relative font-bold text-2xl md:text-3xl transition-all border-b-2 pb-1 ${
                   selectedGenre === genre 
-                    ? 'border-primary text-primary font-medium' 
+                    ? 'border-primary text-primary' 
                     : 'border-transparent text-muted-foreground opacity-70 hover:opacity-100'
                 }`}
+                style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}
               >
                 {genre}
               </button>
             ))}
           </div>
           
-          {/* Category Filters and Search */}
-          <div className="mb-10 flex flex-col sm:flex-row gap-4 justify-between">
+          {/* Category Filters - Only show categories for selected genre */}
+          <div className="mb-10">
             <div className="flex gap-2 flex-wrap">
               <button
                 onClick={() => setSelectedCategory(null)}
@@ -106,7 +133,7 @@ const Gallery = () => {
                 All Categories
               </button>
               
-              {allCategories.map(category => (
+              {genreCategories.map(category => (
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
@@ -119,30 +146,6 @@ const Gallery = () => {
                   {category}
                 </button>
               ))}
-            </div>
-            
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search gallery..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                className="px-4 py-2 pr-10 border rounded-md w-full sm:w-64 focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-              <svg 
-                className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24" 
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
-                />
-              </svg>
             </div>
           </div>
           

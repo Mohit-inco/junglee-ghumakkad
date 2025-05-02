@@ -26,6 +26,18 @@ const NavBar: React.FC = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Handle body scroll lock when menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMenuOpen]);
+
   // Close menu when route changes
   useEffect(() => {
     setIsMenuOpen(false);
@@ -33,7 +45,9 @@ const NavBar: React.FC = () => {
 
   // Navbar text style classes
   const navTextClasses = "text-white drop-shadow-md";
-  return <header className={cn("fixed top-0 left-0 right-0 z-50 px-6 transition-all duration-300 ease-in-out", isScrolled || isMenuOpen ? "py-3 bg-background/80 shadow-lg backdrop-blur-lg border-b" : "py-6 bg-background/0")}>
+  
+  return (
+    <header className={cn("fixed top-0 left-0 right-0 z-50 px-6 transition-all duration-300 ease-in-out", isScrolled || isMenuOpen ? "py-3 bg-background/80 shadow-lg backdrop-blur-lg border-b" : "py-6 bg-background/0")}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex flex-col items-start">
           <Link to="/" className="brand-name text-xl md:text-2xl text-white font-brilliante tracking-wider drop-shadow-md">
@@ -99,9 +113,10 @@ const NavBar: React.FC = () => {
           </button>
         </div>
       </div>
-    {/* md:hidden absolute top-full left-0 right-0 bg-background/95 backdrop-blur-md border-b shadow-sm animate-slide-down*/}
-      {/* Mobile Menu */}
-      {isMenuOpen && <div className="md:hidden absolute top-full left-0 right-0 h-screen z-50 bg-background/80 shadow-lg backdrop-blur-lg border-b animate-slide-down">
+
+      {/* Mobile Menu - with more blur effect */}
+      {isMenuOpen && (
+        <div className="md:hidden absolute top-full left-0 right-0 h-screen z-50 bg-background/60 shadow-lg backdrop-blur-xl border-b animate-slide-down">
           <nav className="flex flex-col p-6 space-y-4">
             <Link to="/" className={cn("text-lg nav-link", isActive("/") && "active", "text-foreground")}>
               Home
@@ -119,7 +134,10 @@ const NavBar: React.FC = () => {
               About
             </Link>
           </nav>
-        </div>}
-    </header>;
+        </div>
+      )}
+    </header>
+  );
 };
+
 export default NavBar;
