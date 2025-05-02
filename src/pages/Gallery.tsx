@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
@@ -82,25 +81,16 @@ const Gallery = () => {
       
       <main className="flex-grow pt-24 px-6">
         <div className="max-w-5xl mx-auto">
-          {/* Gallery Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl md:text-5xl font-serif mb-4">Gallery</h1>
-            <p className="text-muted-foreground max-w-2xl">
-              Explore the collection of photographs from around the world, 
-              capturing rare moments and extraordinary scenes in their natural settings.
-            </p>
-          </div>
-          
-          {/* Genre Filters */}
-          <div className="mb-6 flex flex-wrap gap-3">
+          {/* Genre Filters - Styled like headings */}
+          <div className="mb-10 flex flex-wrap gap-6 md:gap-8">
             {allGenres.map(genre => (
               <button
                 key={genre}
                 onClick={() => setSelectedGenre(selectedGenre === genre ? null : genre)}
-                className={`px-4 py-2 rounded-full transition-all ${
+                className={`relative font-serif text-2xl md:text-3xl transition-all border-b-2 pb-1 ${
                   selectedGenre === genre 
-                    ? 'bg-primary text-primary-foreground font-medium shadow-md' 
-                    : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                    ? 'border-primary text-primary font-medium' 
+                    : 'border-transparent text-muted-foreground opacity-70 hover:opacity-100'
                 }`}
               >
                 {genre}
