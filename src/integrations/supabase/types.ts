@@ -93,6 +93,7 @@ export type Database = {
           date: string | null
           description: string | null
           enable_print: boolean | null
+          genres: string[]
           id: string
           image_url: string
           location: string | null
@@ -108,6 +109,7 @@ export type Database = {
           date?: string | null
           description?: string | null
           enable_print?: boolean | null
+          genres?: string[]
           id?: string
           image_url: string
           location?: string | null
@@ -123,6 +125,7 @@ export type Database = {
           date?: string | null
           description?: string | null
           enable_print?: boolean | null
+          genres?: string[]
           id?: string
           image_url?: string
           location?: string | null
