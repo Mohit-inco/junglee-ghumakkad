@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
@@ -13,7 +12,6 @@ const Gallery = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [allCategories, setAllCategories] = useState<string[]>([]);
   const [allGenres, setAllGenres] = useState<string[]>(['Wildlife', 'StreetPalette', 'AstroShot', 'Landscape']);
-  const [genreCategories, setGenreCategories] = useState<string[]>([]);
   
   // Fetch images using React Query
   const { data: images = [], isLoading, error } = useQuery({
@@ -43,30 +41,7 @@ const Gallery = () => {
     }
   }, [images]);
   
-  // Update category options when genre changes
-  useEffect(() => {
-    // Reset selected category when genre changes
-    setSelectedCategory(null);
-    
-    if (!selectedGenre) {
-      // If no genre selected, show all categories
-      setGenreCategories(allCategories);
-      return;
-    }
-    
-    // Filter categories that are used in images of the selected genre
-    const categoriesInGenre = Array.from(
-      new Set(
-        images
-          .filter(image => image.genres?.includes(selectedGenre))
-          .flatMap(image => image.categories || [])
-      )
-    ).sort();
-    
-    setGenreCategories(categoriesInGenre);
-  }, [selectedGenre, images, allCategories]);
-  
-  // Filter images based on genre, category, and search term
+  // Filter images based on genre and category
   const filteredImages = images.filter(image => {
     const matchesGenre = selectedGenre 
       ? image.genres?.includes(selectedGenre) 
@@ -76,13 +51,7 @@ const Gallery = () => {
       ? image.categories?.includes(selectedCategory) 
       : true;
     
-    const matchesSearch = searchTerm 
-      ? image.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        image.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        image.location?.toLowerCase().includes(searchTerm.toLowerCase())
-      : true;
-    
-    return matchesGenre && matchesCategory && matchesSearch;
+    return matchesGenre && matchesCategory;
   });
 
   // Convert Supabase image data to the format expected by ImageGrid
@@ -137,7 +106,7 @@ const Gallery = () => {
                 All Categories
               </button>
               
-              {genreCategories.map(category => (
+              {allCategories.map(category => (
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
