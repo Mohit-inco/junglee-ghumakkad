@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { GalleryImage } from '@/integrations/supabase/api';
@@ -11,13 +10,36 @@ interface ImageCardProps {
 }
 
 export const ImageCard: React.FC<ImageCardProps> = ({ image, onEdit, onManagePrints }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Generate thumbnail URL by adding query parameters for resizing
+  // This assumes your image hosting supports query parameters for resizing
+  // Common parameters for CDNs like Cloudinary, Imgix, or Supabase Storage
+  const getThumbnailUrl = (url: string) => {
+    // Check if URL already has query parameters
+    const separator = url.includes('?') ? '&' : '?';
+    
+    // For Supabase Storage, you might use width and height parameters
+    // Adjust the parameters based on your image hosting provider
+    return `${url}${separator}width=300&quality=60`;
+  };
+
   return (
     <Card key={image.id} className="overflow-hidden">
-      <div className="aspect-video w-full overflow-hidden">
+      <div className="aspect-video w-full overflow-hidden bg-muted relative">
+        {/* Low-quality placeholder that loads immediately */}
+        <div 
+          className={`w-full h-full absolute inset-0 bg-center bg-cover blur-sm transition-opacity duration-300 ${isLoaded ? 'opacity-0' : 'opacity-100'}`}
+          style={{ backgroundImage: `url(${getThumbnailUrl(image.image_url)})`, backgroundSize: 'cover' }}
+        />
+        
+        {/* Actual image with proper loading */}
         <img 
-          src={image.image_url} 
+          src={getThumbnailUrl(image.image_url)} 
           alt={image.title} 
-          className="w-full h-full object-cover"
+          className={`w-full h-full object-cover transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+          loading="lazy"
+          onLoad={() => setIsLoaded(true)}
         />
       </div>
       <CardContent className="p-4">
