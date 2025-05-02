@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from '@/components/ui/form';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -16,16 +17,17 @@ interface ImageFormData {
   enable_print: boolean;
   sections: string[];
   categories: string[];
+  genres: string[];
 }
 
 interface SelectorProps {
   form: UseFormReturn<ImageFormData>;
-  name: 'sections' | 'categories';
+  name: 'sections' | 'categories' | 'genres';
   label: string;
   description: string;
   options: string[];
   placeholder: string;
-  onAddCategory?: (category: string) => void;
+  onAddNew?: (value: string) => void;
 }
 
 const SectionCategorySelector: React.FC<SelectorProps> = ({ 
@@ -35,15 +37,15 @@ const SectionCategorySelector: React.FC<SelectorProps> = ({
   description, 
   options, 
   placeholder,
-  onAddCategory
+  onAddNew
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newCategory, setNewCategory] = useState('');
+  const [newValue, setNewValue] = useState('');
 
-  const handleAddCategory = () => {
-    if (newCategory.trim() && onAddCategory) {
-      onAddCategory(newCategory.trim());
-      setNewCategory('');
+  const handleAddNew = () => {
+    if (newValue.trim() && onAddNew) {
+      onAddNew(newValue.trim());
+      setNewValue('');
       setIsDialogOpen(false);
     }
   };
@@ -85,13 +87,13 @@ const SectionCategorySelector: React.FC<SelectorProps> = ({
                 </DropdownMenuContent>
               </DropdownMenu>
               
-              {name === 'categories' && onAddCategory && (
+              {onAddNew && (
                 <Button
                   type="button"
                   variant="outline"
                   size="icon"
                   onClick={() => setIsDialogOpen(true)}
-                  title="Add new category"
+                  title={`Add new ${name.slice(0, -1)}`}
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -105,20 +107,20 @@ const SectionCategorySelector: React.FC<SelectorProps> = ({
         )}
       />
       
-      {/* Dialog for adding a new category */}
-      {name === 'categories' && onAddCategory && (
+      {/* Dialog for adding a new value */}
+      {onAddNew && (
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Add New Category</DialogTitle>
+              <DialogTitle>Add New {name.slice(0, -1).charAt(0).toUpperCase() + name.slice(0, -1).slice(1)}</DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
                 <Input
-                  id="newCategory"
-                  value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value)}
-                  placeholder="Enter new category name"
+                  id="newValue"
+                  value={newValue}
+                  onChange={(e) => setNewValue(e.target.value)}
+                  placeholder={`Enter new ${name.slice(0, -1)} name`}
                   className="col-span-4"
                 />
               </div>
@@ -127,8 +129,8 @@ const SectionCategorySelector: React.FC<SelectorProps> = ({
               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button type="button" onClick={handleAddCategory}>
-                Add Category
+              <Button type="button" onClick={handleAddNew}>
+                Add {name.slice(0, -1).charAt(0).toUpperCase() + name.slice(0, -1).slice(1)}
               </Button>
             </DialogFooter>
           </DialogContent>

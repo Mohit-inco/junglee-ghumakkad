@@ -17,20 +17,25 @@ interface ImageFormData {
   enable_print: boolean;
   sections: string[];
   categories: string[];
+  genres: string[];
 }
 
 interface ImageFormFieldsProps {
   form: UseFormReturn<ImageFormData>;
   availableSections: string[];
   availableCategories: string[];
+  availableGenres: string[];
   onAddCategory: (category: string) => void;
+  onAddGenre: (genre: string) => void;
 }
 
 const ImageFormFields: React.FC<ImageFormFieldsProps> = ({ 
   form, 
   availableSections, 
   availableCategories,
-  onAddCategory
+  availableGenres,
+  onAddCategory,
+  onAddGenre
 }) => {
   const handleAddCategory = (category: string) => {
     if (availableCategories.includes(category)) {
@@ -39,6 +44,15 @@ const ImageFormFields: React.FC<ImageFormFieldsProps> = ({
     }
     onAddCategory(category);
     toast.success(`Added new category: ${category}`);
+  };
+
+  const handleAddGenre = (genre: string) => {
+    if (availableGenres.includes(genre)) {
+      toast.error('This genre already exists');
+      return;
+    }
+    onAddGenre(genre);
+    toast.success(`Added new genre: ${genre}`);
   };
 
   return (
@@ -119,6 +133,17 @@ const ImageFormFields: React.FC<ImageFormFieldsProps> = ({
         )}
       />
       
+      {/* Genres */}
+      <SectionCategorySelector
+        form={form}
+        name="genres"
+        label="Genres"
+        description="Select one or more genres for this image"
+        options={availableGenres}
+        placeholder="Select genres"
+        onAddNew={handleAddGenre}
+      />
+      
       {/* Categories */}
       <SectionCategorySelector
         form={form}
@@ -127,7 +152,7 @@ const ImageFormFields: React.FC<ImageFormFieldsProps> = ({
         description="Select one or more categories for this image"
         options={availableCategories}
         placeholder="Select categories"
-        onAddCategory={handleAddCategory}
+        onAddNew={handleAddCategory}
       />
       
       {/* Sections */}

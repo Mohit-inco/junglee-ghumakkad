@@ -25,6 +25,7 @@ interface ImageFormData {
   enable_print: boolean;
   sections: string[];
   categories: string[];
+  genres: string[];
 }
 
 interface Props {
@@ -37,6 +38,7 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
   const [file, setFile] = useState<File | null>(null);
   const [availableSections] = useState<string[]>(getAvailableSections());
   const [availableCategories, setAvailableCategories] = useState<string[]>(['wildlife', 'landscape', 'portrait', 'street', 'astro', 'macro']);
+  const [availableGenres, setAvailableGenres] = useState<string[]>(['Wildlife', 'StreetPalette', 'AstroShot', 'Landscape']);
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -55,13 +57,14 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
       enable_print: false,
       sections: [],
       categories: [],
+      genres: [],
     }
   });
   
   useEffect(() => {
     fetchImages();
-    // Fetch all unique categories from existing images
-    fetchCategories();
+    // Fetch all unique categories and genres from existing images
+    fetchCategoriesAndGenres();
   }, []);
 
   const fetchImages = async () => {
@@ -78,11 +81,11 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
     }
   };
 
-  const fetchCategories = async () => {
+  const fetchCategoriesAndGenres = async () => {
     try {
       const { data, error } = await supabase
         .from('gallery_images')
-        .select('categories');
+        .select('categories, genres');
 
       if (error) throw error;
       
@@ -101,15 +104,33 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
         const mergedCategories = [...new Set([...defaultCategories, ...uniqueCategories])];
         
         setAvailableCategories(mergedCategories);
+        
+        // Extract all genres from all images and flatten the array
+        const allGenres = data
+          .map(item => item.genres || [])
+          .flat()
+          .filter(Boolean);
+        
+        // Remove duplicates and merge with default genres
+        if (allGenres.length > 0) {
+          const defaultGenres = ['Wildlife', 'StreetPalette', 'AstroShot', 'Landscape'];
+          const mergedGenres = [...new Set([...defaultGenres, ...allGenres])];
+          
+          setAvailableGenres(mergedGenres);
+        }
       }
     } catch (error: any) {
-      console.error('Error fetching categories:', error);
-      // Keep the default categories if there's an error
+      console.error('Error fetching categories and genres:', error);
+      // Keep the default categories and genres if there's an error
     }
   };
 
   const handleAddCategory = (category: string) => {
     setAvailableCategories(prev => [...prev, category]);
+  };
+  
+  const handleAddGenre = (genre: string) => {
+    setAvailableGenres(prev => [...prev, genre]);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -173,6 +194,7 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
             enable_print: data.enable_print,
             sections: data.sections,
             categories: data.categories || [],
+            genres: data.genres || [],
             updated_at: new Date().toISOString(),
             ...(imageUrl && { image_url: imageUrl }),
           })
@@ -193,6 +215,7 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
             enable_print: data.enable_print,
             sections: data.sections,
             categories: data.categories || [],
+            genres: data.genres || [],
             image_url: imageUrl
           });
           
@@ -240,6 +263,7 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
       enable_print: image.enable_print || false,
       sections: image.sections || [],
       categories: image.categories || [],
+      genres: image.genres || [],
     });
     
     // Set preview URL if available
@@ -263,6 +287,7 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
       enable_print: false,
       sections: [],
       categories: [],
+      genres: [],
     });
     setFile(null);
     setPreviewUrl(null);
@@ -306,7 +331,9 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
                 form={form} 
                 availableSections={availableSections} 
                 availableCategories={availableCategories}
+                availableGenres={availableGenres}
                 onAddCategory={handleAddCategory}
+                onAddGenre={handleAddGenre}
               />
               
               <div className="flex gap-2 pt-4">

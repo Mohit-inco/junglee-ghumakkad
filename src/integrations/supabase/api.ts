@@ -42,6 +42,21 @@ export async function getImagesBySection(section: string): Promise<GalleryImage[
   return data || [];
 }
 
+export async function getImagesByGenre(genre: string): Promise<GalleryImage[]> {
+  const { data, error } = await supabase
+    .from('gallery_images')
+    .select('*')
+    .contains('genres', [genre])
+    .order('created_at', { ascending: false });
+  
+  if (error) {
+    console.error(`Error fetching ${genre} genre images:`, error);
+    return [];
+  }
+  
+  return data || [];
+}
+
 export async function getImageById(id: string): Promise<GalleryImage | null> {
   const { data, error } = await supabase
     .from('gallery_images')
@@ -158,9 +173,9 @@ export async function saveGalleryImage(image: Partial<GalleryImage> & { id?: str
       image.sections = [];
     }
     
-    // Ensure tags is an array
-    if (!image.tags) {
-      image.tags = [];
+    // Ensure genres is an array
+    if (!image.genres) {
+      image.genres = [];
     }
     
     if (image.id) {
@@ -176,7 +191,7 @@ export async function saveGalleryImage(image: Partial<GalleryImage> & { id?: str
           enable_print: image.enable_print,
           sections: image.sections,
           categories: image.categories,
-          tags: image.tags,
+          genres: image.genres,
           image_url: image.image_url,
           updated_at: new Date().toISOString()
         })
@@ -199,7 +214,7 @@ export async function saveGalleryImage(image: Partial<GalleryImage> & { id?: str
           enable_print: image.enable_print,
           sections: image.sections,
           categories: image.categories,
-          tags: image.tags,
+          genres: image.genres,
           image_url: image.image_url!
         })
         .select()

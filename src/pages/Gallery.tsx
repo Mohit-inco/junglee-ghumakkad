@@ -8,9 +8,11 @@ import { useQuery } from '@tanstack/react-query';
 import { Image } from '@/lib/data';
 
 const Gallery = () => {
+  const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [allCategories, setAllCategories] = useState<string[]>([]);
+  const [allGenres, setAllGenres] = useState<string[]>(['Wildlife', 'StreetPalette', 'AstroShot', 'Landscape']);
   
   // Fetch images using React Query
   const { data: images = [], isLoading, error } = useQuery({
@@ -18,18 +20,34 @@ const Gallery = () => {
     queryFn: () => getGalleryImages('gallery')
   });
   
-  // Extract all unique categories from images
+  // Extract all unique categories and genres from images
   useEffect(() => {
     if (images.length > 0) {
       const categories = Array.from(
         new Set(images.flatMap(image => image.categories || []))
       ).sort();
       setAllCategories(categories);
+      
+      const genres = Array.from(
+        new Set(images.flatMap(image => image.genres || []))
+      ).sort();
+      
+      if (genres.length > 0) {
+        setAllGenres(prevGenres => {
+          // Combine default genres with fetched genres, removing duplicates
+          const combinedGenres = [...new Set([...prevGenres, ...genres])];
+          return combinedGenres;
+        });
+      }
     }
   }, [images]);
   
-  // Filter images based on category and search term
+  // Filter images based on genre, category, and search term
   const filteredImages = images.filter(image => {
+    const matchesGenre = selectedGenre 
+      ? image.genres?.includes(selectedGenre) 
+      : true;
+      
     const matchesCategory = selectedCategory 
       ? image.categories?.includes(selectedCategory) 
       : true;
@@ -40,7 +58,7 @@ const Gallery = () => {
         image.location?.toLowerCase().includes(searchTerm.toLowerCase())
       : true;
     
-    return matchesCategory && matchesSearch;
+    return matchesGenre && matchesCategory && matchesSearch;
   });
 
   // Convert Supabase image data to the format expected by ImageGrid
@@ -65,15 +83,32 @@ const Gallery = () => {
       <main className="flex-grow pt-24 px-6">
         <div className="max-w-5xl mx-auto">
           {/* Gallery Header */}
-          <div className="mb-12">
-            <h1 className="text-4xl md:text-5xl font-serif mb-4">Wildlife Gallery</h1>
+          <div className="mb-8">
+            <h1 className="text-4xl md:text-5xl font-serif mb-4">Gallery</h1>
             <p className="text-muted-foreground max-w-2xl">
-              Explore the collection of wildlife photographs from around the world, 
-              capturing rare moments and extraordinary creatures in their natural habitats.
+              Explore the collection of photographs from around the world, 
+              capturing rare moments and extraordinary scenes in their natural settings.
             </p>
           </div>
           
-          {/* Filters and Search */}
+          {/* Genre Filters */}
+          <div className="mb-6 flex flex-wrap gap-3">
+            {allGenres.map(genre => (
+              <button
+                key={genre}
+                onClick={() => setSelectedGenre(selectedGenre === genre ? null : genre)}
+                className={`px-4 py-2 rounded-full transition-all ${
+                  selectedGenre === genre 
+                    ? 'bg-primary text-primary-foreground font-medium shadow-md' 
+                    : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                }`}
+              >
+                {genre}
+              </button>
+            ))}
+          </div>
+          
+          {/* Category Filters and Search */}
           <div className="mb-10 flex flex-col sm:flex-row gap-4 justify-between">
             <div className="flex gap-2 flex-wrap">
               <button
@@ -84,7 +119,7 @@ const Gallery = () => {
                     : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
                 }`}
               >
-                All
+                All Categories
               </button>
               
               {allCategories.map(category => (
@@ -154,7 +189,7 @@ const Gallery = () => {
                 <div className="text-center py-20">
                   <h3 className="text-xl font-medium mb-2">No matching images found</h3>
                   <p className="text-muted-foreground">
-                    Try adjusting your search criteria or browse all images by selecting 'All'.
+                    Try adjusting your filters or search criteria.
                   </p>
                 </div>
               )}
