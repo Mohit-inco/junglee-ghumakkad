@@ -73,46 +73,42 @@ const Gallery = () => {
             </p>
           </div>
           
-          {/* Genre Navigation */}
-          <div className="mb-10">
-            <h2 className="text-lg font-medium mb-3">Browse by Genre</h2>
-            <div className="flex flex-wrap gap-3">
+          {/* Filters and Search */}
+          <div className="mb-10 flex flex-col sm:flex-row gap-4 justify-between">
+            <div className="flex gap-2 flex-wrap">
               <button
                 onClick={() => setSelectedCategory(null)}
-                className={`px-4 py-2 rounded-md transition-colors ${
+                className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
                   selectedCategory === null 
-                    ? 'bg-primary text-primary-foreground font-medium' 
-                    : 'bg-secondary/50 text-secondary-foreground hover:bg-secondary/80'
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
                 }`}
               >
-                All Genres
+                All
               </button>
               
               {allCategories.map(category => (
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
-                  className={`px-4 py-2 rounded-md transition-all ${
+                  className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
                     selectedCategory === category 
-                      ? 'bg-primary text-primary-foreground font-medium scale-105' 
-                      : 'bg-secondary/50 text-secondary-foreground hover:bg-secondary/80'
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
                   }`}
                 >
                   {category}
                 </button>
               ))}
             </div>
-          </div>
-          
-          {/* Search Bar */}
-          <div className="mb-8">
+            
             <div className="relative">
               <input
                 type="text"
                 placeholder="Search gallery..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="px-4 py-3 pr-10 border rounded-md w-full focus:outline-none focus:ring-1 focus:ring-primary"
+                className="px-4 py-2 pr-10 border rounded-md w-full sm:w-64 focus:outline-none focus:ring-1 focus:ring-primary"
               />
               <svg 
                 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" 
