@@ -44,17 +44,17 @@ export default function PhotographyExpeditionBlog() {
           <div 
             className="w-full h-full bg-cover bg-center"
             style={{ 
-              backgroundImage: "url('/api/placeholder/1200/800')",
+              backgroundImage: "url('https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//1000035613_enhanced%20(1).jpg')",
               filter: "saturate(0.9) brightness(0.85)"
             }}
           />
         </motion.div>
         <div className="absolute inset-0 bg-black/30" />
         <div className="relative h-full flex flex-col justify-center items-center text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-light mb-4 max-w-3xl">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-light mb-4 max-w-3xl opacity-60">
             Our Photography Expedition to Nelapattu and Pulicat
           </h1>
-          <p className="text-xl opacity-90">May 3, 2025</p>
+          <p className="text-xl opacity-60">May 3, 2025</p>
         </div>
       </section>
       
