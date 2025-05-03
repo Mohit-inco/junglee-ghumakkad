@@ -22,6 +22,14 @@ const PrintOption: React.FC<PrintOptionCardProps> = ({ image, printOption }) => 
   const isInStock = isItemInStock(printOption.in_stock);
   
   const handleAddToCart = () => {
+    console.log("PrintOption.tsx - Add to Cart:", {
+      imageId: image.id,
+      printOptionId: printOption.id,
+      rawStockValue: printOption.in_stock,
+      stockType: typeof printOption.in_stock,
+      isInStock: isInStock
+    });
+    
     if (isInStock) {
       addToCart(image.id, printOption.id);
       console.log('Added to cart:', {imageId: image.id, printOptionId: printOption.id, inStock: isInStock});

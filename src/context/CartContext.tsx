@@ -117,7 +117,17 @@ export const CartProvider: React.FC<{
   const addToCart = (imageId: string, printOptionId: string) => {
     // Check if print option is in stock using the helper function
     const printOption = allPrintOptions.find(option => option.id === printOptionId);
+    
+    console.log("CartContext - addToCart:", {
+      imageId,
+      printOptionId, 
+      printOption,
+      rawStockValue: printOption?.in_stock,
+      stockType: printOption ? typeof printOption.in_stock : 'undefined'
+    });
+    
     const isInStock = printOption ? isItemInStock(printOption.in_stock) : false;
+    console.log("Stock status determined:", isInStock);
     
     if (!isInStock) {
       toast.error("This print size is currently out of stock.");

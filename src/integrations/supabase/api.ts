@@ -1,4 +1,3 @@
-
 import { supabase } from './client';
 import { Tables } from './types';
 
@@ -88,11 +87,12 @@ export async function getPrintOptions(imageId: string): Promise<PrintOption[]> {
 }
 
 export async function getInStockPrintOptions(imageId: string): Promise<PrintOption[]> {
+  // Using a raw SQL expression to handle different boolean representations
   const { data, error } = await supabase
     .from('print_options')
     .select('*')
     .eq('image_id', imageId)
-    .eq('in_stock', true)
+    .or('in_stock.eq.true,in_stock.eq.t')
     .order('price', { ascending: true });
   
   if (error) {

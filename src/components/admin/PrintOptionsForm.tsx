@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -72,6 +71,8 @@ const PrintOptionsForm: React.FC<PrintOptionsFormProps> = ({ imageId, onClose })
         .order('price', { ascending: true });
         
       if (error) throw error;
+      
+      console.log("PrintOptionsForm - Fetched options:", data);
       setOptions(data || []);
     } catch (error: any) {
       toast.error(`Error fetching print options: ${error.message}`);
@@ -137,6 +138,7 @@ const PrintOptionsForm: React.FC<PrintOptionsFormProps> = ({ imageId, onClose })
   const handleEdit = (option: PrintOption) => {
     // Convert in_stock to boolean to ensure form works correctly
     const inStock = isItemInStock(option.in_stock);
+    console.log("Editing option:", { option, rawValue: option.in_stock, convertedValue: inStock });
     
     setEditingId(option.id);
     form.reset({
@@ -305,6 +307,12 @@ const PrintOptionsForm: React.FC<PrintOptionsFormProps> = ({ imageId, onClose })
               {options.map((option) => {
                 // Convert in_stock to boolean for display using the helper function
                 const inStock = isItemInStock(option.in_stock);
+                console.log("Display option:", { 
+                  id: option.id,
+                  rawValue: option.in_stock, 
+                  stockType: typeof option.in_stock,
+                  convertedValue: inStock 
+                });
                 
                 return (
                   <div 

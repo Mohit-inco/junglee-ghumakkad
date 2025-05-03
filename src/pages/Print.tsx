@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -20,6 +21,7 @@ const Print = () => {
   // Memoize the addToCart function to prevent unnecessary re-renders
   const handleAddToCart = useCallback((imageId, optionId) => {
     try {
+      console.log('Adding to cart from Print page:', { imageId, optionId });
       addToCart(imageId, optionId);
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -141,8 +143,14 @@ const Print = () => {
                     {printOptions.length > 0 ? (
                       <div className="space-y-4">
                         {printOptions.map((option) => {
-                          // Convert in_stock to boolean explicitly using the simpler approach
+                          // Convert in_stock to boolean explicitly using the helper function
                           const inStock = isItemInStock(option.in_stock);
+                          console.log("Print.tsx:", {
+                            optionId: option.id,
+                            rawStockValue: option.in_stock,
+                            stockType: typeof option.in_stock,
+                            inStock: inStock
+                          });
                           
                           return (
                             <div key={option.id} className="flex justify-between items-center py-3 border-b last:border-b-0">
