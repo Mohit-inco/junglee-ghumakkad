@@ -39,6 +39,11 @@ export const CartProvider: React.FC<{
   const [allImages, setAllImages] = useState<GalleryImage[]>(images);
   const [allPrintOptions, setAllPrintOptions] = useState<PrintOption[]>(printOptions);
 
+  // Helper function to properly handle boolean values from the database
+  const isItemInStock = (inStockValue: any): boolean => {
+    return inStockValue === true || inStockValue === 'true' || inStockValue === 't';
+  };
+
   // Update cached images and print options when props change
   useEffect(() => {
     if (images.length > 0) {
@@ -110,9 +115,9 @@ export const CartProvider: React.FC<{
   };
 
   const addToCart = (imageId: string, printOptionId: string) => {
-    // Check if print option is in stock - simplified boolean check
+    // Check if print option is in stock using the helper function
     const printOption = allPrintOptions.find(option => option.id === printOptionId);
-    const isInStock = printOption?.in_stock === true || printOption?.in_stock === 'true' || printOption?.in_stock === 't';
+    const isInStock = printOption ? isItemInStock(printOption.in_stock) : false;
     
     if (!isInStock) {
       toast.error("This print size is currently out of stock.");

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -36,6 +37,11 @@ interface PrintOptionFormData {
   print_type: string;
   in_stock: boolean;
 }
+
+// Helper function to properly handle boolean values from the database
+const isItemInStock = (inStockValue: any): boolean => {
+  return inStockValue === true || inStockValue === 'true' || inStockValue === 't';
+};
 
 const PrintOptionsForm: React.FC<PrintOptionsFormProps> = ({ imageId, onClose }) => {
   const [options, setOptions] = useState<PrintOption[]>([]);
@@ -130,7 +136,7 @@ const PrintOptionsForm: React.FC<PrintOptionsFormProps> = ({ imageId, onClose })
 
   const handleEdit = (option: PrintOption) => {
     // Convert in_stock to boolean to ensure form works correctly
-    const inStock = option.in_stock === true || option.in_stock === 'true' || option.in_stock === 't';
+    const inStock = isItemInStock(option.in_stock);
     
     setEditingId(option.id);
     form.reset({
@@ -297,8 +303,8 @@ const PrintOptionsForm: React.FC<PrintOptionsFormProps> = ({ imageId, onClose })
           ) : options.length > 0 ? (
             <div className="space-y-2">
               {options.map((option) => {
-                // Convert in_stock to boolean for display
-                const inStock = option.in_stock === true || option.in_stock === 'true' || option.in_stock === 't';
+                // Convert in_stock to boolean for display using the helper function
+                const inStock = isItemInStock(option.in_stock);
                 
                 return (
                   <div 

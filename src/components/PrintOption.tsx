@@ -13,8 +13,13 @@ interface PrintOptionCardProps {
 const PrintOption: React.FC<PrintOptionCardProps> = ({ image, printOption }) => {
   const { addToCart } = useCart();
   
-  // Properly handle boolean values from the database
-  const isInStock = printOption.in_stock === true || printOption.in_stock === 'true' || printOption.in_stock === 't';
+  // Helper function to properly handle boolean values from the database
+  const isItemInStock = (inStockValue: any): boolean => {
+    return inStockValue === true || inStockValue === 'true' || inStockValue === 't';
+  };
+  
+  // Use the helper function to determine stock status
+  const isInStock = isItemInStock(printOption.in_stock);
   
   const handleAddToCart = () => {
     if (isInStock) {
