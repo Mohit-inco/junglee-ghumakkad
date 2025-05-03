@@ -1,16 +1,47 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
 export default function PhotographyExpeditionBlog() {
   // Refs for parallax sections
   const containerRef = useRef<HTMLDivElement>(null);
+  const navbarHeight = 60; // Adjust this to match your navbar height
   const sectionRefs = useRef<Array<HTMLElement | null>>([]);
+  const [scrollOffset, setScrollOffset] = useState(0);
 
-  // Set up parallax effects using framer-motion
+  // Set up parallax effects using framer-motion with offset
   const { scrollY } = useScroll();
-  const y1 = useTransform(scrollY, [0, 1000], [0, 250]);
-  const y2 = useTransform(scrollY, [500, 1500], [0, 150]);
-  const y3 = useTransform(scrollY, [1000, 2000], [0, 200]);
+  
+  // Effect to determine scroll offset
+  useEffect(() => {
+    const calculateOffset = () => {
+      if (containerRef.current) {
+        const containerTop = containerRef.current.getBoundingClientRect().top;
+        // Calculate distance from top of page to container
+        const offset = window.pageYOffset - containerTop + navbarHeight;
+        setScrollOffset(offset >= 0 ? offset : 0);
+      }
+    };
+
+    // Initial calculation
+    calculateOffset();
+    
+    // Recalculate on resize
+    window.addEventListener('resize', calculateOffset);
+    return () => window.removeEventListener('resize', calculateOffset);
+  }, []);
+
+  // Create transformed scroll values that only start after the offset
+  const getParallaxY = (startPoint: number, endPoint: number, multiplier: number) => {
+    return useTransform(scrollY, 
+      [scrollOffset + startPoint, scrollOffset + endPoint], 
+      [0, multiplier]
+    );
+  };
+
+  // Define parallax effects with offsets
+  const y1 = getParallaxY(0, 1000, 250);
+  const y2 = getParallaxY(500, 1500, 150);
+  const y3 = getParallaxY(1000, 2000, 200);
 
   // Handle reveal animations on scroll
   useEffect(() => {
