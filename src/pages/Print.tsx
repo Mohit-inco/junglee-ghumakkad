@@ -7,6 +7,7 @@ import { getGalleryImages, getPrintOptions, GalleryImage, PrintOption } from '@/
 import { ArrowLeft } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useQuery } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 // Helper function to properly determine if an item is in stock
 function isItemInStock(inStockValue: any): boolean {
@@ -17,16 +18,29 @@ const Print = () => {
   const { id } = useParams<{ id?: string }>();
   const [selectedImage, setSelectedImage] = useState<string | null>(id || null);
   const { addToCart } = useCart();
+  const [isAdding, setIsAdding] = useState<{[key: string]: boolean}>({});
   
   // Memoize the addToCart function to prevent unnecessary re-renders
-  const handleAddToCart = useCallback((imageId, optionId) => {
+  const handleAddToCart = useCallback((imageId: string, optionId: string) => {
     try {
+      // Prevent multiple rapid clicks
+      if (isAdding[optionId]) return;
+      
+      // Set this option as being added
+      setIsAdding(prev => ({ ...prev, [optionId]: true }));
+      
       console.log('Adding to cart from Print page:', { imageId, optionId });
       addToCart(imageId, optionId);
     } catch (error) {
       console.error('Error adding to cart:', error);
+      toast.error("Failed to add item to cart");
+    } finally {
+      // Reset the adding state after a short delay
+      setTimeout(() => {
+        setIsAdding(prev => ({ ...prev, [optionId]: false }));
+      }, 500);
     }
-  }, [addToCart]);
+  }, [addToCart, isAdding]);
   
   // Cancel any pending operations on unmount
   useEffect(() => {
@@ -36,9 +50,10 @@ const Print = () => {
   }, []);
   
   // Fetch all gallery images
-  const { data: images = [] } = useQuery({
+  const { data: images = [], isLoading: imagesLoading } = useQuery({
     queryKey: ['print-gallery-images'],
     queryFn: () => getGalleryImages(),
+    staleTime: 60000, // Cache for 1 minute
   });
   
   // Filter to show only images with enable_print set to true
@@ -52,11 +67,12 @@ const Print = () => {
     // Disable automatic refetching to prevent race conditions
     refetchInterval: 0,
     refetchOnWindowFocus: false,
-    staleTime: Infinity,
+    staleTime: 60000, // Cache for 1 minute
     retry: 1,
     meta: {
       errorHandler: (error: any) => {
         console.error('Error fetching print options:', error);
+        toast.error("Failed to load print options");
       }
     }
   });
@@ -88,7 +104,11 @@ const Print = () => {
             </p>
           </div>
           
-          {currentImage ? (
+          {imagesLoading ? (
+            <div className="text-center py-12">
+              <p>Loading prints...</p>
+            </div>
+          ) : currentImage ? (
             <>
               {/* Back to all prints */}
               <Link 
@@ -140,7 +160,9 @@ const Print = () => {
                   
                   <div>
                     <h3 className="text-lg font-medium mb-2">Available Print Options</h3>
-                    {printOptions.length > 0 ? (
+                    {printOptionsLoading ? (
+                      <p>Loading print options...</p>
+                    ) : printOptions.length > 0 ? (
                       <div className="space-y-4">
                         {printOptions.map((option) => {
                           // Convert in_stock to boolean explicitly using the helper function
@@ -168,14 +190,14 @@ const Print = () => {
                                     e.stopPropagation();
                                     handleAddToCart(currentImage.id, option.id);
                                   }}
-                                  disabled={!inStock}
+                                  disabled={!inStock || isAdding[option.id]}
                                   className={`px-4 py-1.5 rounded text-sm font-medium ${
-                                    inStock 
+                                    inStock && !isAdding[option.id]
                                       ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
                                       : 'bg-muted text-muted-foreground cursor-not-allowed'
                                   }`}
                                 >
-                                  {inStock ? 'Add to Cart' : 'Out of Stock'}
+                                  {isAdding[option.id] ? 'Adding...' : inStock ? 'Add to Cart' : 'Out of Stock'}
                                 </button>
                               </div>
                             </div>

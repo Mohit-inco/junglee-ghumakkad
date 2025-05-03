@@ -38,6 +38,7 @@ export const CartProvider: React.FC<{
   const [cartCount, setCartCount] = useState(0);
   const [allImages, setAllImages] = useState<GalleryImage[]>(images);
   const [allPrintOptions, setAllPrintOptions] = useState<PrintOption[]>(printOptions);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   // Helper function to properly handle boolean values from the database
   const isItemInStock = (inStockValue: any): boolean => {
@@ -73,38 +74,46 @@ export const CartProvider: React.FC<{
     }
   }, [printOptions]);
 
-  // Load cart from localStorage on initial render
+  // Load cart from localStorage on initial render with proper error handling
   useEffect(() => {
-    const savedCart = localStorage.getItem("wildlifeCart");
-    if (savedCart) {
-      try {
+    try {
+      const savedCart = localStorage.getItem("wildlifeCart");
+      if (savedCart) {
         const parsedCart = JSON.parse(savedCart);
         setCartItems(parsedCart);
-      } catch (error) {
-        console.error("Failed to parse cart from localStorage:", error);
       }
+    } catch (error) {
+      console.error("Failed to parse cart from localStorage:", error);
+      // If there's an error, start with an empty cart
+      localStorage.removeItem("wildlifeCart");
     }
   }, []);
 
-  // Save cart to localStorage when it changes
+  // Save cart to localStorage when it changes with proper error handling
   useEffect(() => {
-    localStorage.setItem("wildlifeCart", JSON.stringify(cartItems));
+    if (isUpdating) return; // Skip during batch updates
     
-    // Calculate total price and count
-    let total = 0;
-    let count = 0;
-    
-    cartItems.forEach(item => {
-      const printOption = allPrintOptions.find(option => option.id === item.printOptionId);
-      if (printOption) {
-        total += Number(printOption.price) * item.quantity;
-        count += item.quantity;
-      }
-    });
-    
-    setCartTotal(total);
-    setCartCount(count);
-  }, [cartItems, allPrintOptions]);
+    try {
+      localStorage.setItem("wildlifeCart", JSON.stringify(cartItems));
+      
+      // Calculate total price and count
+      let total = 0;
+      let count = 0;
+      
+      cartItems.forEach(item => {
+        const printOption = allPrintOptions.find(option => option.id === item.printOptionId);
+        if (printOption) {
+          total += Number(printOption.price) * item.quantity;
+          count += item.quantity;
+        }
+      });
+      
+      setCartTotal(total);
+      setCartCount(count);
+    } catch (error) {
+      console.error("Failed to save cart to localStorage:", error);
+    }
+  }, [cartItems, allPrintOptions, isUpdating]);
 
   const getImage = (imageId: string) => {
     return allImages.find(image => image.id === imageId);
@@ -115,69 +124,103 @@ export const CartProvider: React.FC<{
   };
 
   const addToCart = (imageId: string, printOptionId: string) => {
-    // Check if print option is in stock using the helper function
-    const printOption = allPrintOptions.find(option => option.id === printOptionId);
-    
-    console.log("CartContext - addToCart:", {
-      imageId,
-      printOptionId, 
-      printOption,
-      rawStockValue: printOption?.in_stock,
-      stockType: printOption ? typeof printOption.in_stock : 'undefined'
-    });
-    
-    const isInStock = printOption ? isItemInStock(printOption.in_stock) : false;
-    console.log("Stock status determined:", isInStock);
-    
-    if (!isInStock) {
-      toast.error("This print size is currently out of stock.");
-      return;
-    }
-
-    // Check if item already in cart
-    const existingItemIndex = cartItems.findIndex(
-      item => item.imageId === imageId && item.printOptionId === printOptionId
-    );
-
-    if (existingItemIndex > -1) {
-      // Update quantity if already in cart
-      const updatedItems = [...cartItems];
-      updatedItems[existingItemIndex].quantity += 1;
-      setCartItems(updatedItems);
-      toast.success("Item quantity updated in cart");
-    } else {
-      // Add new item to cart
-      const newItem: CartItem = {
-        id: `${imageId}-${printOptionId}-${Date.now()}`,
+    try {
+      // Check if print option is in stock using the helper function
+      const printOption = allPrintOptions.find(option => option.id === printOptionId);
+      
+      console.log("CartContext - addToCart:", {
         imageId,
-        printOptionId,
-        quantity: 1,
-      };
-      setCartItems([...cartItems, newItem]);
-      toast.success("Item added to cart");
+        printOptionId, 
+        printOption,
+        rawStockValue: printOption?.in_stock,
+        stockType: printOption ? typeof printOption.in_stock : 'undefined'
+      });
+      
+      const isInStock = printOption ? isItemInStock(printOption.in_stock) : false;
+      console.log("Stock status determined:", isInStock);
+      
+      if (!isInStock) {
+        toast.error("This print size is currently out of stock.");
+        return;
+      }
+
+      setIsUpdating(true);
+      
+      // Check if item already in cart
+      const existingItemIndex = cartItems.findIndex(
+        item => item.imageId === imageId && item.printOptionId === printOptionId
+      );
+
+      if (existingItemIndex > -1) {
+        // Update quantity if already in cart
+        const updatedItems = [...cartItems];
+        updatedItems[existingItemIndex].quantity += 1;
+        setCartItems(updatedItems);
+        toast.success("Item quantity updated in cart");
+      } else {
+        // Add new item to cart
+        const newItem: CartItem = {
+          id: `${imageId}-${printOptionId}-${Date.now()}`,
+          imageId,
+          printOptionId,
+          quantity: 1,
+        };
+        setCartItems(prevItems => [...prevItems, newItem]);
+        toast.success("Item added to cart");
+      }
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast.error("Failed to add item to cart");
+    } finally {
+      // Use setTimeout to ensure React has time to process the state update
+      setTimeout(() => setIsUpdating(false), 0);
     }
   };
 
   const removeFromCart = (cartItemId: string) => {
-    setCartItems(cartItems.filter(item => item.id !== cartItemId));
-    toast.info("Item removed from cart");
+    try {
+      setIsUpdating(true);
+      setCartItems(prevItems => prevItems.filter(item => item.id !== cartItemId));
+      toast.info("Item removed from cart");
+    } catch (error) {
+      console.error("Error removing item from cart:", error);
+      toast.error("Failed to remove item from cart");
+    } finally {
+      setTimeout(() => setIsUpdating(false), 0);
+    }
   };
 
   const updateQuantity = (cartItemId: string, quantity: number) => {
-    if (quantity < 1) {
-      removeFromCart(cartItemId);
-      return;
-    }
+    try {
+      if (quantity < 1) {
+        removeFromCart(cartItemId);
+        return;
+      }
 
-    const updatedItems = cartItems.map(item => 
-      item.id === cartItemId ? { ...item, quantity } : item
-    );
-    setCartItems(updatedItems);
+      setIsUpdating(true);
+      const updatedItems = cartItems.map(item => 
+        item.id === cartItemId ? { ...item, quantity } : item
+      );
+      setCartItems(updatedItems);
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+      toast.error("Failed to update quantity");
+    } finally {
+      setTimeout(() => setIsUpdating(false), 0);
+    }
   };
 
   const clearCart = () => {
-    setCartItems([]);
-    toast.info("Cart cleared");
+    try {
+      setIsUpdating(true);
+      setCartItems([]);
+      toast.info("Cart cleared");
+    } catch (error) {
+      console.error("Error clearing cart:", error);
+      toast.error("Failed to clear cart");
+    } finally {
+      setTimeout(() => setIsUpdating(false), 0);
+    }
   };
 
   const value = {

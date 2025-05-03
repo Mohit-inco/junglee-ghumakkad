@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Image, getImageSrc } from '@/lib/data';
 import { useCart } from '@/context/CartContext';
 import { ShoppingCart, Check } from 'lucide-react';
 import { PrintOption as PrintOptionType } from '@/integrations/supabase/api';
+import { toast } from 'sonner';
 
 interface PrintOptionCardProps {
   image: Image;
@@ -12,6 +13,7 @@ interface PrintOptionCardProps {
 
 const PrintOption: React.FC<PrintOptionCardProps> = ({ image, printOption }) => {
   const { addToCart } = useCart();
+  const [isAdding, setIsAdding] = useState(false);
   
   // Helper function to properly handle boolean values from the database
   const isItemInStock = (inStockValue: any): boolean => {
@@ -30,11 +32,25 @@ const PrintOption: React.FC<PrintOptionCardProps> = ({ image, printOption }) => 
       isInStock: isInStock
     });
     
+    // Prevent multiple rapid clicks
+    if (isAdding) return;
+    
     if (isInStock) {
-      addToCart(image.id, printOption.id);
-      console.log('Added to cart:', {imageId: image.id, printOptionId: printOption.id, inStock: isInStock});
+      setIsAdding(true);
+      
+      try {
+        addToCart(image.id, printOption.id);
+        console.log('Added to cart:', {imageId: image.id, printOptionId: printOption.id, inStock: isInStock});
+      } catch (error) {
+        console.error('Error adding to cart:', error);
+        toast.error("Failed to add item to cart. Please try again.");
+      } finally {
+        // Reset the adding state after a short delay to prevent multiple clicks
+        setTimeout(() => setIsAdding(false), 500);
+      }
     } else {
       console.log('Cannot add to cart, item out of stock', {printOption, isInStock});
+      toast.error("This item is out of stock.");
     }
   };
   
@@ -69,15 +85,15 @@ const PrintOption: React.FC<PrintOptionCardProps> = ({ image, printOption }) => 
           
           <button
             onClick={handleAddToCart}
-            disabled={!isInStock}
+            disabled={!isInStock || isAdding}
             className={`w-full flex items-center justify-center py-2.5 px-4 rounded-md text-sm font-medium transition-colors ${
-              isInStock 
+              isInStock && !isAdding
                 ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
                 : 'bg-muted text-muted-foreground cursor-not-allowed'
             }`}
           >
             <ShoppingCart className="h-4 w-4 mr-2" />
-            {isInStock ? 'Add to Cart' : 'Out of Stock'}
+            {isAdding ? 'Adding...' : isInStock ? 'Add to Cart' : 'Out of Stock'}
           </button>
         </div>
       </div>
