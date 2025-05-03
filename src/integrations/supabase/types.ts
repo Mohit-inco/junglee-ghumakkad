@@ -92,7 +92,6 @@ export type Database = {
           created_at: string
           date: string | null
           description: string | null
-          enable_print: boolean | null
           genres: string[]
           id: string
           image_url: string
@@ -108,7 +107,6 @@ export type Database = {
           created_at?: string
           date?: string | null
           description?: string | null
-          enable_print?: boolean | null
           genres?: string[]
           id?: string
           image_url: string
@@ -124,7 +122,6 @@ export type Database = {
           created_at?: string
           date?: string | null
           description?: string | null
-          enable_print?: boolean | null
           genres?: string[]
           id?: string
           image_url?: string
@@ -136,44 +133,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
-      }
-      print_options: {
-        Row: {
-          created_at: string
-          id: string
-          image_id: string | null
-          in_stock: boolean | null
-          price: number
-          print_type: string | null
-          size: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          image_id?: string | null
-          in_stock?: boolean | null
-          price: number
-          print_type?: string | null
-          size: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          image_id?: string | null
-          in_stock?: boolean | null
-          price?: number
-          print_type?: string | null
-          size?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "print_options_image_id_fkey"
-            columns: ["image_id"]
-            isOneToOne: false
-            referencedRelation: "gallery_images"
-            referencedColumns: ["id"]
-          },
-        ]
       }
     }
     Views: {

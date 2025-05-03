@@ -11,7 +11,6 @@ import Gallery from '@/pages/Gallery';
 import About from '@/pages/About';
 import Blogs from '@/pages/Blogs';
 import BlogPost from '@/pages/BlogPost';
-import Print from '@/pages/Print';
 import Cart from '@/pages/Cart';
 import NotFound from '@/pages/NotFound';
 import Admin from '@/pages/Admin';
@@ -47,8 +46,6 @@ function App() {
               <Route path="/about" element={<PageTransition><About /></PageTransition>} />
               <Route path="/blogs" element={<PageTransition><Blogs /></PageTransition>} />
               <Route path="/blogs/:id" element={<PageTransition><BlogPost /></PageTransition>} />
-              <Route path="/print" element={<PageTransition><Print /></PageTransition>} />
-              <Route path="/print/:id" element={<PageTransition><Print /></PageTransition>} />
               <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
               {/* Admin routes without PageTransition */}
               <Route path="/admin" element={<Admin />} />

@@ -1,40 +1,38 @@
 
-import { useLocation, Link } from "react-router-dom";
-import { useEffect } from "react";
-import NavBar from "@/components/NavBar";
-import Footer from "@/components/Footer";
-import { Home } from "lucide-react";
+import React, { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import NavBar from '@/components/NavBar';
+import Footer from '@/components/Footer';
+import { Button } from '@/components/ui/button';
+import { Home } from 'lucide-react';
 
 const NotFound = () => {
+  const navigate = useNavigate();
   const location = useLocation();
 
+  // Redirect /print routes to the gallery page
   useEffect(() => {
-    console.error(
-      "404 Error: User attempted to access non-existent route:",
-      location.pathname
-    );
-  }, [location.pathname]);
+    if (location.pathname.startsWith('/print')) {
+      navigate('/gallery', { replace: true });
+    }
+  }, [location.pathname, navigate]);
 
   return (
     <div className="min-h-screen flex flex-col">
       <NavBar />
-      
-      <main className="flex-grow flex items-center justify-center p-6">
-        <div className="text-center max-w-md">
-          <h1 className="text-6xl font-serif font-semibold mb-6">404</h1>
-          <p className="text-xl text-muted-foreground mb-8">
-            The page you're looking for couldn't be found.
+      <main className="flex-grow flex items-center justify-center p-4">
+        <div className="max-w-md text-center">
+          <h1 className="text-4xl font-bold mb-4">404</h1>
+          <p className="text-xl mb-8">Page not found</p>
+          <p className="text-muted-foreground mb-8">
+            The page you are looking for doesn't exist or has been moved.
           </p>
-          <Link 
-            to="/" 
-            className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-colors"
-          >
-            <Home className="h-5 w-5 mr-2" />
-            Return to Home
-          </Link>
+          <Button onClick={() => navigate('/')} className="flex items-center gap-2">
+            <Home className="w-4 h-4" />
+            Back to Home
+          </Button>
         </div>
       </main>
-      
       <Footer />
     </div>
   );

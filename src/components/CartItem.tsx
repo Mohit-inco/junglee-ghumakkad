@@ -7,20 +7,16 @@ interface CartItemProps {
   item: {
     id: string;
     imageId: string;
-    printOptionId: string;
     quantity: number;
   };
 }
 
 const CartItem: React.FC<CartItemProps> = ({ item }) => {
-  const { getImage, getPrintOption, updateQuantity, removeFromCart } = useCart();
+  const { getImage, updateQuantity, removeFromCart } = useCart();
   
   const image = getImage(item.imageId);
-  const printOption = getPrintOption(item.printOptionId);
   
-  if (!image || !printOption) return null;
-  
-  const subtotal = (Number(printOption.price) * item.quantity).toFixed(2);
+  if (!image) return null;
   
   return (
     <div className="flex flex-col sm:flex-row gap-4 py-6 border-b last:border-b-0">
@@ -36,14 +32,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
         <div className="flex justify-between items-start">
           <div>
             <h3 className="font-medium">{image.title}</h3>
-            <p className="text-sm text-muted-foreground">{printOption.size}</p>
-            <p className="text-sm text-muted-foreground">
-              {printOption.print_type || "Archival Matte Paper"}
-            </p>
-            <p className="text-sm text-muted-foreground mt-1">${Number(printOption.price).toFixed(2)} each</p>
-          </div>
-          <div className="text-right">
-            <p className="font-medium">${subtotal}</p>
+            <p className="text-sm text-muted-foreground">{image.description}</p>
           </div>
         </div>
         

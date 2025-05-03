@@ -7,10 +7,9 @@ import { GalleryImage } from '@/integrations/supabase/api';
 interface ImageCardProps {
   image: GalleryImage;
   onEdit: (image: GalleryImage) => void;
-  onManagePrints: (image: GalleryImage) => void;
 }
 
-export const ImageCard: React.FC<ImageCardProps> = ({ image, onEdit, onManagePrints }) => {
+export const ImageCard: React.FC<ImageCardProps> = ({ image, onEdit }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Generate thumbnail URL by adding query parameters for resizing
@@ -67,17 +66,6 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image, onEdit, onManagePri
         >
           Edit
         </Button>
-        
-        {image.enable_print && (
-          <Button 
-            variant="outline" 
-            size="sm"
-            className="flex-1"
-            onClick={() => onManagePrints(image)}
-          >
-            Print Options
-          </Button>
-        )}
       </CardFooter>
     </Card>
   );

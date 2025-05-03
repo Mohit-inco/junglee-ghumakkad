@@ -1,51 +1,41 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { toast } from "sonner";
-import { GalleryImage, PrintOption } from "@/integrations/supabase/api";
+import { GalleryImage } from "@/integrations/supabase/api";
 
 interface CartItem {
   id: string;
   imageId: string;
-  printOptionId: string;
   quantity: number;
 }
 
 interface CartContextType {
   cartItems: CartItem[];
-  addToCart: (imageId: string, printOptionId: string) => void;
+  addToCart: (imageId: string) => void;
   removeFromCart: (cartItemId: string) => void;
   updateQuantity: (cartItemId: string, quantity: number) => void;
   clearCart: () => void;
   cartTotal: number;
   cartCount: number;
   getImage: (imageId: string) => GalleryImage | undefined;
-  getPrintOption: (printOptionId: string) => PrintOption | undefined;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ 
   children: React.ReactNode, 
-  images?: GalleryImage[], 
-  printOptions?: PrintOption[] 
+  images?: GalleryImage[]
 }> = ({ 
   children, 
-  images = [], 
-  printOptions = [] 
+  images = []
 }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartTotal, setCartTotal] = useState(0);
   const [cartCount, setCartCount] = useState(0);
   const [allImages, setAllImages] = useState<GalleryImage[]>(images);
-  const [allPrintOptions, setAllPrintOptions] = useState<PrintOption[]>(printOptions);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // Helper function to properly handle boolean values from the database
-  const isItemInStock = (inStockValue: any): boolean => {
-    return inStockValue === true || inStockValue === 'true' || inStockValue === 't';
-  };
-
-  // Update cached images and print options when props change
+  // Update cached images when props change
   useEffect(() => {
     if (images.length > 0) {
       setAllImages(prev => {
@@ -59,20 +49,6 @@ export const CartProvider: React.FC<{
       });
     }
   }, [images]);
-
-  useEffect(() => {
-    if (printOptions.length > 0) {
-      setAllPrintOptions(prev => {
-        const newOptions = [...prev];
-        printOptions.forEach(option => {
-          if (!newOptions.find(o => o.id === option.id)) {
-            newOptions.push(option);
-          }
-        });
-        return newOptions;
-      });
-    }
-  }, [printOptions]);
 
   // Load cart from localStorage on initial render with proper error handling
   useEffect(() => {
@@ -97,58 +73,30 @@ export const CartProvider: React.FC<{
       localStorage.setItem("wildlifeCart", JSON.stringify(cartItems));
       
       // Calculate total price and count
-      let total = 0;
       let count = 0;
       
       cartItems.forEach(item => {
-        const printOption = allPrintOptions.find(option => option.id === item.printOptionId);
-        if (printOption) {
-          total += Number(printOption.price) * item.quantity;
-          count += item.quantity;
-        }
+        count += item.quantity;
       });
       
-      setCartTotal(total);
+      setCartTotal(0); // Setting to 0 as we removed pricing
       setCartCount(count);
     } catch (error) {
       console.error("Failed to save cart to localStorage:", error);
     }
-  }, [cartItems, allPrintOptions, isUpdating]);
+  }, [cartItems, isUpdating]);
 
   const getImage = (imageId: string) => {
     return allImages.find(image => image.id === imageId);
   };
 
-  const getPrintOption = (printOptionId: string) => {
-    return allPrintOptions.find(option => option.id === printOptionId);
-  };
-
-  const addToCart = (imageId: string, printOptionId: string) => {
+  const addToCart = (imageId: string) => {
     try {
-      // Check if print option is in stock using the helper function
-      const printOption = allPrintOptions.find(option => option.id === printOptionId);
-      
-      console.log("CartContext - addToCart:", {
-        imageId,
-        printOptionId, 
-        printOption,
-        rawStockValue: printOption?.in_stock,
-        stockType: printOption ? typeof printOption.in_stock : 'undefined'
-      });
-      
-      const isInStock = printOption ? isItemInStock(printOption.in_stock) : false;
-      console.log("Stock status determined:", isInStock);
-      
-      if (!isInStock) {
-        toast.error("This print size is currently out of stock.");
-        return;
-      }
-
       setIsUpdating(true);
       
       // Check if item already in cart
       const existingItemIndex = cartItems.findIndex(
-        item => item.imageId === imageId && item.printOptionId === printOptionId
+        item => item.imageId === imageId
       );
 
       if (existingItemIndex > -1) {
@@ -160,9 +108,8 @@ export const CartProvider: React.FC<{
       } else {
         // Add new item to cart
         const newItem: CartItem = {
-          id: `${imageId}-${printOptionId}-${Date.now()}`,
+          id: `${imageId}-${Date.now()}`,
           imageId,
-          printOptionId,
           quantity: 1,
         };
         setCartItems(prevItems => [...prevItems, newItem]);
@@ -231,8 +178,7 @@ export const CartProvider: React.FC<{
     clearCart,
     cartTotal,
     cartCount,
-    getImage,
-    getPrintOption,
+    getImage
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

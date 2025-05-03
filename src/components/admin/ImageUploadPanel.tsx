@@ -10,7 +10,6 @@ import { useForm } from 'react-hook-form';
 import { Upload, Loader2 } from 'lucide-react';
 import { getAvailableSections } from '@/integrations/supabase/api';
 import { GalleryImage } from '@/integrations/supabase/api';
-import PrintOptionsForm from './PrintOptionsForm';
 import { Session } from '@supabase/supabase-js';
 import ImageUploadSection from './ImageUploadSection';
 import ImageFormFields from './ImageFormFields';
@@ -22,7 +21,6 @@ interface ImageFormData {
   location: string;
   date: string;
   photographers_note: string;
-  enable_print: boolean;
   sections: string[];
   categories: string[];
   genres: string[];
@@ -42,7 +40,6 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [showPrintOptions, setShowPrintOptions] = useState(false);
   
   // Add a ref to the form card for scrolling
   const formCardRef = useRef<HTMLDivElement>(null);
@@ -54,7 +51,6 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
       location: '',
       date: new Date().toISOString().split('T')[0],
       photographers_note: '',
-      enable_print: false,
       sections: [],
       categories: [],
       genres: [],
@@ -191,7 +187,6 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
             location: data.location,
             date: data.date,
             photographers_note: data.photographers_note,
-            enable_print: data.enable_print,
             sections: data.sections,
             categories: data.categories || [],
             genres: data.genres || [],
@@ -212,7 +207,6 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
             location: data.location,
             date: data.date,
             photographers_note: data.photographers_note,
-            enable_print: data.enable_print,
             sections: data.sections,
             categories: data.categories || [],
             genres: data.genres || [],
@@ -226,11 +220,6 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
       // Reset form and state
       resetForm();
       fetchImages();
-      
-      // Show print options form if enabled
-      if (data.enable_print && selectedImage) {
-        setShowPrintOptions(true);
-      }
     } catch (error: any) {
       toast.error(`Error: ${error.message}`);
       console.error('Detailed error:', error);
@@ -260,7 +249,6 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
       location: image.location || '',
       date: image.date ? new Date(image.date).toISOString().split('T')[0] : '',
       photographers_note: image.photographers_note || '',
-      enable_print: image.enable_print || false,
       sections: image.sections || [],
       categories: image.categories || [],
       genres: image.genres || [],
@@ -284,7 +272,6 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
       location: '',
       date: new Date().toISOString().split('T')[0],
       photographers_note: '',
-      enable_print: false,
       sections: [],
       categories: [],
       genres: [],
@@ -298,11 +285,6 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
   const handleClearPreview = () => {
     setPreviewUrl(null);
     setFile(null);
-  };
-
-  const handleManagePrints = (image: GalleryImage) => {
-    setSelectedImage(image);
-    setShowPrintOptions(true);
   };
 
   return (
@@ -364,19 +346,10 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
         </CardContent>
       </Card>
       
-      {/* Print Options Dialog */}
-      {showPrintOptions && selectedImage && (
-        <PrintOptionsForm 
-          imageId={selectedImage.id} 
-          onClose={() => setShowPrintOptions(false)}
-        />
-      )}
-      
       {/* Existing Images */}
       <ImageGallery 
         images={images} 
         onEditImage={handleEditImage}
-        onManagePrints={handleManagePrints}
       />
     </div>
   );
