@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -89,9 +88,8 @@ const PrintOptionsForm: React.FC<PrintOptionsFormProps> = ({ imageId, onClose })
         size: data.size,
         price: formattedPrice,
         print_type: data.print_type,
-        in_stock: data.in_stock,
+        in_stock: data.in_stock === true, // Ensure we're saving a proper boolean
         image_id: imageId,
-        // Add this to ensure the option is linked to a valid gallery image
         created_at: new Date().toISOString()
       };
       
@@ -131,12 +129,15 @@ const PrintOptionsForm: React.FC<PrintOptionsFormProps> = ({ imageId, onClose })
   };
 
   const handleEdit = (option: PrintOption) => {
+    // Convert in_stock to boolean to ensure form works correctly
+    const inStock = option.in_stock === true || option.in_stock === 'true' || option.in_stock === 't';
+    
     setEditingId(option.id);
     form.reset({
       size: option.size,
       price: option.price.toString(),
       print_type: option.print_type || 'Archival Matte Paper',
-      in_stock: option.in_stock ?? true
+      in_stock: inStock
     });
   };
 
@@ -295,43 +296,48 @@ const PrintOptionsForm: React.FC<PrintOptionsFormProps> = ({ imageId, onClose })
             </div>
           ) : options.length > 0 ? (
             <div className="space-y-2">
-              {options.map((option) => (
-                <div 
-                  key={option.id} 
-                  className="flex items-center justify-between p-3 border rounded-lg"
-                >
-                  <div className="flex-1">
-                    <p className="font-medium">{option.size}</p>
-                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                      <span>${option.price.toFixed(2)}</span>
-                      <span>•</span>
-                      <span>{option.print_type}</span>
-                      <span>•</span>
-                      <span className={option.in_stock ? "text-green-600" : "text-red-600"}>
-                        {option.in_stock ? "In Stock" : "Out of Stock"}
-                      </span>
+              {options.map((option) => {
+                // Convert in_stock to boolean for display
+                const inStock = option.in_stock === true || option.in_stock === 'true' || option.in_stock === 't';
+                
+                return (
+                  <div 
+                    key={option.id} 
+                    className="flex items-center justify-between p-3 border rounded-lg"
+                  >
+                    <div className="flex-1">
+                      <p className="font-medium">{option.size}</p>
+                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                        <span>${option.price.toFixed(2)}</span>
+                        <span>•</span>
+                        <span>{option.print_type}</span>
+                        <span>•</span>
+                        <span className={inStock ? "text-green-600" : "text-red-600"}>
+                          {inStock ? "In Stock" : "Out of Stock"}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-1">
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        onClick={() => handleEdit(option)}
+                      >
+                        Edit
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="text-red-500 hover:text-red-600"
+                        onClick={() => handleDelete(option.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
-                  
-                  <div className="flex gap-1">
-                    <Button 
-                      size="sm" 
-                      variant="ghost"
-                      onClick={() => handleEdit(option)}
-                    >
-                      Edit
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="ghost" 
-                      className="text-red-500 hover:text-red-600"
-                      onClick={() => handleDelete(option.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <p className="text-center text-muted-foreground py-4">No print options yet</p>

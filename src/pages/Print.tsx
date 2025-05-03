@@ -7,26 +7,9 @@ import { ArrowLeft } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useQuery } from '@tanstack/react-query';
 
-// Helper function to properly convert various types to boolean
-function convertToBoolean(value) {
-  // If value is null or undefined, assume it's in stock
-  if (value === null || value === undefined) return true;
-  
-  // If it's already a boolean, return it
-  if (typeof value === 'boolean') return value;
-  
-  // If it's a string, check for false values
-  if (typeof value === 'string') {
-    const lowercased = value.toLowerCase();
-    return !(lowercased === 'false' || lowercased === '0' || 
-              lowercased === 'f' || lowercased === 'no');
-  }
-  
-  // If it's a number, 0 is false, anything else is true
-  if (typeof value === 'number') return value !== 0;
-  
-  // Default to true for any other case
-  return true;
+// Helper function to properly determine if an item is in stock
+function isItemInStock(inStockValue: any): boolean {
+  return inStockValue === true || inStockValue === 'true' || inStockValue === 't';
 }
 
 const Print = () => {
@@ -158,8 +141,8 @@ const Print = () => {
                     {printOptions.length > 0 ? (
                       <div className="space-y-4">
                         {printOptions.map((option) => {
-                          // Convert in_stock to boolean explicitly to handle different data types
-                          const isInStock = convertToBoolean(option.in_stock);
+                          // Convert in_stock to boolean explicitly using the simpler approach
+                          const inStock = isItemInStock(option.in_stock);
                           
                           return (
                             <div key={option.id} className="flex justify-between items-center py-3 border-b last:border-b-0">
@@ -177,14 +160,14 @@ const Print = () => {
                                     e.stopPropagation();
                                     handleAddToCart(currentImage.id, option.id);
                                   }}
-                                  disabled={!isInStock}
+                                  disabled={!inStock}
                                   className={`px-4 py-1.5 rounded text-sm font-medium ${
-                                    isInStock 
+                                    inStock 
                                       ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
                                       : 'bg-muted text-muted-foreground cursor-not-allowed'
                                   }`}
                                 >
-                                  {isInStock ? 'Add to Cart' : 'Out of Stock'}
+                                  {inStock ? 'Add to Cart' : 'Out of Stock'}
                                 </button>
                               </div>
                             </div>

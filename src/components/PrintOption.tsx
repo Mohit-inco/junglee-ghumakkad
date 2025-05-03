@@ -13,37 +13,15 @@ interface PrintOptionCardProps {
 const PrintOption: React.FC<PrintOptionCardProps> = ({ image, printOption }) => {
   const { addToCart } = useCart();
   
-  // Convert in_stock value to boolean regardless of its type
-  const isInStock = convertToBoolean(printOption.in_stock);
-  
-  // Helper function to properly convert various types to boolean
-  function convertToBoolean(value: any): boolean {
-    // If value is null or undefined, assume it's in stock
-    if (value === null || value === undefined) return true;
-    
-    // If it's already a boolean, return it
-    if (typeof value === 'boolean') return value;
-    
-    // If it's a string, check for false values
-    if (typeof value === 'string') {
-      const lowercased = value.toLowerCase();
-      return !(lowercased === 'false' || lowercased === '0' || 
-               lowercased === 'f' || lowercased === 'no');
-    }
-    
-    // If it's a number, 0 is false, anything else is true
-    if (typeof value === 'number') return value !== 0;
-    
-    // Default to true for any other case
-    return true;
-  }
+  // Properly handle boolean values from the database
+  const isInStock = printOption.in_stock === true || printOption.in_stock === 'true' || printOption.in_stock === 't';
   
   const handleAddToCart = () => {
     if (isInStock) {
       addToCart(image.id, printOption.id);
-      console.log('Added to cart:', {imageId: image.id, printOptionId: printOption.id});
+      console.log('Added to cart:', {imageId: image.id, printOptionId: printOption.id, inStock: isInStock});
     } else {
-      console.log('Cannot add to cart, item out of stock');
+      console.log('Cannot add to cart, item out of stock', {printOption, isInStock});
     }
   };
   
