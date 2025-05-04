@@ -22,12 +22,15 @@ const Blogs = () => {
   });
   
   const toggleBlog1 = () => {
+    // Toggle the blog state
     setShowBlog1(prevState => !prevState);
     
-    // Scroll to top when opening blog
+    // Always scroll to top when toggling the blog
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Ensure navbar is visible when opening the blog
     if (!showBlog1) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      setShowNavbar(true); // Ensure navbar is visible when first opening the blog
+      setShowNavbar(true);
     }
   };
 
@@ -207,7 +210,7 @@ const Blogs = () => {
                   </p>
                 </div>
               ) : (
-                <div className={`${showBlog1 ? 'pt-20' : ''}`}>
+                <div className="pt-0">
                   <Blog1 {...blog1Images} />
                 </div>
               )}
