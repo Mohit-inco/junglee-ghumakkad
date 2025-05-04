@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
-import ImageModal from '@/components/ImageModal';
 import { Button } from '@/components/ui/button';
 import { 
   Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle 
@@ -10,18 +9,17 @@ import {
 import { useCart } from '@/context/CartContext';
 import { getImageById, getPrintOptions } from '@/integrations/supabase/api';
 import { toast } from 'sonner';
-import { ArrowLeft, ShoppingCart, Maximize2 } from 'lucide-react';
+import { ArrowLeft, ShoppingCart } from 'lucide-react';
 
-const ImageBackgroundPrint = () => {
-  const { id } = useParams();
+const Print: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { addToCart, items } = useCart();
   
-  const [image, setImage] = useState(null);
-  const [printOptions, setPrintOptions] = useState([]);
+  const [image, setImage] = useState<any>(null);
+  const [printOptions, setPrintOptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedSize, setSelectedSize] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
   
   useEffect(() => {
     const fetchImageAndOptions = async () => {
@@ -96,32 +94,6 @@ const ImageBackgroundPrint = () => {
     // Navigate to cart after adding item
     navigate('/cart');
   };
-
-  const openModal = () => {
-    setShowModal(true);
-  };
-
-  const closeModal = () => {
-    setShowModal(false);
-  };
-
-  // Format image data for ImageModal component
-  const formatImageForModal = () => {
-    if (!image) return null;
-    
-    return {
-      id: image.id,
-      src: image.image_url,
-      alt: image.title,
-      title: image.title,
-      description: image.description,
-      location: image.location || 'Unknown location',
-      date: image.date || 'Unknown date',
-      photographerNote: image.photographers_note,
-      categories: image.categories || [],
-      enablePrint: image.enable_print
-    };
-  };
   
   if (loading) {
     return (
@@ -157,71 +129,48 @@ const ImageBackgroundPrint = () => {
     <div className="min-h-screen flex flex-col">
       <NavBar />
       
-      {/* Full-screen background image with gradient overlay */}
-      <div 
-        className="fixed inset-0 z-0" 
-        style={{ 
-          backgroundImage: `url(${image.image_url})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
-        }}
-      >
-        {/* Dark gradient overlay from left */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent"></div>
-      </div>
-      
-      <main className="flex-grow pt-24 px-6 relative z-10">
+      <main className="flex-grow pt-24 px-6">
         <div className="max-w-5xl mx-auto">
-          <Button variant="outline" className="mb-6 bg-black/40 hover:bg-black/60 text-white border-white/20" onClick={() => navigate('/prints')}>
+          <Button variant="outline" className="mb-6" onClick={() => navigate('/prints')}>
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Prints
           </Button>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="text-white">
-              <h1 className="text-4xl font-bold mb-3">{image.title}</h1>
-              <p className="text-white/80 mb-6">{image.description}</p>
+            <div>
+              <div className="rounded-lg overflow-hidden bg-muted">
+                <img 
+                  src={image.image_url} 
+                  alt={image.title}
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <h1 className="text-3xl font-bold mb-2">{image.title}</h1>
+              <p className="text-muted-foreground mb-4">{image.description}</p>
               
               {image.location && (
-                <p className="text-sm mb-4">
+                <p className="text-sm mb-2">
                   <span className="font-medium">Location:</span> {image.location}
                 </p>
               )}
               
               {image.photographers_note && (
-                <div className="bg-black/40 p-4 rounded-md mb-6 italic">
-                  <p className="text-white/90 text-sm">{image.photographers_note}</p>
+                <div className="bg-muted p-4 rounded-md mb-6 italic">
+                  <p className="text-sm">{image.photographers_note}</p>
                 </div>
               )}
               
-              {/* Image preview card */}
-              <div className="bg-black/40 rounded-lg overflow-hidden backdrop-blur-sm border border-white/10 mb-6 cursor-pointer" onClick={openModal}>
-                <div className="relative group">
-                  <img 
-                    src={image.image_url} 
-                    alt={image.title}
-                    className="w-full h-auto object-cover max-h-64"
-                  />
-                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                    <Maximize2 className="h-12 w-12 text-white" />
-                  </div>
-                </div>
-                <div className="p-3 text-center">
-                  <p className="text-sm text-white/70">Click to view full image</p>
-                </div>
-              </div>
-            </div>
-            
-            <div>
-              <Card className="bg-black/40 text-white border-white/10 backdrop-blur-sm">
+              <Card>
                 <CardHeader>
                   <CardTitle>Order Print</CardTitle>
-                  <CardDescription className="text-white/70">Select a size to purchase a print of this photograph</CardDescription>
+                  <CardDescription>Select a size to purchase a print of this photograph</CardDescription>
                 </CardHeader>
                 
                 <CardContent>
                   {printOptions.length === 0 ? (
-                    <p className="text-white/70">No print options are currently available for this image.</p>
+                    <p className="text-muted-foreground">No print options are currently available for this image.</p>
                   ) : (
                     <div className="grid grid-cols-2 gap-2">
                       {printOptions.map((option) => (
@@ -229,11 +178,7 @@ const ImageBackgroundPrint = () => {
                           key={option.id}
                           variant={selectedSize === option.size ? "default" : "outline"}
                           onClick={() => setSelectedSize(option.size)}
-                          className={`justify-between ${
-                            selectedSize === option.size 
-                              ? "bg-white text-black" 
-                              : "bg-black/40 text-white border-white/30 hover:bg-white/20"
-                          }`}
+                          className="justify-between"
                         >
                           <span>{option.size}</span>
                           <span>${Number(option.price).toFixed(2)}</span>
@@ -245,7 +190,7 @@ const ImageBackgroundPrint = () => {
                 
                 <CardFooter className="flex flex-col space-y-3">
                   <Button 
-                    className="w-full bg-white text-black hover:bg-white/80" 
+                    className="w-full" 
                     disabled={!selectedSize || printOptions.length === 0}
                     onClick={handleAddToCart}
                   >
@@ -255,7 +200,7 @@ const ImageBackgroundPrint = () => {
                   {items.some(item => item.imageId === image.id) && (
                     <Button 
                       variant="outline" 
-                      className="w-full bg-transparent text-white border-white/30 hover:bg-white/20" 
+                      className="w-full" 
                       onClick={() => navigate('/cart')}
                     >
                       View Cart
@@ -268,19 +213,9 @@ const ImageBackgroundPrint = () => {
         </div>
       </main>
       
-      {/* Image Modal */}
-      {showModal && image && (
-        <ImageModal 
-          image={formatImageForModal()}
-          onClose={closeModal}
-          onNext={() => {}} // Placeholder - you can implement navigation between images if needed
-          onPrev={() => {}} // Placeholder - you can implement navigation between images if needed
-        />
-      )}
-      
       <Footer />
     </div>
   );
 };
 
-export default ImageBackgroundPrint;
+export default Print;
