@@ -1,16 +1,19 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
-import ImageGrid from '@/components/ImageGrid';
-import { getGalleryImages, GalleryImage } from '@/integrations/supabase/api';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { getGalleryImages } from '@/integrations/supabase/api';
 import { useQuery } from '@tanstack/react-query';
-import { Image } from '@/lib/data';
 import { toast } from 'sonner';
+import { ShoppingCart } from 'lucide-react';
 
 const PrintsGallery = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [allCategories, setAllCategories] = useState<string[]>([]);
+  const navigate = useNavigate();
   
   // Fetch images using React Query - only get images with enable_print=true
   const { data: images = [], isLoading, error } = useQuery({
@@ -41,22 +44,11 @@ const PrintsGallery = () => {
     return matchesCategory;
   });
 
-  // Convert Supabase image data to the format expected by ImageGrid
-  const formattedImages: Image[] = filteredImages.map(image => ({
-    id: image.id,
-    src: image.image_url,
-    title: image.title,
-    description: image.description || '',
-    location: image.location || '',
-    date: image.date || '',
-    alt: image.title,
-    categories: image.categories || [],
-    photographerNote: image.photographers_note || '',
-    enablePrint: image.enable_print || false,
-    width: 0,  // Add placeholder values
-    height: 0
-  }));
-  
+  // Handle click on print to navigate to print details page
+  const handlePrintClick = (id: string) => {
+    navigate(`/print/${id}`);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <NavBar />
@@ -124,7 +116,42 @@ const PrintsGallery = () => {
           {!isLoading && !error && (
             <>
               {filteredImages.length > 0 ? (
-                <ImageGrid images={formattedImages} columns={3} />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredImages.map((image) => (
+                    <Card key={image.id} className="overflow-hidden flex flex-col h-full">
+                      <div 
+                        className="relative h-64 cursor-pointer"
+                        onClick={() => handlePrintClick(image.id)}
+                      >
+                        <img
+                          src={image.image_url}
+                          alt={image.title}
+                          className="w-full h-full object-cover transition-transform hover:scale-105"
+                        />
+                      </div>
+                      <CardContent className="flex-grow p-4">
+                        <h3 className="font-medium text-lg mb-1">{image.title}</h3>
+                        <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                          {image.description}
+                        </p>
+                        {image.location && (
+                          <p className="text-xs text-muted-foreground">
+                            {image.location}
+                          </p>
+                        )}
+                      </CardContent>
+                      <CardFooter className="p-4 pt-0">
+                        <Button 
+                          className="w-full"
+                          onClick={() => handlePrintClick(image.id)}
+                        >
+                          <ShoppingCart className="mr-2 h-4 w-4" />
+                          View Print Options
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  ))}
+                </div>
               ) : (
                 <div className="text-center py-20">
                   <h3 className="text-xl font-medium mb-2">No prints currently available</h3>
