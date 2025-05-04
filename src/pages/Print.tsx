@@ -9,7 +9,8 @@ import {
 import { useCart } from '@/context/CartContext';
 import { getImageById, getPrintOptions } from '@/integrations/supabase/api';
 import { toast } from 'sonner';
-import { ArrowLeft, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Maximize } from 'lucide-react';
+import ImageModal from '@/components/ImageModal';
 
 const Print: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -20,6 +21,7 @@ const Print: React.FC = () => {
   const [printOptions, setPrintOptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [showImageModal, setShowImageModal] = useState(false);
   
   useEffect(() => {
     const fetchImageAndOptions = async () => {
@@ -144,6 +146,23 @@ const Print: React.FC = () => {
                   className="w-full h-auto object-cover"
                 />
               </div>
+              
+              {/* Preview card */}
+              <Card className="mt-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setShowImageModal(true)}>
+                <CardContent className="p-3 flex items-center space-x-2">
+                  <div className="h-10 w-10 overflow-hidden rounded bg-muted flex-shrink-0">
+                    <img 
+                      src={image.image_url} 
+                      alt={image.title}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-grow">
+                    <p className="text-sm font-medium">View full size</p>
+                  </div>
+                  <Maximize className="h-4 w-4 text-muted-foreground" />
+                </CardContent>
+              </Card>
             </div>
             
             <div>
@@ -214,6 +233,27 @@ const Print: React.FC = () => {
       </main>
       
       <Footer />
+      
+      {/* Image Modal */}
+      {showImageModal && image && (
+        <ImageModal
+          image={{
+            id: image.id,
+            src: image.image_url,
+            alt: image.title,
+            title: image.title,
+            description: image.description,
+            location: image.location || 'Unknown',
+            date: image.date || 'N/A',
+            photographerNote: image.photographers_note,
+            categories: image.categories || [],
+            enablePrint: image.enable_print
+          }}
+          onClose={() => setShowImageModal(false)}
+          onNext={() => {/* No op */}}
+          onPrev={() => {/* No op */}}
+        />
+      )}
     </div>
   );
 };
