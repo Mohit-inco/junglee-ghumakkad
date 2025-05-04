@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getBlogs } from '@/integrations/supabase/api';
@@ -79,7 +80,7 @@ const Blogs = () => {
                 </p>
               </div>
             ) : (
-              <Blog1 blogs={blogs} />
+              <Blog1 />
             )}
           </div>
         </section>

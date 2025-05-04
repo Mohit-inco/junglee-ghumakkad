@@ -8,7 +8,7 @@ import { ShoppingCart, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Cart = () => {
-  const { cartItems, cartTotal, clearCart } = useCart();
+  const { items, total, clearCart } = useCart();
   
   const handleCheckout = () => {
     alert("Checkout functionality would be implemented here!");
@@ -28,10 +28,10 @@ const Cart = () => {
             </p>
           </div>
           
-          {cartItems.length > 0 ? (
+          {items.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
               <div className="md:col-span-2">
-                {cartItems.map(item => (
+                {items.map(item => (
                   <CartItem key={item.id} item={item} />
                 ))}
                 
@@ -57,7 +57,7 @@ const Cart = () => {
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span>${cartTotal.toFixed(2)}</span>
+                    <span>${total.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Shipping</span>
@@ -69,7 +69,7 @@ const Cart = () => {
                   </div>
                   <div className="border-t pt-3 mt-3 flex justify-between font-medium">
                     <span>Total</span>
-                    <span>${cartTotal.toFixed(2)}</span>
+                    <span>${total.toFixed(2)}</span>
                   </div>
                 </div>
                 

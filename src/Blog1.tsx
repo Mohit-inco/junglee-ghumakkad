@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
-export default function PhotographyExpeditionBlog() {
+interface BlogProps {
+  // You can add specific props here if needed, but an empty interface will work too
+}
+
+export default function PhotographyExpeditionBlog({}: BlogProps) {
   // Refs for parallax sections
   const containerRef = useRef<HTMLDivElement>(null);
   const navbarHeight = 60; // Adjust this to match your navbar height
@@ -317,11 +321,13 @@ export default function PhotographyExpeditionBlog() {
         <p>© 2025 Photography Expedition Blog | All images by Pankaj Adhikary and Team</p>
       </footer>
       
-      <style jsx global>{`
-        .reveal-section.show {
-          opacity: 1;
-        }
-      `}</style>
+      <style>
+        {`
+          .reveal-section.show {
+            opacity: 1;
+          }
+        `}
+      </style>
     </div>
   );
 }

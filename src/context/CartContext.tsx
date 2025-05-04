@@ -21,6 +21,9 @@ type CartContextType = {
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
   getImage: (imageId: string) => GalleryImage | undefined;
+  cartItems: CartItem[]; // Added for compatibility
+  cartTotal: number; // Added for compatibility
+  cartCount: number; // Added for compatibility
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -40,7 +43,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Fetch images for cart items
         const uniqueImageIds = [...new Set(parsedCart.map((item: CartItem) => item.imageId))];
         
-        uniqueImageIds.forEach(async (imageId) => {
+        uniqueImageIds.forEach(async (imageId: string) => {
           fetchImage(imageId);
         });
       } catch (error) {
@@ -151,7 +154,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       removeFromCart,
       updateQuantity,
       clearCart,
-      getImage
+      getImage,
+      // Add aliases for compatibility
+      cartItems: items,
+      cartTotal: total,
+      cartCount: count
     }}>
       {children}
     </CartContext.Provider>
