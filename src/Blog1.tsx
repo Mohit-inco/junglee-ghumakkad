@@ -2,69 +2,57 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
 interface BlogProps {
-  // You can add specific props here if needed, but an empty interface will work too
+  coverImage: string;
+  image1: string;
+  image2: string;
+  image3: string;
+  image4: string;
+  image5: string;
+  image6: string;
+  galleryImages: Array<{src: string, alt: string}>;
 }
 
-export default function PhotographyExpeditionBlog({}: BlogProps) {
-  // Refs for parallax sections
+export default function PhotographyExpeditionBlog({
+  coverImage,
+  image1,
+  image2,
+  image3,
+  image4,
+  image5,
+  image6,
+  galleryImages = []
+}: BlogProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const navbarHeight = 60; // Adjust this to match your navbar height
-  const sectionRefs = useRef<Array<HTMLElement | null>>([]);
-  const [scrollOffset, setScrollOffset] = useState(0);
-
-  // Set up parallax effects using framer-motion with offset
-  const { scrollY } = useScroll();
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"]
+  });
   
-  // Effect to determine scroll offset
+  // Parallax effect values
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, 400]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, 200]);
+  
+  // Intersection Observer for reveal animations
   useEffect(() => {
-    const calculateOffset = () => {
-      if (containerRef.current) {
-        const containerTop = containerRef.current.getBoundingClientRect().top;
-        // Calculate distance from top of page to container
-        const offset = window.pageYOffset - containerTop + navbarHeight;
-        setScrollOffset(offset >= 0 ? offset : 0);
-      }
-    };
-
-    // Initial calculation
-    calculateOffset();
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('show');
+        }
+      });
+    }, {
+      threshold: 0.1
+    });
     
-    // Recalculate on resize
-    window.addEventListener('resize', calculateOffset);
-    return () => window.removeEventListener('resize', calculateOffset);
-  }, []);
-
-  // Create transformed scroll values that only start after the offset
-  const getParallaxY = (startPoint: number, endPoint: number, multiplier: number) => {
-    return useTransform(scrollY, 
-      [scrollOffset + startPoint, scrollOffset + endPoint], 
-      [0, multiplier]
-    );
-  };
-
-  // Define parallax effects with offsets
-  const y1 = getParallaxY(0, 1000, 250);
-  const y2 = getParallaxY(500, 1500, 150);
-  const y3 = getParallaxY(1000, 2000, 200);
-
-  // Handle reveal animations on scroll
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('show');
-          }
-        });
-      },
-      { threshold: 0.15 }
-    );
-
-    const revealElements = document.querySelectorAll('.reveal-section');
-    revealElements.forEach((el) => observer.observe(el));
-
+    const sections = document.querySelectorAll('.reveal-section');
+    sections.forEach(section => {
+      observer.observe(section);
+    });
+    
     return () => {
-      revealElements.forEach((el) => observer.unobserve(el));
+      sections.forEach(section => {
+        observer.unobserve(section);
+      });
     };
   }, []);
 
@@ -79,229 +67,191 @@ export default function PhotographyExpeditionBlog({}: BlogProps) {
           <div 
             className="w-full h-full bg-cover bg-center"
             style={{ 
-              backgroundImage: "url('https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//1000035613_enhanced%20(1).jpg')",
+              backgroundImage: `url('${coverImage}')`,
               filter: "saturate(0.9) brightness(0.85)"
             }}
           />
         </motion.div>
-        <div className="absolute inset-0 bg-black/30" />
-        <div className="relative h-full flex flex-col justify-center items-center text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-light mb-4 max-w-3xl opacity-60">
-            Our Photography Expedition to Nelapattu and Pulicat
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50" />
+        <div className="absolute inset-0 flex flex-col justify-end items-center pb-20 px-8 text-white">
+          <h1 className="text-4xl md:text-5xl lg:text-7xl font-light text-center mb-6 tracking-tight">
+            Discovering Untold Stories
           </h1>
-          <p className="text-xl opacity-60">May 3, 2025</p>
+          <div className="w-16 h-[1px] bg-white mb-6" />
+          <p className="max-w-2xl text-center text-lg md:text-xl opacity-90">
+            A photographic expedition to Nelapattu Bird Sanctuary and Pulicat Lake
+          </p>
         </div>
       </section>
       
-      {/* Section 1: Images Left (1/3), Content Right (2/3) */}
-      <section 
-        ref={el => sectionRefs.current[0] = el}
-        className="reveal-section opacity-0 transition-opacity duration-1000 min-h-screen flex flex-col md:flex-row"
-      >
-        {/* Images Stack - 1/3 width */}
+      {/* Section 1 */}
+      <section className="reveal-section opacity-0 transition-opacity duration-1000 min-h-screen flex flex-col md:flex-row">
         <div className="md:w-1/3 flex flex-col">
           <div className="h-[50vh] md:h-1/2 relative overflow-hidden">
             <img 
-              src="https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//1000035613_enhanced%20(1).jpg" 
+              src={image1} 
               alt="Nelapattu Bird Sanctuary Panoramic View"
               className="w-full h-full object-cover"
             />
           </div>
           <div className="h-[50vh] md:h-1/2 relative overflow-hidden">
             <img 
-              src="/api/placeholder/800/500" 
+              src={image2} 
               alt="Birds in Flight at Nelapattu"
               className="w-full h-full object-cover"
             />
           </div>
         </div>
-        
-        {/* Content - 2/3 width */}
-        <div className="md:w-2/3 bg-[#f6f4ef] p-8 md:p-16 lg:p-24 flex flex-col justify-center">
-          <h2 className="text-3xl md:text-4xl font-light mb-8 text-[#2d3e33] relative pb-4 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-16 after:h-[2px] after:bg-[#5e7e64]">
-            Nelapattu Bird Sanctuary: A Panoramic Prelude
-          </h2>
-          <p className="text-lg leading-relaxed mb-6 text-[#384944]">
-            Our adventure began at the Nelapattu Bird Sanctuary, a haven particularly famous for its large nesting colony of Spot-billed Pelicans. The moment we ascended the sanctuary's watchtower, we were greeted by a breathtaking panorama. Below us unfolded an expansive tapestry of wetlands and dense foliage, alive with activity.
-          </p>
-          <p className="text-lg leading-relaxed text-[#384944]">
-            This elevated vantage point offered an unparalleled view, allowing us to witness a myriad of bird species engaged in the rhythms of their daily lives – from meticulously building nests to diligently foraging for food. It was from here that we truly appreciated the scale of the sanctuary and its importance as a breeding ground. We focused our lenses on the star residents, capturing remarkable shots of pelicans soaring gracefully against the vast sky.
-          </p>
+        <div className="md:w-2/3 p-8 md:p-16 lg:p-24 flex items-center">
+          <div>
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-light mb-8 relative pb-4 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-16 after:h-[2px] after:bg-[#a3c6a9]">
+              The Hidden Sanctuaries of South India
+            </h2>
+            <p className="text-lg mb-6 leading-relaxed">
+              Our journey to Nelapattu Bird Sanctuary and Pulicat Lake was filled with anticipation. 
+              These hidden gems of biodiversity in South India are often overlooked by travelers, yet 
+              they host some of the most spectacular avian gatherings in the country.
+            </p>
+            <p className="text-lg mb-6 leading-relaxed">
+              The pre-dawn departure from Chennai set the tone for our expedition - patience and 
+              perseverance would be our companions. As wildlife photographers, we've learned that 
+              the most breathtaking moments in nature require both preparation and patience.
+            </p>
+            <p className="text-lg leading-relaxed">
+              Arriving at Nelapattu just as the first light painted the sky in hues of amber and 
+              gold, we were immediately greeted by the distant calls of birds awakening to a new day.
+            </p>
+          </div>
         </div>
       </section>
       
-      {/* Section 2: Content Left (2/3), Image Right (1/3) */}
-      <section 
-        ref={el => sectionRefs.current[1] = el}
-        className="reveal-section opacity-0 transition-opacity duration-1000 min-h-screen flex flex-col md:flex-row"
-      >
-        {/* Content - 2/3 width */}
-        <div className="md:w-2/3 bg-[#f6f4ef] p-8 md:p-16 lg:p-24 flex flex-col justify-center order-2 md:order-1">
-          <h2 className="text-3xl md:text-4xl font-light mb-8 text-[#2d3e33] relative pb-4 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-16 after:h-[2px] after:bg-[#5e7e64]">
-            Pulicat Bird Sanctuary: The Quest for the Pink Tide
-          </h2>
-          <p className="text-lg leading-relaxed mb-6 text-[#384944]">
-            Energized by the wonders of Nelapattu, we set our sights on Pulicat Bird Sanctuary, renowned as a crucial wintering ground, particularly famous for its influx of Greater Flamingos. Anticipation built as we envisioned the iconic sight of these elegant birds painting the brackish waters pink.
-          </p>
-          <p className="text-lg leading-relaxed text-[#384944]">
-            However, nature often holds surprises. Upon arrival, we learned that the flamingos had shifted their primary nesting areas. While the exact reasons can be complex, local information suggested increased human presence, perhaps related to the recent Flamingo Festival, might have influenced their relocation within the vast sanctuary area.
-          </p>
+      {/* Section 2 */}
+      <section className="reveal-section opacity-0 transition-opacity duration-1000 min-h-screen flex flex-col md:flex-row">
+        <div className="md:w-1/2 p-8 md:p-16 lg:p-24 flex items-center">
+          <div>
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-light mb-8 relative pb-4 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-16 after:h-[2px] after:bg-[#a3c6a9]">
+              The Symphony of Wings
+            </h2>
+            <p className="text-lg mb-6 leading-relaxed">
+              Nelapattu Bird Sanctuary is relatively small at just 4.58 square kilometers, but 
+              what it lacks in size, it more than makes up for in biodiversity. The sanctuary is 
+              home to over 189 bird species, many of which migrate from distant lands.
+            </p>
+            <p className="text-lg mb-6 leading-relaxed">
+              The Painted Storks were perhaps the most photogenic subjects, their distinctive 
+              pink plumage and curved yellow bills creating striking silhouettes against the 
+              morning sky. We watched in awe as they performed their ritualistic dances and 
+              feeding techniques in the shallow waters.
+            </p>
+            <p className="text-lg leading-relaxed">
+              Equally captivating were the Spot-billed Pelicans, gracefully gliding across the 
+              water surface before dramatically plunging to catch fish. Their synchronized 
+              movements created a ballet that seemed choreographed specifically for our cameras.
+            </p>
+          </div>
         </div>
-        
-        {/* Image - 1/3 width */}
-        <div className="md:w-1/3 h-[60vh] md:h-auto relative overflow-hidden order-1 md:order-2">
-          <motion.div style={{ y: y2 }} className="h-[120%] w-full">
+        <div className="md:w-1/2 relative overflow-hidden">
+          <motion.div 
+            style={{ y: y2 }}
+            className="w-full h-full md:h-[120%]"
+          >
             <img 
-              src="/api/placeholder/800/1200" 
-              alt="Pulicat Lake Landscape"
+              src={image3} 
+              alt="Bird Colony at Nelapattu"
               className="w-full h-full object-cover"
             />
           </motion.div>
         </div>
       </section>
       
-      {/* Section 3: Images Left (1/3), Content Right (2/3) */}
-      <section 
-        ref={el => sectionRefs.current[2] = el}
-        className="reveal-section opacity-0 transition-opacity duration-1000 min-h-screen flex flex-col md:flex-row"
-      >
-        {/* Images Stack - 1/3 width */}
-        <div className="md:w-1/3 flex flex-col">
-          <div className="h-[50vh] md:h-1/2 relative overflow-hidden">
-            <img 
-              src="/api/placeholder/800/500" 
-              alt="Painted Storks at Pulicat"
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="h-[50vh] md:h-1/2 relative overflow-hidden">
-            <img 
-              src="/api/placeholder/800/500" 
-              alt="Seagulls and Pelicans"
-              className="w-full h-full object-cover"
-            />
-          </div>
+      {/* Section 3 */}
+      <section className="reveal-section opacity-0 transition-opacity duration-1000 min-h-screen flex flex-col md:flex-row">
+        <div className="md:w-1/2 relative overflow-hidden">
+          <img 
+            src={image4} 
+            alt="Pulicat Lake Landscape"
+            className="w-full h-full object-cover"
+          />
         </div>
-        
-        {/* Content - 2/3 width */}
-        <div className="md:w-2/3 bg-[#f6f4ef] p-8 md:p-16 lg:p-24 flex flex-col justify-center">
-          <h2 className="text-3xl md:text-4xl font-light mb-8 text-[#2d3e33] relative pb-4 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-16 after:h-[2px] after:bg-[#5e7e64]">
-            Beyond the Pink: Discovering Pulicat's Other Treasures
-          </h2>
-          <p className="text-lg leading-relaxed mb-6 text-[#384944]">
-            Despite the unexpected absence of the large flamingo flocks in the most accessible areas, our spirits remained high. Pulicat is far more than just flamingos, and the sanctuary quickly unveiled a plethora of other avian wonders that held us spellbound:
-          </p>
-          <div className="mb-6 pl-4 border-l-2 border-[#5e7e64]/30">
-            <p className="text-lg leading-relaxed mb-4 text-[#384944]">
-              <span className="font-medium text-[#3d5d43]">Painted Storks:</span> We observed these majestic birds wading with purpose through the shallow backwaters, their vibrant plumage standing out as they patiently searched for their next meal.
+        <div className="md:w-1/2 p-8 md:p-16 lg:p-24 flex items-center">
+          <div>
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-light mb-8 relative pb-4 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-16 after:h-[2px] after:bg-[#a3c6a9]">
+              Pulicat Lake: Where Sky Meets Water
+            </h2>
+            <p className="text-lg mb-6 leading-relaxed">
+              Our expedition continued to Pulicat Lake, India's second-largest brackish water lagoon. 
+              Spanning across 759 square kilometers, Pulicat is a wetland of international importance, 
+              recognized under the Ramsar Convention.
             </p>
-            <p className="text-lg leading-relaxed text-[#384944]">
-              <span className="font-medium text-[#3d5d43]">Seagulls and Pelicans:</span> Flocks of seagulls crisscrossed the sky, while familiar pelicans glided across the water's surface – a constant reminder of the sanctuary's role as a vital habitat supporting diverse species.
+            <p className="text-lg mb-6 leading-relaxed">
+              The vastness of Pulicat presented different photographic challenges compared to Nelapattu. 
+              Here, the compositions were more about capturing the relationship between the birds and 
+              their expansive environment. The endless horizon where sky meets water became a recurring 
+              theme in our photographs.
+            </p>
+            <p className="text-lg leading-relaxed">
+              Greater Flamingos, with their iconic pink plumage, created stunning reflections on the 
+              still waters of the lake. We spent hours following their movements, waiting for that 
+              perfect moment when light, subject, and environment aligned in harmony.
             </p>
           </div>
-          <p className="text-lg leading-relaxed text-[#384944]">
-            The landscape itself was a picture of tranquility and natural beauty – vast stretches of shallow water interspersed with patches of lush, verdant vegetation, creating a peaceful backdrop for our observations.
-          </p>
         </div>
       </section>
       
-      {/* Section 4: Content Left (2/3), Image Right (1/3) */}
-      <section 
-        ref={el => sectionRefs.current[3] = el}
-        className="reveal-section opacity-0 transition-opacity duration-1000 min-h-screen flex flex-col md:flex-row"
-      >
-        {/* Content - 2/3 width */}
-        <div className="md:w-2/3 bg-[#f6f4ef] p-8 md:p-16 lg:p-24 flex flex-col justify-center order-2 md:order-1">
-          <h2 className="text-3xl md:text-4xl font-light mb-8 text-[#2d3e33] relative pb-4 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-16 after:h-[2px] after:bg-[#5e7e64]">
-            Reflections on Nature's Ingenuity: Evolution in Action
-          </h2>
-          <p className="text-lg leading-relaxed mb-6 text-[#384944]">
-            Our time observing these incredible creatures prompted profound reflections on the marvels of evolution and adaptation. The distinctive features of various bird species are not mere aesthetic traits, but perfect examples of nature's ingenious problem-solving:
-          </p>
-          <div className="mb-6 pl-4 border-l-2 border-[#5e7e64]/30">
-            <p className="text-lg leading-relaxed mb-4 text-[#384944]">
-              <span className="font-medium text-[#3d5d43]">Spoonbills:</span> Their uniquely flattened, spoon-shaped bills are perfectly designed tools, ideal for sweeping through mudflats and shallow water to filter out small prey.
-            </p>
-            <p className="text-lg leading-relaxed mb-4 text-[#384944]">
-              <span className="font-medium text-[#3d5d43]">Pelicans:</span> The famous expansive throat pouches aren't just for show; they are incredibly efficient mechanisms for scooping up water and fish, before the water is expertly drained away.
-            </p>
-            <p className="text-lg leading-relaxed text-[#384944]">
-              <span className="font-medium text-[#3d5d43]">Ibises:</span> Their slender, downward-curving beaks are specialized probes, perfect for digging into soft soil or mud to extract insects and invertebrates hidden beneath the surface.
-            </p>
-          </div>
-        </div>
-        
-        {/* Image - 1/3 width */}
-        <div className="md:w-1/3 h-[60vh] md:h-auto relative overflow-hidden order-1 md:order-2">
-          <motion.div style={{ y: y3 }} className="h-[120%] w-full">
-            <img 
-              src="/api/placeholder/800/1200" 
-              alt="Close-up of Bird Features"
-              className="w-full h-full object-cover"
-            />
-          </motion.div>
-        </div>
+      {/* Full Width Image */}
+      <section className="reveal-section opacity-0 transition-opacity duration-1000 h-[80vh] relative overflow-hidden">
+        <img 
+          src={image5} 
+          alt="Panoramic View of Birds at Pulicat Lake"
+          className="w-full h-full object-cover"
+        />
       </section>
       
-      {/* Section 5: Final Images Left (1/3), Content Right (2/3) */}
-      <section 
-        ref={el => sectionRefs.current[4] = el}
-        className="reveal-section opacity-0 transition-opacity duration-1000 min-h-screen flex flex-col md:flex-row"
-      >
-        {/* Images Stack - 1/3 width */}
-        <div className="md:w-1/3 flex flex-col">
-          <div className="h-[50vh] md:h-1/2 relative overflow-hidden">
-            <img 
-              src="/api/placeholder/800/500" 
-              alt="Nelapattu Landscape"
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="h-[50vh] md:h-1/2 relative overflow-hidden">
-            <img 
-              src="/api/placeholder/800/500" 
-              alt="Bird Watching at Pulicat"
-              className="w-full h-full object-cover"
-            />
+      {/* Section 4 */}
+      <section className="reveal-section opacity-0 transition-opacity duration-1000 min-h-screen flex flex-col md:flex-row">
+        <div className="md:w-2/3 p-8 md:p-16 lg:p-24 flex items-center">
+          <div>
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-light mb-8 relative pb-4 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-16 after:h-[2px] after:bg-[#a3c6a9]">
+              The Art of Patience in Wildlife Photography
+            </h2>
+            <p className="text-lg mb-6 leading-relaxed">
+              Wildlife photography, especially bird photography, is as much about patience as it is 
+              about technical skill. Throughout our expedition, we were reminded of this fundamental 
+              truth. Hours would pass with no significant activity, and then, in a split second, 
+              magic would unfold before our lenses.
+            </p>
+            <p className="text-lg mb-6 leading-relaxed">
+              One such moment occurred at Pulicat as the sun began to set. A flock of Black-tailed 
+              Godwits that had been feeding quietly suddenly took flight, creating a mesmerizing 
+              pattern against the golden sky. Those who had packed up early missed the spectacle – 
+              a reminder that in wildlife photography, perseverance often makes the difference.
+            </p>
+            <p className="text-lg leading-relaxed">
+              We also learned the importance of understanding bird behavior. By observing patterns 
+              and anticipating movements, we could position ourselves for optimal shots. This 
+              knowledge helped us capture intimate moments of birds feeding, courting, and interacting 
+              with their environment.
+            </p>
           </div>
         </div>
-        
-        {/* Content - 2/3 width */}
-        <div className="md:w-2/3 bg-[#f6f4ef] p-8 md:p-16 lg:p-24 flex flex-col justify-center">
-          <h2 className="text-3xl md:text-4xl font-light mb-8 text-[#2d3e33] relative pb-4 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-16 after:h-[2px] after:bg-[#5e7e64]">
-            Concluding Thoughts: An Unforgettable Encounter
-          </h2>
-          <p className="text-lg leading-relaxed mb-6 text-[#384944]">
-            Our expedition through the Nelapattu and Pulicat Bird Sanctuaries, though it held an unexpected twist at Pulicat, was a truly profound journey into the heart of nature's splendor. It enriched our understanding of avian life, its incredible adaptations, and the critical importance of preserving these natural sanctuaries.
-          </p>
-          <p className="text-lg leading-relaxed mb-6 text-[#384944]">
-            For anyone passionate about birdwatching, nature photography, or simply experiencing the wild beauty of India's ecosystems, these sanctuaries offer invaluable insights and unforgettable encounters with our feathered friends.
-          </p>
-          <p className="text-lg leading-relaxed text-[#384944]">
-            <span className="font-medium">A Note for Future Visitors:</span> While spontaneity is great, a little planning goes a long way. Checking local guidelines, seasonal bird migrations, and festival schedules before your visit can help optimize your experience and ensure minimal disturbance to the incredible wildlife that calls these places home.
-          </p>
+        <div className="md:w-1/3 relative overflow-hidden">
+          <img 
+            src={image6} 
+            alt="Sunset Over Pulicat Lake with Birds in Flight"
+            className="w-full h-full object-cover"
+          />
         </div>
       </section>
       
       {/* Favorite Clicks Section */}
-      <section 
-        ref={el => sectionRefs.current[5] = el}
-        className="reveal-section opacity-0 transition-opacity duration-1000 bg-[#2d3e33] text-white py-24 px-8"
-      >
+      <section className="reveal-section opacity-0 transition-opacity duration-1000 bg-[#2d3e33] text-white py-24 px-8">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-light mb-16 text-center relative pb-4 after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-16 after:h-[2px] after:bg-[#a3c6a9]">
             Favorite Clicks From Our Journey
           </h2>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              { src: "/api/placeholder/600/400", alt: "Pelican in Flight" },
-              { src: "/api/placeholder/600/400", alt: "Painted Stork" },
-              { src: "/api/placeholder/600/400", alt: "Nelapattu Panorama" },
-              { src: "/api/placeholder/600/400", alt: "Ibis Feeding" },
-              { src: "/api/placeholder/600/400", alt: "Pulicat Lake Sunset" },
-              { src: "/api/placeholder/600/400", alt: "Bird in Natural Habitat" }
-            ].map((img, i) => (
+            {galleryImages.map((img, i) => (
               <div 
                 key={i} 
                 className="overflow-hidden rounded-md shadow-lg aspect-[4/3] transform transition-all duration-500 hover:scale-[1.02] hover:shadow-xl"
@@ -317,17 +267,39 @@ export default function PhotographyExpeditionBlog({}: BlogProps) {
         </div>
       </section>
       
-      <footer className="bg-[#2d3e33] text-white/80 text-center py-8 px-4 text-sm border-t border-white/10">
-        <p>© 2025 Photography Expedition Blog | All images by Pankaj Adhikary and Team</p>
-      </footer>
+      {/* Conclusion */}
+      <section className="reveal-section opacity-0 transition-opacity duration-1000 py-24 px-8 bg-white">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-light mb-8 relative pb-4 inline-block after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-16 after:h-[2px] after:bg-[#a3c6a9]">
+            The Journey Continues
+          </h2>
+          <p className="text-lg mb-8 leading-relaxed">
+            Our expedition to Nelapattu and Pulicat was more than just a photography trip; it was 
+            a reminder of the incredible biodiversity that exists in our world and the importance 
+            of preserving these habitats for future generations.
+          </p>
+          <p className="text-lg mb-12 leading-relaxed">
+            Every photograph we captured tells a story – of patience, of perfect timing, of the 
+            delicate balance of nature. We hope these images inspire others to explore these 
+            lesser-known sanctuaries and to develop a deeper appreciation for the winged wonders 
+            that inhabit our planet.
+          </p>
+          <div className="flex justify-center space-x-4">
+            <button className="px-6 py-3 bg-[#2d3e33] text-white rounded-full hover:bg-[#3d5244] transition-colors">
+              Share This Journey
+            </button>
+            <button className="px-6 py-3 border border-[#2d3e33] text-[#2d3e33] rounded-full hover:bg-[#f0ede6] transition-colors">
+              Explore More Blogs
+            </button>
+          </div>
+        </div>
+      </section>
       
-      <style>
-        {`
-          .reveal-section.show {
-            opacity: 1;
-          }
-        `}
-      </style>
+      <style>{`
+        .reveal-section.show {
+          opacity: 1;
+        }
+      `}</style>
     </div>
   );
 }
