@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Card, CardContent, CardDescription, CardHeader, CardTitle 
 } from '@/components/ui/card';
+import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
-import { Upload, Loader2, Plus, PencilLine } from 'lucide-react';
+import { Upload, Loader2 } from 'lucide-react';
 import { getAvailableSections } from '@/integrations/supabase/api';
 import { GalleryImage } from '@/integrations/supabase/api';
 import { Session } from '@supabase/supabase-js';
@@ -20,7 +21,6 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetFooter,
 } from "@/components/ui/sheet";
 
 interface ImageFormData {
@@ -50,8 +50,10 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [isPrintSheetOpen, setIsPrintSheetOpen] = useState(false);
-  const [isFormSheetOpen, setIsFormSheetOpen] = useState(false);
   const [selectedPrintImage, setSelectedPrintImage] = useState<GalleryImage | null>(null);
+  
+  // Add a ref to the form card for scrolling
+  const formCardRef = useRef<HTMLDivElement>(null);
   
   const form = useForm<ImageFormData>({
     defaultValues: {
@@ -154,17 +156,6 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
     setPreviewUrl(objectUrl);
   };
 
-  const openNewImageForm = () => {
-    // Reset form and state first
-    resetForm();
-    setIsEditing(false);
-    
-    // Then open the form sheet with a slight delay
-    setTimeout(() => {
-      setIsFormSheetOpen(true);
-    }, 50);
-  };
-
   const onSubmit = async (data: ImageFormData) => {
     if (!file && !isEditing) {
       toast.error('Please select an image to upload');
@@ -242,7 +233,6 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
       
       // Reset form and state
       resetForm();
-      setIsFormSheetOpen(false);
       fetchImages();
     } catch (error: any) {
       toast.error(`Error: ${error.message}`);
@@ -252,8 +242,17 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
     }
   };
 
+  // Scroll to form function
+  const scrollToForm = () => {
+    if (formCardRef.current) {
+      formCardRef.current.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
   const handleEditImage = (image: GalleryImage) => {
-    // First set all the state
     setSelectedImage(image);
     setIsEditing(true);
     
@@ -275,10 +274,10 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
       setPreviewUrl(image.image_url);
     }
     
-    // Open the form sheet with a slight delay to ensure state is updated
+    // Scroll to the form after a short delay to ensure state is updated
     setTimeout(() => {
-      setIsFormSheetOpen(true);
-    }, 50);
+      scrollToForm();
+    }, 100);
   };
 
   const handleManagePrints = (image: GalleryImage) => {
@@ -311,35 +310,16 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
 
   return (
     <div className="space-y-6">
-      {/* Action buttons at the top */}
-      <div className="flex justify-end">
-        <Button 
-          onClick={openNewImageForm}
-          className="flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" /> 
-          Upload New Image
-        </Button>
-      </div>
-
-      {/* Form Sheet Panel */}
-      <Sheet open={isFormSheetOpen} onOpenChange={(open) => {
-        setIsFormSheetOpen(open);
-        if (!open) {
-          // Reset form when sheet is closed
-          resetForm();
-        }
-      }}>
-        <SheetContent className="w-full sm:max-w-md overflow-y-auto" side="right">
-          <SheetHeader>
-            <SheetTitle>{isEditing ? 'Edit Image' : 'Upload New Image'}</SheetTitle>
-            <SheetDescription>
-              {isEditing ? 'Update image details and settings' : 'Add a new image to your gallery with details'}
-            </SheetDescription>
-          </SheetHeader>
-          
-          <div className="py-6">
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <Card className="w-full" ref={formCardRef}>
+        <CardHeader>
+          <CardTitle>{isEditing ? 'Edit Image' : 'Upload New Image'}</CardTitle>
+          <CardDescription>
+            {isEditing ? 'Update image details and settings' : 'Add a new image to your gallery with details'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               {/* Image Upload */}
               <ImageUploadSection
                 onFileChange={handleFileChange}
@@ -359,30 +339,33 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
                 onAddGenre={handleAddGenre}
               />
               
-              <SheetFooter className="pt-4 gap-4">
+              <div className="flex gap-2 pt-4">
                 <Button 
                   type="submit" 
                   disabled={uploading}
+                  className="flex-1"
                 >
                   {uploading ? (
                     <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {isEditing ? 'Updating...' : 'Uploading...'}</>
                   ) : (
-                    <>{isEditing ? <PencilLine className="mr-2 h-4 w-4" /> : <Upload className="mr-2 h-4 w-4" />} {isEditing ? 'Update Image' : 'Upload Image'}</>
+                    <><Upload className="mr-2 h-4 w-4" /> {isEditing ? 'Update Image' : 'Upload Image'}</>
                   )}
                 </Button>
                 
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setIsFormSheetOpen(false)}
-                >
-                  Cancel
-                </Button>
-              </SheetFooter>
+                {isEditing && (
+                  <Button 
+                    type="button"
+                    variant="outline"
+                    onClick={resetForm}
+                  >
+                    Cancel
+                  </Button>
+                )}
+              </div>
             </form>
-          </div>
-        </SheetContent>
-      </Sheet>
+          </Form>
+        </CardContent>
+      </Card>
       
       {/* Print Options Side Panel */}
       <Sheet open={isPrintSheetOpen} onOpenChange={setIsPrintSheetOpen}>
@@ -402,22 +385,12 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
         </SheetContent>
       </Sheet>
       
-      {/* Main content: Gallery of existing images */}
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Image Gallery</CardTitle>
-          <CardDescription>
-            Manage your existing gallery images
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ImageGallery 
-            images={images} 
-            onEditImage={handleEditImage}
-            onManagePrints={handleManagePrints}
-          />
-        </CardContent>
-      </Card>
+      {/* Existing Images */}
+      <ImageGallery 
+        images={images} 
+        onEditImage={handleEditImage}
+        onManagePrints={handleManagePrints}
+      />
     </div>
   );
 };
