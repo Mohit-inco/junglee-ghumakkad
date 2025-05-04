@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getBlogs } from '@/integrations/supabase/api';
@@ -8,17 +7,18 @@ import Blog1 from '@/Blog1'; // Import your Blog1 component
 
 const Blogs = () => {
   const [showBlog1, setShowBlog1] = useState(false);
-  const { data: blogs = [], isLoading, error } = useQuery({
+  const {
+    data: blogs = [],
+    isLoading,
+    error
+  } = useQuery({
     queryKey: ['blogs'],
     queryFn: getBlogs
   });
-
   const toggleBlog1 = () => {
     setShowBlog1(prevState => !prevState);
   };
-
-  return (
-    <div className="min-h-screen flex flex-col bg-background">
+  return <div className="min-h-screen flex flex-col bg-background">
       <NavBar />
       
       {/* Hero Section */}
@@ -32,10 +32,7 @@ const Blogs = () => {
       </section>
       
       {/* Featured Blog Bar */}
-      <section 
-        className="py-6 bg-primary cursor-pointer hover:bg-primary/90 transition-colors"
-        onClick={toggleBlog1}
-      >
+      <section className="py-6 bg-primary cursor-pointer hover:bg-primary/90 transition-colors" onClick={toggleBlog1}>
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -44,18 +41,7 @@ const Blogs = () => {
               </span>
             </div>
             <div className="text-primary-foreground">
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width="24" 
-                height="24" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                className={`transition-transform ${showBlog1 ? 'rotate-90' : ''}`}
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${showBlog1 ? 'rotate-90' : ''}`}>
                 <path d="m9 18 6-6-6-6"></path>
               </svg>
             </div>
@@ -64,32 +50,22 @@ const Blogs = () => {
       </section>
       
       {/* Blog1 Content - Only shown when toggle is active */}
-      {showBlog1 && (
-        <section className="py-10 px-6">
+      {showBlog1 && <section className="py-100 px-6">
           <div className="max-w-4xl mx-auto">
-            {isLoading ? (
-              <div className="text-center py-10">
+            {isLoading ? <div className="text-center py-10">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
                 <p className="mt-4 text-muted-foreground">Loading blog content...</p>
-              </div>
-            ) : error ? (
-              <div className="text-center py-10">
+              </div> : error ? <div className="text-center py-10">
                 <h3 className="text-xl font-medium mb-2 text-destructive">Failed to load blog content</h3>
                 <p className="text-muted-foreground">
                   There was an error loading the blog. Please try again later.
                 </p>
-              </div>
-            ) : (
-              <Blog1 />
-            )}
+              </div> : <Blog1 />}
           </div>
-        </section>
-      )}
+        </section>}
       
       <div className="flex-grow"></div>
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Blogs;
