@@ -91,6 +91,7 @@ const Gallery = () => {
     alt: image.title,
     categories: image.categories || [],
     photographerNote: image.photographers_note || '',
+    enablePrint: image.enable_print || false,
     width: 0,  // Add placeholder values
     height: 0
   }));

@@ -3,13 +3,15 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { GalleryImage } from '@/integrations/supabase/api';
+import { Image, FileImage } from 'lucide-react';
 
 interface ImageCardProps {
   image: GalleryImage;
   onEdit: (image: GalleryImage) => void;
+  onManagePrints?: (image: GalleryImage) => void;
 }
 
-export const ImageCard: React.FC<ImageCardProps> = ({ image, onEdit }) => {
+export const ImageCard: React.FC<ImageCardProps> = ({ image, onEdit, onManagePrints }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Generate thumbnail URL by adding query parameters for resizing
@@ -41,6 +43,13 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image, onEdit }) => {
           loading="lazy"
           onLoad={() => setIsLoaded(true)}
         />
+        
+        {/* Print badge */}
+        {image.enable_print && (
+          <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+            Print Available
+          </div>
+        )}
       </div>
       <CardContent className="p-4">
         <h3 className="text-lg font-semibold">{image.title}</h3>
@@ -64,8 +73,21 @@ export const ImageCard: React.FC<ImageCardProps> = ({ image, onEdit }) => {
           className="flex-1"
           onClick={() => onEdit(image)}
         >
+          <Image className="h-4 w-4 mr-2" />
           Edit
         </Button>
+        
+        {onManagePrints && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex-1"
+            onClick={() => onManagePrints(image)}
+          >
+            <FileImage className="h-4 w-4 mr-2" />
+            Prints
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );

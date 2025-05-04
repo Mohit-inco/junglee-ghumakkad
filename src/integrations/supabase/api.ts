@@ -5,6 +5,7 @@ import { Tables } from './types';
 export type GalleryImage = Tables<'gallery_images'>;
 export type Blog = Tables<'blogs'>;
 export type BlogImage = Tables<'blog_images'>;
+export type PrintOption = Tables<'print_options'>;
 
 export async function getGalleryImages(section?: string): Promise<GalleryImage[]> {
   let query = supabase
@@ -159,6 +160,7 @@ export async function saveGalleryImage(image: Partial<GalleryImage> & { id?: str
           sections: image.sections,
           categories: image.categories,
           genres: image.genres,
+          enable_print: image.enable_print,
           image_url: image.image_url,
           updated_at: new Date().toISOString()
         })
@@ -181,6 +183,7 @@ export async function saveGalleryImage(image: Partial<GalleryImage> & { id?: str
           sections: image.sections,
           categories: image.categories,
           genres: image.genres,
+          enable_print: image.enable_print,
           image_url: image.image_url!
         })
         .select()
@@ -192,5 +195,76 @@ export async function saveGalleryImage(image: Partial<GalleryImage> & { id?: str
   } catch (error) {
     console.error('Error saving gallery image:', error);
     return null;
+  }
+}
+
+// Print options functions
+export async function getPrintOptions(imageId: string): Promise<PrintOption[]> {
+  const { data, error } = await supabase
+    .from('print_options')
+    .select('*')
+    .eq('image_id', imageId)
+    .order('price', { ascending: true });
+  
+  if (error) {
+    console.error('Error fetching print options:', error);
+    return [];
+  }
+  
+  return data || [];
+}
+
+export async function savePrintOption(option: Partial<PrintOption> & { image_id: string; size: string; price: number }): Promise<PrintOption | null> {
+  try {
+    if (option.id) {
+      // Update existing print option
+      const { data, error } = await supabase
+        .from('print_options')
+        .update({
+          size: option.size,
+          price: option.price,
+          in_stock: option.in_stock,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', option.id)
+        .select()
+        .single();
+        
+      if (error) throw error;
+      return data;
+    } else {
+      // Create new print option
+      const { data, error } = await supabase
+        .from('print_options')
+        .insert({
+          image_id: option.image_id,
+          size: option.size,
+          price: option.price,
+          in_stock: option.in_stock !== undefined ? option.in_stock : true
+        })
+        .select()
+        .single();
+        
+      if (error) throw error;
+      return data;
+    }
+  } catch (error) {
+    console.error('Error saving print option:', error);
+    return null;
+  }
+}
+
+export async function deletePrintOption(id: string): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('print_options')
+      .delete()
+      .eq('id', id);
+      
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error('Error deleting print option:', error);
+    return false;
   }
 }

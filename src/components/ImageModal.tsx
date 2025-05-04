@@ -1,7 +1,10 @@
+
 import React, { useEffect, useRef, useState } from 'react';
-import { X, Info } from 'lucide-react';
+import { X, Info, FileImage } from 'lucide-react';
 import { Image, getImageSrc } from '@/lib/data';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 interface ImageModalProps {
   image: Image;
@@ -24,7 +27,8 @@ const ImageModal: React.FC<ImageModalProps> = ({
   const [currentImage, setCurrentImage] = useState(image);
   const [rotateValue, setRotateValue] = useState(0);
   const [isClosing, setIsClosing] = useState(false);
-
+  const navigate = useNavigate();
+  
   // Update internal image when prop changes
   useEffect(() => {
     if (image !== currentImage && !isTransitioning) {
@@ -153,6 +157,11 @@ const ImageModal: React.FC<ImageModalProps> = ({
     }
   };
 
+  const handlePrintClick = () => {
+    onClose();
+    navigate(`/print/${currentImage.id}`);
+  };
+
   return (
     <div 
       className={`fixed inset-0 bg-black z-50 flex items-center justify-center transition-opacity duration-300 ${isClosing ? 'opacity-0' : 'opacity-100'}`} 
@@ -231,7 +240,23 @@ const ImageModal: React.FC<ImageModalProps> = ({
           className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/0 text-white p-6 transform transition-transform duration-300 ease-in-out ${showInfo ? 'translate-y-0' : 'translate-y-full'}`}
           onClick={e => e.stopPropagation()} // Prevent closing modal when clicking on info panel
         >
-          <h2 className="text-xl font-medium mb-2">{currentImage.title}</h2>
+          <div className="flex justify-between items-start mb-3">
+            <h2 className="text-xl font-medium">{currentImage.title}</h2>
+            
+            {/* Print button - only show if the image has printability info */}
+            {'enablePrint' in currentImage && currentImage.enablePrint && (
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="text-white border-white hover:bg-white/20"
+                onClick={handlePrintClick}
+              >
+                <FileImage className="h-4 w-4 mr-2" />
+                Buy Print
+              </Button>
+            )}
+          </div>
+          
           <p className="text-white/80 mb-3">{currentImage.description}</p>
           
           <div className="flex flex-wrap gap-y-3 gap-x-6 text-sm text-white/70">
@@ -253,7 +278,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
           
           <div className="mt-4 pt-3 border-t border-white/20 flex justify-between items-center">
             <div className="flex gap-2">
-              {currentImage.categories.map((category, index) => (
+              {currentImage.categories && currentImage.categories.map((category, index) => (
                 <span key={index} className="text-xs bg-white/20 text-white px-2 py-1 rounded-full">
                   {category}
                 </span>

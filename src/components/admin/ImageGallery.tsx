@@ -7,7 +7,7 @@ import { ImageCard } from './ImageCard';
 interface ImageGalleryProps {
   images: GalleryImage[];
   onEditImage: (image: GalleryImage) => void;
-  onManagePrints: (image: GalleryImage) => void;
+  onManagePrints?: (image: GalleryImage) => void;
 }
 
 const ImageGallery: React.FC<ImageGalleryProps> = ({ 

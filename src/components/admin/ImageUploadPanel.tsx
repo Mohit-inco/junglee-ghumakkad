@@ -14,6 +14,14 @@ import { Session } from '@supabase/supabase-js';
 import ImageUploadSection from './ImageUploadSection';
 import ImageFormFields from './ImageFormFields';
 import ImageGallery from './ImageGallery';
+import PrintOptions from './PrintOptions';
+import { 
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 interface ImageFormData {
   title: string;
@@ -24,6 +32,7 @@ interface ImageFormData {
   sections: string[];
   categories: string[];
   genres: string[];
+  enable_print: boolean;
 }
 
 interface Props {
@@ -40,6 +49,8 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [isEditing, setIsEditing] = useState(false);
+  const [isPrintSheetOpen, setIsPrintSheetOpen] = useState(false);
+  const [selectedPrintImage, setSelectedPrintImage] = useState<GalleryImage | null>(null);
   
   // Add a ref to the form card for scrolling
   const formCardRef = useRef<HTMLDivElement>(null);
@@ -54,6 +65,7 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
       sections: [],
       categories: [],
       genres: [],
+      enable_print: false,
     }
   });
   
@@ -190,6 +202,7 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
             sections: data.sections,
             categories: data.categories || [],
             genres: data.genres || [],
+            enable_print: data.enable_print,
             updated_at: new Date().toISOString(),
             ...(imageUrl && { image_url: imageUrl }),
           })
@@ -210,6 +223,7 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
             sections: data.sections,
             categories: data.categories || [],
             genres: data.genres || [],
+            enable_print: data.enable_print,
             image_url: imageUrl
           });
           
@@ -252,6 +266,7 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
       sections: image.sections || [],
       categories: image.categories || [],
       genres: image.genres || [],
+      enable_print: image.enable_print || false,
     });
     
     // Set preview URL if available
@@ -265,6 +280,11 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
     }, 100);
   };
 
+  const handleManagePrints = (image: GalleryImage) => {
+    setSelectedPrintImage(image);
+    setIsPrintSheetOpen(true);
+  };
+
   const resetForm = () => {
     form.reset({
       title: '',
@@ -275,6 +295,7 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
       sections: [],
       categories: [],
       genres: [],
+      enable_print: false,
     });
     setFile(null);
     setPreviewUrl(null);
@@ -346,10 +367,29 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
         </CardContent>
       </Card>
       
+      {/* Print Options Side Panel */}
+      <Sheet open={isPrintSheetOpen} onOpenChange={setIsPrintSheetOpen}>
+        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Manage Print Options</SheetTitle>
+            <SheetDescription>
+              {selectedPrintImage ? `Configure print options for "${selectedPrintImage.title}"` : 'Configure print options'}
+            </SheetDescription>
+          </SheetHeader>
+          
+          {selectedPrintImage && (
+            <div className="mt-6">
+              <PrintOptions imageId={selectedPrintImage.id} />
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
+      
       {/* Existing Images */}
       <ImageGallery 
         images={images} 
         onEditImage={handleEditImage}
+        onManagePrints={handleManagePrints}
       />
     </div>
   );

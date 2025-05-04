@@ -4,6 +4,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessa
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 import { UseFormReturn } from 'react-hook-form';
 import SectionCategorySelector from './SectionCategorySelector';
 import { toast } from 'sonner';
@@ -172,7 +173,7 @@ const ImageFormFields: React.FC<ImageFormFieldsProps> = ({
         render={({ field }) => (
           <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
             <FormControl>
-              <Checkbox
+              <Switch
                 checked={field.value}
                 onCheckedChange={field.onChange}
               />

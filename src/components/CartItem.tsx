@@ -7,6 +7,9 @@ interface CartItemProps {
   item: {
     id: string;
     imageId: string;
+    optionId: string;
+    size: string;
+    price: number;
     quantity: number;
   };
 }
@@ -32,7 +35,13 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
         <div className="flex justify-between items-start">
           <div>
             <h3 className="font-medium">{image.title}</h3>
-            <p className="text-sm text-muted-foreground">{image.description}</p>
+            <p className="text-sm text-muted-foreground mb-1">{image.description}</p>
+            <div className="text-sm">
+              <span className="font-medium">Size:</span> {item.size}
+            </div>
+            <div className="text-primary font-medium mt-1">
+              ${item.price.toFixed(2)} each
+            </div>
           </div>
         </div>
         
