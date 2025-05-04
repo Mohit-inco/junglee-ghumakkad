@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Card, CardContent, CardDescription, CardHeader, CardTitle 
@@ -7,7 +7,7 @@ import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
-import { Upload, Loader2 } from 'lucide-react';
+import { Upload, Loader2, Plus } from 'lucide-react';
 import { getAvailableSections } from '@/integrations/supabase/api';
 import { GalleryImage } from '@/integrations/supabase/api';
 import { Session } from '@supabase/supabase-js';
@@ -21,6 +21,7 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
+  SheetFooter,
 } from "@/components/ui/sheet";
 
 interface ImageFormData {
@@ -51,9 +52,8 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isPrintSheetOpen, setIsPrintSheetOpen] = useState(false);
   const [selectedPrintImage, setSelectedPrintImage] = useState<GalleryImage | null>(null);
-  
-  // Add a ref to the form card for scrolling
-  const formCardRef = useRef<HTMLDivElement>(null);
+  const [isUploadSheetOpen, setIsUploadSheetOpen] = useState(false);
+  const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
   
   const form = useForm<ImageFormData>({
     defaultValues: {
@@ -210,6 +210,7 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
           
         if (error) throw error;
         toast.success('Image updated successfully');
+        setIsEditSheetOpen(false);
       } else {
         // Insert new image
         const { error } = await supabase
@@ -229,6 +230,7 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
           
         if (error) throw error;
         toast.success('Image uploaded successfully');
+        setIsUploadSheetOpen(false);
       }
       
       // Reset form and state
@@ -239,16 +241,6 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
       console.error('Detailed error:', error);
     } finally {
       setUploading(false);
-    }
-  };
-
-  // Scroll to form function
-  const scrollToForm = () => {
-    if (formCardRef.current) {
-      formCardRef.current.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
-      });
     }
   };
 
@@ -274,10 +266,8 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
       setPreviewUrl(image.image_url);
     }
     
-    // Scroll to the form after a short delay to ensure state is updated
-    setTimeout(() => {
-      scrollToForm();
-    }, 100);
+    // Open the edit sheet
+    setIsEditSheetOpen(true);
   };
 
   const handleManagePrints = (image: GalleryImage) => {
@@ -308,66 +298,111 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
     setFile(null);
   };
 
+  const handleOpenUploadSheet = () => {
+    resetForm();
+    setIsEditing(false);
+    setIsUploadSheetOpen(true);
+  };
+
+  const handleCloseSheets = () => {
+    setIsUploadSheetOpen(false);
+    setIsEditSheetOpen(false);
+    resetForm();
+  };
+
+  const renderFormContent = () => (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* Image Upload */}
+        <ImageUploadSection
+          onFileChange={handleFileChange}
+          previewUrl={previewUrl}
+          onClearPreview={handleClearPreview}
+          isEditing={isEditing}
+          file={file}
+        />
+        
+        {/* Form Fields */}
+        <ImageFormFields 
+          form={form} 
+          availableSections={availableSections} 
+          availableCategories={availableCategories}
+          availableGenres={availableGenres}
+          onAddCategory={handleAddCategory}
+          onAddGenre={handleAddGenre}
+        />
+        
+        <SheetFooter>
+          <Button 
+            type="submit" 
+            disabled={uploading}
+            className="w-full sm:w-auto"
+          >
+            {uploading ? (
+              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {isEditing ? 'Updating...' : 'Uploading...'}</>
+            ) : (
+              <><Upload className="mr-2 h-4 w-4" /> {isEditing ? 'Update Image' : 'Upload Image'}</>
+            )}
+          </Button>
+          
+          <Button 
+            type="button"
+            variant="outline"
+            onClick={handleCloseSheets}
+          >
+            Cancel
+          </Button>
+        </SheetFooter>
+      </form>
+    </Form>
+  );
+
   return (
     <div className="space-y-6">
-      <Card className="w-full" ref={formCardRef}>
-        <CardHeader>
-          <CardTitle>{isEditing ? 'Edit Image' : 'Upload New Image'}</CardTitle>
-          <CardDescription>
-            {isEditing ? 'Update image details and settings' : 'Add a new image to your gallery with details'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              {/* Image Upload */}
-              <ImageUploadSection
-                onFileChange={handleFileChange}
-                previewUrl={previewUrl}
-                onClearPreview={handleClearPreview}
-                isEditing={isEditing}
-                file={file}
-              />
-              
-              {/* Form Fields */}
-              <ImageFormFields 
-                form={form} 
-                availableSections={availableSections} 
-                availableCategories={availableCategories}
-                availableGenres={availableGenres}
-                onAddCategory={handleAddCategory}
-                onAddGenre={handleAddGenre}
-              />
-              
-              <div className="flex gap-2 pt-4">
-                <Button 
-                  type="submit" 
-                  disabled={uploading}
-                  className="flex-1"
-                >
-                  {uploading ? (
-                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {isEditing ? 'Updating...' : 'Uploading...'}</>
-                  ) : (
-                    <><Upload className="mr-2 h-4 w-4" /> {isEditing ? 'Update Image' : 'Upload Image'}</>
-                  )}
-                </Button>
-                
-                {isEditing && (
-                  <Button 
-                    type="button"
-                    variant="outline"
-                    onClick={resetForm}
-                  >
-                    Cancel
-                  </Button>
-                )}
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+      {/* Upload Button */}
+      <div className="flex justify-end">
+        <Button
+          onClick={handleOpenUploadSheet}
+          className="flex items-center gap-2"
+        >
+          <Plus size={16} />
+          Upload New Image
+        </Button>
+      </div>
       
-      {/* Print Options Side Panel */}
+      {/* Upload Image Sheet */}
+      <Sheet open={isUploadSheetOpen} onOpenChange={setIsUploadSheetOpen}>
+        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Upload New Image</SheetTitle>
+            <SheetDescription>
+              Add a new image to your gallery with details
+            </SheetDescription>
+          </SheetHeader>
+          
+          <div className="mt-6">
+            {renderFormContent()}
+          </div>
+        </SheetContent>
+      </Sheet>
+      
+      {/* Edit Image Sheet */}
+      <Sheet open={isEditSheetOpen} onOpenChange={setIsEditSheetOpen}>
+        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Edit Image</SheetTitle>
+            <SheetDescription>
+              Update image details and settings
+            </SheetDescription>
+          </SheetHeader>
+          
+          <div className="mt-6">
+            {renderFormContent()}
+          </div>
+        </SheetContent>
+      </Sheet>
+      
+      {/* Print Options Sheet */}
       <Sheet open={isPrintSheetOpen} onOpenChange={setIsPrintSheetOpen}>
         <SheetContent className="w-full sm:max-w-md overflow-y-auto">
           <SheetHeader>
