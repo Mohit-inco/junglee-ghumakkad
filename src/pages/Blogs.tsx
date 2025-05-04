@@ -59,13 +59,13 @@ const Blogs = () => {
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
+            transition={{ duration: 0.8, type: "spring", stiffness: 200, damping: 20 }}
           >
             <motion.button
               onClick={toggleBlog1}
               className="w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-lg text-primary-foreground"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: 1.1, transition: { duration: 0.4 } }}
+              whileTap={{ scale: 0.9, transition: { duration: 0.4 } }}
               aria-label="Close blog"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -84,21 +84,21 @@ const Blogs = () => {
             ref={heroRef}
             className="pt-32 pb-16 px-6 bg-muted"
             initial={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0, marginTop: 0, marginBottom: 0, paddingTop: 0, paddingBottom: 0 }}
-            transition={{ duration: 0.5 }}
+            exit={{ opacity: 0, height: 0, marginTop: 0, marginBottom: 0, paddingTop: 0, paddingBottom: 0, overflow: 'hidden' }}
+            transition={{ duration: 0.8 }}
           >
             <div className="max-w-7xl mx-auto text-center">
               <motion.h1 
                 className="text-4xl md:text-5xl lg:text-6xl font-serif mb-6"
                 exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: 0.7 }}
               >
                 Blogs
               </motion.h1>
               <motion.p 
                 className="text-muted-foreground max-w-2xl mx-auto"
                 exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3, delay: 0.1 }}
+                transition={{ duration: 0.7, delay: 0.1 }}
               >
                 Stories, insights, and adventures from behind the lens.
               </motion.p>
@@ -107,33 +107,39 @@ const Blogs = () => {
         )}
       </AnimatePresence>
       
-      {/* Blog Card - Styled as a wider card with transition effects */}
-      <motion.section 
-        className={`py-6 px-6 ${showBlog1 ? 'bg-background' : 'bg-primary cursor-pointer hover:bg-primary/90'} transition-colors`}
-        onClick={!showBlog1 ? toggleBlog1 : undefined}
-        layout
-        transition={{ duration: 0.5 }}
-      >
-        <div className="max-w-7xl mx-auto">
-          <motion.div 
-            className={`flex items-center justify-between p-4 rounded-lg ${showBlog1 ? 'border border-border' : ''}`}
-            layout
+      {/* Blog Card - with AnimatePresence for complete disappearance */}
+      <AnimatePresence>
+        {!showBlog1 && (
+          <motion.section 
+            className="py-6 px-6 bg-primary cursor-pointer hover:bg-primary/90 transition-colors"
+            onClick={toggleBlog1}
+            initial={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0, marginTop: 0, marginBottom: 0, paddingTop: 0, paddingBottom: 0, overflow: 'hidden' }}
+            transition={{ duration: 0.8 }}
           >
-            <div className="flex items-center">
-              <span className={`text-lg md:text-xl font-medium ${showBlog1 ? 'text-foreground' : 'text-primary-foreground'}`}>
-                Our Photography Expedition to Nelapattu and Pulicat
-              </span>
+            <div className="max-w-7xl mx-auto">
+              <motion.div 
+                className="flex items-center justify-between p-4 rounded-lg"
+                initial={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <div className="flex items-center">
+                  <span className="text-lg md:text-xl font-medium text-primary-foreground">
+                    Our Photography Expedition to Nelapattu and Pulicat
+                  </span>
+                </div>
+                <div className="text-primary-foreground">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform">
+                    <path d="m9 18 6-6-6-6"></path>
+                  </svg>
+                </div>
+              </motion.div>
             </div>
-            {!showBlog1 && (
-              <div className="text-primary-foreground">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform">
-                  <path d="m9 18 6-6-6-6"></path>
-                </svg>
-              </div>
-            )}
-          </motion.div>
-        </div>
-      </motion.section>
+          </motion.section>
+        )}
+      </AnimatePresence>
       
       {/* Blog1 Content - With smooth entrance animation */}
       <AnimatePresence>
@@ -143,7 +149,7 @@ const Blogs = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.8 }}
           >
             <div className="w-full mx-auto">
               {isLoading ? (
