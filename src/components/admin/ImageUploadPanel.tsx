@@ -155,9 +155,14 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
   };
 
   const openNewImageForm = () => {
+    // Reset form and state first
     resetForm();
     setIsEditing(false);
-    setIsFormSheetOpen(true);
+    
+    // Then open the form sheet with a slight delay
+    setTimeout(() => {
+      setIsFormSheetOpen(true);
+    }, 50);
   };
 
   const onSubmit = async (data: ImageFormData) => {
@@ -248,6 +253,7 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
   };
 
   const handleEditImage = (image: GalleryImage) => {
+    // First set all the state
     setSelectedImage(image);
     setIsEditing(true);
     
@@ -269,8 +275,10 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
       setPreviewUrl(image.image_url);
     }
     
-    // Open the form sheet
-    setIsFormSheetOpen(true);
+    // Open the form sheet with a slight delay to ensure state is updated
+    setTimeout(() => {
+      setIsFormSheetOpen(true);
+    }, 50);
   };
 
   const handleManagePrints = (image: GalleryImage) => {
@@ -293,6 +301,7 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
     setFile(null);
     setPreviewUrl(null);
     setSelectedImage(null);
+    setIsEditing(false);
   };
 
   const handleClearPreview = () => {
@@ -314,8 +323,14 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
       </div>
 
       {/* Form Sheet Panel */}
-      <Sheet open={isFormSheetOpen} onOpenChange={setIsFormSheetOpen}>
-        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+      <Sheet open={isFormSheetOpen} onOpenChange={(open) => {
+        setIsFormSheetOpen(open);
+        if (!open) {
+          // Reset form when sheet is closed
+          resetForm();
+        }
+      }}>
+        <SheetContent className="w-full sm:max-w-md overflow-y-auto" side="right">
           <SheetHeader>
             <SheetTitle>{isEditing ? 'Edit Image' : 'Upload New Image'}</SheetTitle>
             <SheetDescription>
@@ -344,17 +359,24 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
                 onAddGenre={handleAddGenre}
               />
               
-              <SheetFooter className="pt-4">
+              <SheetFooter className="pt-4 gap-4">
                 <Button 
                   type="submit" 
                   disabled={uploading}
-                  className="w-full sm:w-auto"
                 >
                   {uploading ? (
                     <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {isEditing ? 'Updating...' : 'Uploading...'}</>
                   ) : (
                     <>{isEditing ? <PencilLine className="mr-2 h-4 w-4" /> : <Upload className="mr-2 h-4 w-4" />} {isEditing ? 'Update Image' : 'Upload Image'}</>
                   )}
+                </Button>
+                
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setIsFormSheetOpen(false)}
+                >
+                  Cancel
                 </Button>
               </SheetFooter>
             </form>
