@@ -8,7 +8,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const Blogs = () => {
   const [showBlog1, setShowBlog1] = useState(false);
+  const [showNavbar, setShowNavbar] = useState(true);
   const heroRef = useRef(null);
+  const lastScrollY = useRef(0);
   
   const {
     data: blogs = [],
@@ -25,8 +27,35 @@ const Blogs = () => {
     // Scroll to top when opening blog
     if (!showBlog1) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      setShowNavbar(true); // Ensure navbar is visible when first opening the blog
     }
   };
+
+  // Control navbar visibility on scroll
+  useEffect(() => {
+    const controlNavbar = () => {
+      if (showBlog1) {
+        const currentScrollY = window.scrollY;
+        
+        if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+          // Scrolling down & past threshold - hide navbar
+          setShowNavbar(false);
+        } else if (currentScrollY < lastScrollY.current || currentScrollY < 50) {
+          // Scrolling up or at top - show navbar
+          setShowNavbar(true);
+        }
+        
+        lastScrollY.current = currentScrollY;
+      }
+    };
+
+    window.addEventListener('scroll', controlNavbar);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('scroll', controlNavbar);
+    };
+  }, [showBlog1]);
 
   // Sample blog images (you can store these in your database or as constants)
   const blog1Images = {
@@ -49,7 +78,20 @@ const Blogs = () => {
   
   return (
     <div className="min-h-screen flex flex-col bg-background relative">
-      <NavBar />
+      {/* Navbar with AnimatePresence for smooth appearance/disappearance */}
+      <AnimatePresence>
+        {(!showBlog1 || showNavbar) && (
+          <motion.div
+            className="fixed top-0 left-0 right-0 z-40"
+            initial={{ y: -100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -100, opacity: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <NavBar />
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       {/* Circular Close Button - appears only when blog is open */}
       <AnimatePresence>
@@ -165,7 +207,9 @@ const Blogs = () => {
                   </p>
                 </div>
               ) : (
-                <Blog1 {...blog1Images} />
+                <div className={`${showBlog1 ? 'pt-20' : ''}`}>
+                  <Blog1 {...blog1Images} />
+                </div>
               )}
             </div>
           </motion.section>
