@@ -50,7 +50,7 @@ const Blogs = () => {
       </section>
       
       {/* Blog1 Content - Only shown when toggle is active */}
-      {showBlog1 && <section className="py-100 px-6">
+      {showBlog1 && <section className="py-100 px-0">
           <div className="max-w-4xl mx-auto">
             {isLoading ? <div className="text-center py-10">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
