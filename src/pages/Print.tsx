@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -27,7 +26,7 @@ const Print: React.FC = () => {
       try {
         if (!id) {
           toast.error('Image ID is missing');
-          navigate('/gallery');
+          navigate('/prints');
           return;
         }
         
@@ -36,7 +35,7 @@ const Print: React.FC = () => {
         
         if (!imageData) {
           toast.error('Image not found');
-          navigate('/gallery');
+          navigate('/prints');
           return;
         }
         
@@ -69,7 +68,7 @@ const Print: React.FC = () => {
         console.error('Error fetching image:', error);
         toast.error('Failed to load image details');
         setLoading(false);
-        navigate('/gallery');
+        navigate('/prints');
       }
     };
     
@@ -116,8 +115,8 @@ const Print: React.FC = () => {
           <div className="max-w-5xl mx-auto">
             <h1 className="text-2xl font-bold mb-4">Image Not Found</h1>
             <p className="mb-6">The requested image could not be found.</p>
-            <Button variant="outline" onClick={() => navigate('/gallery')}>
-              <ArrowLeft className="mr-2 h-4 w-4" /> Return to Gallery
+            <Button variant="outline" onClick={() => navigate('/prints')}>
+              <ArrowLeft className="mr-2 h-4 w-4" /> Return to Prints
             </Button>
           </div>
         </main>
@@ -132,8 +131,8 @@ const Print: React.FC = () => {
       
       <main className="flex-grow pt-24 px-6">
         <div className="max-w-5xl mx-auto">
-          <Button variant="outline" className="mb-6" onClick={() => navigate('/gallery')}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Gallery
+          <Button variant="outline" className="mb-6" onClick={() => navigate('/prints')}>
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Prints
           </Button>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
