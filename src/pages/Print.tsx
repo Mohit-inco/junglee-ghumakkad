@@ -42,7 +42,7 @@ const Print: React.FC = () => {
         
         if (!imageData.enable_print) {
           toast.error('This image is not available for print');
-          navigate('/gallery');
+          navigate('/prints');
           return;
         }
         
