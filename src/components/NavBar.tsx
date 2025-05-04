@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, ShoppingCart, Instagram } from "lucide-react";
@@ -65,7 +66,7 @@ const NavBar: React.FC = () => {
           <Link to="/blogs" className={cn("nav-link glow-hover", isActive("/blogs") && "active", navTextClasses)}>
             Blogs
           </Link>
-          <Link to="/print" className={cn("nav-link glow-hover", isActive("/print") && "active", navTextClasses)}>
+          <Link to="/prints" className={cn("nav-link glow-hover", isActive("/prints") && "active", navTextClasses)}>
             Prints
           </Link>
           <Link to="/about" className={cn("nav-link glow-hover", isActive("/about") && "active", navTextClasses)}>
@@ -125,7 +126,7 @@ const NavBar: React.FC = () => {
             <Link to="/blogs" className={cn("text-lg nav-link", isActive("/blogs") && "active", "text-foreground")}>
               Blogs
             </Link>
-            <Link to="/print" className={cn("text-lg nav-link", isActive("/print") && "active", "text-foreground")}>
+            <Link to="/prints" className={cn("text-lg nav-link", isActive("/prints") && "active", "text-foreground")}>
               Prints
             </Link>
             <Link to="/about" className={cn("text-lg nav-link", isActive("/about") && "active", "text-foreground")}>
