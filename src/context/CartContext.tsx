@@ -89,7 +89,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       fetchImage(imageId);
     }
     
-    // Check if this item is already in the cart
+    // Check if this item is already in the cart with the same option
     const existingItem = items.find(item => 
       item.imageId === imageId && item.optionId === optionId
     );
@@ -108,7 +108,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         quantity: 1
       };
       
-      setItems([...items, newItem]);
+      setItems(prev => [...prev, newItem]);
     }
   };
   

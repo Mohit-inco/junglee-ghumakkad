@@ -10,12 +10,12 @@ import {
 import { useCart } from '@/context/CartContext';
 import { getImageById, getPrintOptions } from '@/integrations/supabase/api';
 import { toast } from 'sonner';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ShoppingCart } from 'lucide-react';
 
 const Print: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { addToCart, items } = useCart();
   
   const [image, setImage] = useState<any>(null);
   const [printOptions, setPrintOptions] = useState<any[]>([]);
@@ -25,12 +25,22 @@ const Print: React.FC = () => {
   useEffect(() => {
     const fetchImageAndOptions = async () => {
       try {
-        if (!id) return;
+        if (!id) {
+          toast.error('Image ID is missing');
+          navigate('/gallery');
+          return;
+        }
         
         setLoading(true);
         const imageData = await getImageById(id);
         
-        if (!imageData || !imageData.enable_print) {
+        if (!imageData) {
+          toast.error('Image not found');
+          navigate('/gallery');
+          return;
+        }
+        
+        if (!imageData.enable_print) {
           toast.error('This image is not available for print');
           navigate('/gallery');
           return;
@@ -40,13 +50,26 @@ const Print: React.FC = () => {
         
         // Fetch print options
         const options = await getPrintOptions(id);
-        setPrintOptions(options.filter(option => option.in_stock));
+        
+        if (options.length === 0) {
+          toast.error('No print options available for this image');
+        } else {
+          // Filter to only show in-stock items
+          const inStockOptions = options.filter(option => option.in_stock);
+          setPrintOptions(inStockOptions);
+          
+          // Select the first size by default if available
+          if (inStockOptions.length > 0) {
+            setSelectedSize(inStockOptions[0].size);
+          }
+        }
         
         setLoading(false);
       } catch (error) {
         console.error('Error fetching image:', error);
         toast.error('Failed to load image details');
         setLoading(false);
+        navigate('/gallery');
       }
     };
     
@@ -54,17 +77,23 @@ const Print: React.FC = () => {
   }, [id, navigate]);
   
   const handleAddToCart = () => {
-    if (!image || !selectedSize) return;
+    if (!image || !selectedSize) {
+      toast.error('Please select a print size');
+      return;
+    }
     
     const selectedOption = printOptions.find(option => option.size === selectedSize);
     
     if (!selectedOption) {
-      toast.error('Please select a valid print size');
+      toast.error('Selected print size is not available');
       return;
     }
     
     addToCart(image.id, selectedOption.id, selectedOption.size, selectedOption.price, image);
     toast.success('Print added to cart');
+    
+    // Navigate to cart after adding item
+    navigate('/cart');
   };
   
   if (loading) {
@@ -103,8 +132,8 @@ const Print: React.FC = () => {
       
       <main className="flex-grow pt-24 px-6">
         <div className="max-w-5xl mx-auto">
-          <Button variant="outline" className="mb-6" onClick={() => navigate(-1)}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back
+          <Button variant="outline" className="mb-6" onClick={() => navigate('/gallery')}>
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Gallery
           </Button>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -160,14 +189,24 @@ const Print: React.FC = () => {
                   )}
                 </CardContent>
                 
-                <CardFooter>
+                <CardFooter className="flex flex-col space-y-3">
                   <Button 
                     className="w-full" 
                     disabled={!selectedSize || printOptions.length === 0}
                     onClick={handleAddToCart}
                   >
-                    Add to Cart
+                    <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
                   </Button>
+                  
+                  {items.some(item => item.imageId === image.id) && (
+                    <Button 
+                      variant="outline" 
+                      className="w-full" 
+                      onClick={() => navigate('/cart')}
+                    >
+                      View Cart
+                    </Button>
+                  )}
                 </CardFooter>
               </Card>
             </div>

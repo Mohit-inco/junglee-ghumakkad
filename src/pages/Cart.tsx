@@ -43,7 +43,7 @@ const Cart = () => {
                     Clear cart
                   </button>
                   <Link
-                    to="/print"
+                    to="/gallery"
                     className="text-sm font-medium hover:text-primary/80 transition-colors"
                   >
                     Continue shopping
@@ -97,7 +97,7 @@ const Cart = () => {
                 Explore our collection to find the perfect wildlife print.
               </p>
               <Link
-                to="/print"
+                to="/gallery"
                 className="inline-flex items-center px-6 py-3 mt-4 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-colors"
               >
                 Browse Prints

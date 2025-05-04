@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { X, Info, FileImage } from 'lucide-react';
 import { Image, getImageSrc } from '@/lib/data';
