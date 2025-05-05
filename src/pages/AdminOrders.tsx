@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -74,9 +75,6 @@ const AdminOrders: React.FC = () => {
         
         setUser(data.session.user);
         
-        // Added console log to check user ID
-        console.log("Current logged-in user ID:", data.session.user.id);
-        
         // Check if user is admin
         const { data: roleData, error: roleError } = await supabase
           .from('user_roles')
@@ -84,10 +82,6 @@ const AdminOrders: React.FC = () => {
           .eq('user_id', data.session.user.id)
           .eq('role', 'admin')
           .single();
-        
-        // Added console logs to debug admin check
-        console.log("Role data returned:", roleData);
-        console.log("Role error if any:", roleError);
         
         if (roleData) {
           setIsAdmin(true);
