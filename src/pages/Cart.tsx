@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 import CartItem from '@/components/CartItem';
 import { useCart } from '@/context/CartContext';
 import { ShoppingCart, ArrowRight, CreditCard } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -13,6 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -25,9 +26,11 @@ const formSchema = z.object({
 });
 
 const Cart = () => {
-  const { items, total, clearCart } = useCart();
+  const { items, total, clearCart, getImage } = useCart();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'online' | 'cod'>('online');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -46,18 +49,103 @@ const Cart = () => {
     setIsCheckingOut(true);
   };
   
-  const handlePaymentSubmit = (values: z.infer<typeof formSchema>) => {
-    // In a real application, you would process the payment or order here
-    console.log('Order details:', { ...values, items, total, paymentMethod });
-    
-    // Show success message
-    toast.success('Your order has been placed successfully!');
-    
-    // Clear cart and reset checkout state
-    clearCart();
-    setIsCheckingOut(false);
-    
-    // In a real app, you would redirect to an order confirmation page
+  const handlePaymentSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      setIsSubmitting(true);
+      
+      // Generate a unique order ID - prefixed with JG (Junglee Ghumakkad)
+      const orderId = `JG${Date.now().toString().slice(-8)}${Math.floor(Math.random() * 1000)}`;
+      
+      // Generate a 6-digit OTP for order verification
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      
+      // Calculate the final total including tax and shipping
+      const shipping = total > 1000 ? 0 : 100;
+      const tax = total * 0.18;
+      const finalTotal = total + shipping + tax;
+      
+      // Format order items for storage
+      const orderItems = items.map(item => {
+        const imageDetails = getImage(item.imageId);
+        return {
+          id: item.id,
+          imageId: item.imageId,
+          optionId: item.optionId,
+          title: imageDetails?.title || 'Unknown',
+          size: item.size,
+          price: item.price,
+          quantity: item.quantity,
+        };
+      });
+
+      // Insert order into the database
+      const { data, error } = await supabase
+        .from('orders')
+        .insert({
+          order_id: orderId,
+          customer_name: values.name,
+          customer_email: values.email,
+          customer_phone: values.phone,
+          address: values.address,
+          city: values.city,
+          state: values.state,
+          pincode: values.pincode,
+          payment_method: paymentMethod,
+          items: orderItems,
+          total_amount: finalTotal,
+        })
+        .select();
+
+      if (error) {
+        throw error;
+      }
+
+      // Send order confirmation email
+      const emailResponse = await supabase.functions.invoke('send-order-confirmation', {
+        body: {
+          customerName: values.name,
+          customerEmail: values.email,
+          customerPhone: values.phone,
+          orderId,
+          otp,
+          totalAmount: finalTotal,
+          items: orderItems
+        }
+      });
+
+      if (emailResponse.error) {
+        console.error("Email error:", emailResponse.error);
+        toast.warning("Order placed, but confirmation email could not be sent.");
+      }
+
+      // Send OTP via SMS
+      const smsResponse = await supabase.functions.invoke('send-sms-otp', {
+        body: {
+          phone: values.phone,
+          message: `Your Junglee Ghumakkad order #${orderId} is confirmed! Verification code: ${otp}. Thank you for your purchase.`
+        }
+      });
+
+      if (smsResponse.error) {
+        console.error("SMS error:", smsResponse.error);
+        toast.warning("Order placed, but SMS verification could not be sent.");
+      }
+
+      // Clear the cart
+      clearCart();
+      
+      // Show success message
+      toast.success('Your order has been placed successfully!');
+      
+      // Navigate to order confirmation page
+      navigate(`/order-confirmation?orderId=${orderId}&total=${finalTotal.toFixed(2)}`);
+      
+    } catch (error: any) {
+      console.error("Order submission error:", error);
+      toast.error(error.message || 'An error occurred while placing your order');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   return (
@@ -286,9 +374,10 @@ const Cart = () => {
                           </Button>
                           <Button 
                             type="submit" 
-                            className="flex-1" 
+                            className="flex-1"
+                            disabled={isSubmitting}
                           >
-                            Place Order
+                            {isSubmitting ? 'Processing...' : 'Place Order'}
                           </Button>
                         </div>
                       </form>
@@ -320,12 +409,15 @@ const Cart = () => {
                     <div className="border-t pt-4">
                       <h3 className="font-medium mb-2">Items in Cart</h3>
                       <div className="space-y-2 max-h-60 overflow-y-auto">
-                        {items.map(item => (
-                          <div key={item.id} className="flex justify-between text-sm">
-                            <span>{item.quantity}x {item.size}</span>
-                            <span>₹{(item.price * item.quantity).toFixed(2)}</span>
-                          </div>
-                        ))}
+                        {items.map(item => {
+                          const image = getImage(item.imageId);
+                          return (
+                            <div key={item.id} className="flex justify-between text-sm">
+                              <span>{item.quantity}x {image?.title || 'Item'} ({item.size})</span>
+                              <span>₹{(item.price * item.quantity).toFixed(2)}</span>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>

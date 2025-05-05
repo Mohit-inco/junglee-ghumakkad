@@ -15,6 +15,8 @@ import Cart from '@/pages/Cart';
 import Print from '@/pages/Print';
 import PrintsGallery from '@/pages/PrintsGallery';
 import OrderConfirmation from '@/pages/OrderConfirmation';
+import TrackOrder from '@/pages/TrackOrder';
+import AdminOrders from '@/pages/AdminOrders';
 import NotFound from '@/pages/NotFound';
 import Admin from '@/pages/Admin';
 import AdminLogin from '@/pages/AdminLogin';
@@ -53,9 +55,11 @@ function App() {
               <Route path="/prints" element={<PageTransition><PrintsGallery /></PageTransition>} />
               <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
               <Route path="/order-confirmation" element={<PageTransition><OrderConfirmation /></PageTransition>} />
+              <Route path="/track-order" element={<PageTransition><TrackOrder /></PageTransition>} />
               {/* Admin routes without PageTransition */}
               <Route path="/admin" element={<Admin />} />
               <Route path="/admin-login" element={<AdminLogin />} />
+              <Route path="/admin/orders" element={<AdminOrders />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster />

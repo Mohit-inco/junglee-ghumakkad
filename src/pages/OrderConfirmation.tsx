@@ -4,7 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, ArrowRight } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Package } from 'lucide-react';
 
 const OrderConfirmation: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -41,6 +41,21 @@ const OrderConfirmation: React.FC = () => {
                 <span className="font-medium">Estimated Delivery:</span>
                 <span>7-10 business days</span>
               </div>
+            </div>
+            
+            <div className="bg-muted/50 rounded-lg border p-4 mb-8">
+              <div className="flex items-center justify-center mb-2">
+                <Package className="h-5 w-5 mr-2" />
+                <h3 className="font-medium">Track Your Order</h3>
+              </div>
+              <p className="text-sm mb-4">
+                You can track your order status at any time by visiting our order tracking page.
+              </p>
+              <Button variant="outline" asChild className="w-full sm:w-auto">
+                <Link to={`/track-order?orderId=${orderId}`}>
+                  Track Order Status
+                </Link>
+              </Button>
             </div>
             
             <p className="text-sm text-muted-foreground mb-8">

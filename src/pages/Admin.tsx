@@ -7,7 +7,7 @@ import ImageUploadPanel from '@/components/admin/ImageUploadPanel';
 import BlogManagementPanel from '@/components/admin/BlogManagementPanel';
 import { User, Session } from '@supabase/supabase-js';
 import { Button } from '@/components/ui/button';
-import { LogOut } from 'lucide-react';
+import { LogOut, Package } from 'lucide-react';
 import { toast } from 'sonner';
 import SectionsGuide from '@/components/SectionsGuide';
 
@@ -79,6 +79,12 @@ const Admin: React.FC = () => {
             <LogOut className="h-4 w-4 mr-2" /> Sign out
           </Button>
         </div>
+      </div>
+      
+      <div className="flex flex-wrap gap-4 mb-6">
+        <Button onClick={() => navigate('/admin/orders')} className="flex items-center gap-2">
+          <Package className="h-4 w-4" /> Manage Orders
+        </Button>
       </div>
       
       <div className="mb-6">

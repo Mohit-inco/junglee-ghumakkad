@@ -6,6 +6,8 @@ export type GalleryImage = Tables<'gallery_images'>;
 export type Blog = Tables<'blogs'>;
 export type BlogImage = Tables<'blog_images'>;
 export type PrintOption = Tables<'print_options'>;
+export type Order = Tables<'orders'>;
+export type UserRole = Tables<'user_roles'>;
 
 export async function getGalleryImages(section?: string): Promise<GalleryImage[]> {
   let query = supabase
@@ -265,6 +267,96 @@ export async function deletePrintOption(id: string): Promise<boolean> {
     return true;
   } catch (error) {
     console.error('Error deleting print option:', error);
+    return false;
+  }
+}
+
+// Order functions
+export async function getOrders(): Promise<Order[]> {
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    return [];
+  }
+}
+
+export async function getOrderById(orderId: string): Promise<Order | null> {
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('order_id', orderId)
+      .single();
+    
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Error fetching order:', error);
+    return null;
+  }
+}
+
+export async function updateOrderStatus(id: string, status: string, trackingNumber?: string): Promise<boolean> {
+  try {
+    const updateData: any = { 
+      status, 
+      updated_at: new Date().toISOString()
+    };
+    
+    if (trackingNumber !== undefined) {
+      updateData.tracking_number = trackingNumber || null;
+    }
+    
+    const { error } = await supabase
+      .from('orders')
+      .update(updateData)
+      .eq('id', id);
+    
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    return false;
+  }
+}
+
+export async function createOrder(orderData: Omit<Order, 'id' | 'created_at' | 'updated_at'>): Promise<Order | null> {
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .insert(orderData)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Error creating order:', error);
+    return null;
+  }
+}
+
+// User roles functions
+export async function checkIsAdmin(userId: string): Promise<boolean> {
+  try {
+    const { data, error } = await supabase
+      .from('user_roles')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('role', 'admin')
+      .maybeSingle();
+      
+    if (error) throw error;
+    return !!data;
+  } catch (error) {
+    console.error('Error checking admin status:', error);
     return false;
   }
 }
