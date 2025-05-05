@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, ShoppingBag } from 'lucide-react';
@@ -8,7 +9,7 @@ const NavBar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { itemCount } = useCart();
+  const { count } = useCart();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -67,9 +68,9 @@ const NavBar = () => {
           <Link to="/cart">
             <Badge variant="outline" className="rounded-full h-8 w-8 flex items-center justify-center">
               <ShoppingBag className="h-4 w-4" />
-              {itemCount > 0 && (
+              {count > 0 && (
                 <span className="absolute -top-1 -right-1 bg-primary text-white rounded-full text-xs w-4 h-4 flex items-center justify-center">
-                  {itemCount}
+                  {count}
                 </span>
               )}
             </Badge>
@@ -139,8 +140,8 @@ const NavBar = () => {
           >
             <ShoppingBag className="h-4 w-4" />
             Cart
-            {itemCount > 0 && (
-              <Badge className="ml-2 bg-primary text-white">{itemCount}</Badge>
+            {count > 0 && (
+              <Badge className="ml-2 bg-primary text-white">{count}</Badge>
             )}
           </Link>
         </nav>
