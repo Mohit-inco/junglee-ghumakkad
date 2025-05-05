@@ -40,6 +40,18 @@ const ImageGrid: React.FC<ImageGridProps> = ({
       setSelectedImage(images[prevIndex]);
     }
   };
+
+  // Helper function to slugify titles
+  const slugify = (text: string) => {
+    return text
+      .toString()
+      .toLowerCase()
+      .replace(/\s+/g, '-')       // Replace spaces with -
+      .replace(/[^\w\-]+/g, '')   // Remove all non-word chars
+      .replace(/\-\-+/g, '-')     // Replace multiple - with single -
+      .replace(/^-+/, '')         // Trim - from start of text
+      .replace(/-+$/, '');        // Trim - from end of text
+  };
   
   // Generate the appropriate column class based on the columns prop
   const getColumnClass = () => {
@@ -55,33 +67,39 @@ const ImageGrid: React.FC<ImageGridProps> = ({
   return (
     <>
       <div className={`${getColumnClass()} gap-4 space-y-4`}>
-        {images.map(image => (
-          <div 
-            key={image.id} 
-            className="break-inside-avoid overflow-hidden"
-            onMouseEnter={() => setHoveredImageId(image.id)}
-            onMouseLeave={() => setHoveredImageId(null)}
-          >
+        {images.map(image => {
+          // Create a unique ID from the title for each image
+          const imageSlug = slugify(image.title);
+          
+          return (
             <div 
-              className="hover-image-card bg-muted relative cursor-pointer transition-all duration-300" 
-              onClick={() => openModal(image)}
+              key={image.id} 
+              id={imageSlug}
+              className="break-inside-avoid overflow-hidden"
+              onMouseEnter={() => setHoveredImageId(image.id)}
+              onMouseLeave={() => setHoveredImageId(null)}
             >
-              <img 
-                src={image.src} 
-                alt={image.alt} 
-                className={`w-full h-auto object-cover transition-all duration-300 ${
-                  hoveredImageId === image.id ? 'brightness-110' : 
-                  hoveredImageId !== null ? 'brightness-50' : 'brightness-100'
-                }`} 
-                loading="lazy" 
-              />
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3 bg-[#000a0e]/0">
-                <h3 className="font-medium text-white text-lg mb-1">{image.title}</h3>
-                <p className="text-white/80 text-sm">{image.location}</p>
+              <div 
+                className="hover-image-card bg-muted relative cursor-pointer transition-all duration-300" 
+                onClick={() => openModal(image)}
+              >
+                <img 
+                  src={image.src} 
+                  alt={image.alt} 
+                  className={`w-full h-auto object-cover transition-all duration-300 ${
+                    hoveredImageId === image.id ? 'brightness-110' : 
+                    hoveredImageId !== null ? 'brightness-50' : 'brightness-100'
+                  }`} 
+                  loading="lazy" 
+                />
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3 bg-[#000a0e]/0">
+                  <h3 className="font-medium text-white text-lg mb-1">{image.title}</h3>
+                  <p className="text-white/80 text-sm">{image.location}</p>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
       
       {selectedImage && <ImageModal image={selectedImage} onClose={closeModal} onNext={nextImage} onPrev={prevImage} />}
