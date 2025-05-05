@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,7 +35,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LogOut, Package, Search, RefreshCw } from 'lucide-react';
+import { LogOut, Search, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 // Define order status options
@@ -75,15 +74,15 @@ const AdminOrders: React.FC = () => {
         
         setUser(data.session.user);
         
-        // Check if user is admin
-        const { data: roleData, error: roleError } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', data.session.user.id)
-          .eq('role', 'admin')
-          .single();
+        // Instead of querying user_roles directly, use a dedicated function
+        // to check admin status to avoid policy recursion issues
+        const { data: adminCheckData, error: adminCheckError } = await supabase
+          .rpc('check_if_admin', { user_id: data.session.user.id });
         
-        if (roleData) {
+        console.log("Admin check data:", adminCheckData);
+        console.log("Admin check error:", adminCheckError);
+        
+        if (adminCheckData === true) {
           setIsAdmin(true);
           fetchOrders();
         } else {
@@ -183,9 +182,9 @@ const AdminOrders: React.FC = () => {
     const lowerSearchTerm = searchTerm.toLowerCase();
     const filtered = orders.filter(order => 
       order.order_id.toLowerCase().includes(lowerSearchTerm) ||
-      order.customer_name.toLowerCase().includes(lowerSearchTerm) ||
-      order.customer_email.toLowerCase().includes(lowerSearchTerm) ||
-      order.customer_phone.includes(searchTerm)
+      order.customer_name?.toLowerCase().includes(lowerSearchTerm) ||
+      order.customer_email?.toLowerCase().includes(lowerSearchTerm) ||
+      order.customer_phone?.includes(searchTerm)
     );
     
     setFilteredOrders(filtered);
@@ -193,14 +192,21 @@ const AdminOrders: React.FC = () => {
 
   // Format date
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-IN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
+    if (!dateString) return 'N/A';
+    
+    try {
+      const date = new Date(dateString);
+      return new Intl.DateTimeFormat('en-IN', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(date);
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid date';
+    }
   };
 
   // Get status color
@@ -304,10 +310,10 @@ const AdminOrders: React.FC = () => {
                           <div className="text-xs text-muted-foreground">{order.customer_email}</div>
                         </div>
                       </TableCell>
-                      <TableCell>₹{Number(order.total_amount).toFixed(2)}</TableCell>
+                      <TableCell>₹{Number(order.total_amount || 0).toFixed(2)}</TableCell>
                       <TableCell>
                         <span className={`text-xs py-1 px-2 rounded-full ${getStatusColor(order.status)}`}>
-                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                          {(order.status || '').charAt(0).toUpperCase() + (order.status || '').slice(1)}
                         </span>
                       </TableCell>
                       <TableCell>{order.tracking_number || '-'}</TableCell>
@@ -356,7 +362,7 @@ const AdminOrders: React.FC = () => {
                   <h3 className="font-medium mb-2">Order Information</h3>
                   <div className="space-y-2 text-sm">
                     <p><span className="font-medium">Order Date:</span> {formatDate(selectedOrder.created_at)}</p>
-                    <p><span className="font-medium">Total Amount:</span> ₹{Number(selectedOrder.total_amount).toFixed(2)}</p>
+                    <p><span className="font-medium">Total Amount:</span> ₹{Number(selectedOrder.total_amount || 0).toFixed(2)}</p>
                     <p><span className="font-medium">Payment Method:</span> {selectedOrder.payment_method === 'cod' ? 'Cash on Delivery' : 'Online Payment'}</p>
                   </div>
                   
@@ -405,12 +411,12 @@ const AdminOrders: React.FC = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {selectedOrder.items.map((item: any, index: number) => (
+                      {(selectedOrder.items || []).map((item: any, index: number) => (
                         <TableRow key={index}>
                           <TableCell>{item.title || 'Print'}</TableCell>
                           <TableCell>{item.size}</TableCell>
                           <TableCell>{item.quantity}</TableCell>
-                          <TableCell className="text-right">₹{(item.price * item.quantity).toFixed(2)}</TableCell>
+                          <TableCell className="text-right">₹{((item.price || 0) * (item.quantity || 1)).toFixed(2)}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
