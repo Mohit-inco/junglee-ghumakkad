@@ -74,17 +74,23 @@ const AdminOrders: React.FC = () => {
         
         setUser(data.session.user);
         
-        // Instead of querying user_roles directly, use a dedicated function
-        // to check admin status to avoid policy recursion issues
+        // Use the check_if_admin function we already set up
         const { data: adminCheckData, error: adminCheckError } = await supabase
-          .rpc('check_if_admin', { user_id: data.session.user.id });
+          .rpc('check_if_admin', { input_user_id: data.session.user.id });
         
         console.log("Admin check data:", adminCheckData);
         console.log("Admin check error:", adminCheckError);
         
+        if (adminCheckError) {
+          console.error("Admin check error:", adminCheckError);
+          toast.error('Error checking admin privileges');
+          navigate('/');
+          return;
+        }
+        
         if (adminCheckData === true) {
           setIsAdmin(true);
-          fetchOrders();
+          // Don't fetch orders here - we'll do it after loading is complete
         } else {
           toast.error('You do not have admin privileges');
           navigate('/');
@@ -108,16 +114,52 @@ const AdminOrders: React.FC = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  // Fetch orders from the database
+  // Fetch orders when loading is complete and isAdmin is true
+  useEffect(() => {
+    if (!loading && isAdmin) {
+      fetchOrders();
+    }
+  }, [loading, isAdmin]);
+
+  // Fetch orders from the database using RPC function to avoid policy conflicts
   const fetchOrders = async () => {
     try {
+      // Use a function to fetch orders instead of direct table access
       const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .rpc('get_all_orders');
       
       if (error) {
-        throw error;
+        console.error('Error fetching orders with RPC:', error);
+        
+        // Fallback to direct query with specific columns to avoid potential policy issues
+        const { data: directData, error: directError } = await supabase
+          .from('orders')
+          .select(`
+            id, 
+            order_id, 
+            created_at, 
+            customer_name, 
+            customer_email, 
+            customer_phone,
+            address, 
+            city, 
+            state, 
+            pincode, 
+            total_amount, 
+            payment_method, 
+            status, 
+            tracking_number,
+            items
+          `)
+          .order('created_at', { ascending: false });
+        
+        if (directError) {
+          throw directError;
+        }
+        
+        setOrders(directData || []);
+        setFilteredOrders(directData || []);
+        return;
       }
       
       setOrders(data || []);
@@ -148,17 +190,28 @@ const AdminOrders: React.FC = () => {
     try {
       setIsUpdating(true);
       
+      // Use an RPC function to update the order to avoid policy conflicts
       const { error } = await supabase
-        .from('orders')
-        .update({
-          status,
-          tracking_number: trackingNumber.trim() || null,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', selectedOrder.id);
+        .rpc('update_order', {
+          order_id_param: selectedOrder.id,
+          status_param: status,
+          tracking_number_param: trackingNumber.trim() || null
+        });
       
       if (error) {
-        throw error;
+        // Fallback to direct update if RPC fails
+        const { error: directError } = await supabase
+          .from('orders')
+          .update({
+            status,
+            tracking_number: trackingNumber.trim() || null,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', selectedOrder.id);
+        
+        if (directError) {
+          throw directError;
+        }
       }
       
       toast.success('Order updated successfully');
@@ -181,7 +234,7 @@ const AdminOrders: React.FC = () => {
     
     const lowerSearchTerm = searchTerm.toLowerCase();
     const filtered = orders.filter(order => 
-      order.order_id.toLowerCase().includes(lowerSearchTerm) ||
+      order.order_id?.toLowerCase().includes(lowerSearchTerm) ||
       order.customer_name?.toLowerCase().includes(lowerSearchTerm) ||
       order.customer_email?.toLowerCase().includes(lowerSearchTerm) ||
       order.customer_phone?.includes(searchTerm)
