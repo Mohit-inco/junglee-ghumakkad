@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -248,9 +247,7 @@ const Print: React.FC = () => {
             date: image.date || 'N/A',
             photographerNote: image.photographers_note,
             categories: image.categories || [],
-            enablePrint: image.enable_print,
-            width: 1200,  // Adding default width
-            height: 800   // Adding default height
+            enablePrint: image.enable_print
           }}
           onClose={() => setShowImageModal(false)}
           onNext={() => {/* No op */}}

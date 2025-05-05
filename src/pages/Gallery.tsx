@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import ImageGrid from '@/components/ImageGrid';
@@ -9,14 +8,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Image } from '@/lib/data';
 
 const Gallery = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
-  
-  // Get genre from URL or default to 'Wildlife'
-  const genreParam = searchParams.get('genre');
-  
-  const [selectedGenre, setSelectedGenre] = useState<string>(genreParam || 'Wildlife');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(searchParams.get('category'));
+  const [selectedGenre, setSelectedGenre] = useState<string>('Wildlife');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [allCategories, setAllCategories] = useState<string[]>([]);
   const [allGenres, setAllGenres] = useState<string[]>(['Wildlife', 'StreetPalette', 'AstroShot', 'Landscape']);
   const [genreCategories, setGenreCategories] = useState<string[]>([]);
@@ -55,34 +48,7 @@ const Gallery = () => {
   // Update categories when genre changes
   useEffect(() => {
     updateGenreCategories(selectedGenre, images);
-    
-    // Update URL with the new genre parameter
-    setSearchParams(prev => {
-      const newParams = new URLSearchParams(prev);
-      newParams.set('genre', selectedGenre);
-      if (!selectedCategory) {
-        newParams.delete('category');
-      }
-      return newParams;
-    });
   }, [selectedGenre, images]);
-  
-  // Update URL when category changes
-  useEffect(() => {
-    if (selectedCategory) {
-      setSearchParams(prev => {
-        const newParams = new URLSearchParams(prev);
-        newParams.set('category', selectedCategory);
-        return newParams;
-      });
-    } else {
-      setSearchParams(prev => {
-        const newParams = new URLSearchParams(prev);
-        newParams.delete('category');
-        return newParams;
-      });
-    }
-  }, [selectedCategory]);
   
   // Function to update categories based on selected genre
   const updateGenreCategories = (genre: string, imagesList: GalleryImage[]) => {
@@ -99,12 +65,6 @@ const Gallery = () => {
     if (selectedCategory && !categories.includes(selectedCategory)) {
       setSelectedCategory(null);
     }
-  };
-  
-  // Set a new genre and handle URL update
-  const handleGenreClick = (genre: string) => {
-    setSelectedGenre(genre);
-    setSelectedCategory(null);
   };
   
   // Filter images based on genre and category
@@ -147,7 +107,7 @@ const Gallery = () => {
             {allGenres.map(genre => (
               <button
                 key={genre}
-                onClick={() => handleGenreClick(genre)}
+                onClick={() => setSelectedGenre(selectedGenre === genre ? genre : genre)}
                 className={`relative font-bold text-2xl md:text-3xl transition-all border-b-2 pb-1 ${
                   selectedGenre === genre 
                     ? 'border-primary text-primary' 

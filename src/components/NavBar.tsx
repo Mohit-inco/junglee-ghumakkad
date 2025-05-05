@@ -1,151 +1,140 @@
 
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ShoppingBag } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { useCart } from '@/context/CartContext';
+import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Menu, X, ShoppingCart, Instagram } from "lucide-react";
+import { useCart } from "@/context/CartContext";
+import { cn } from "@/lib/utils";
 
-const NavBar = () => {
+const NavBar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const { count } = useCart();
-  
+  const {
+    count
+  } = useCart();
+
+  // Check if route is active
+  const isActive = (path: string) => location.pathname === path;
+
+  // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-  
-  const isActive = (path: string) => {
-    return location.pathname === path;
-  };
+
+  // Handle body scroll lock when menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMenuOpen]);
+
+  // Close menu when route changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location]);
+
+  // Navbar text style classes
+  const navTextClasses = "text-white drop-shadow-md";
   
   return (
-    <header className={`fixed w-full z-50 transition-all duration-300 ${
-      isScrolled ? 'bg-background/80 backdrop-blur-md py-2 shadow-md' : 'bg-transparent py-4'
-    }`}>
-      <div className="container mx-auto flex justify-between items-center px-4">
-        <Link to="/" className="flex items-center gap-2">
-          <span className="text-xl md:text-2xl font-bold">Junglee Ghumakkad</span>
-        </Link>
-        
-        {/* Desktop Menu */}
-        <nav className="hidden md:flex items-center gap-6">
-          <Link 
-            to="/" 
-            className={`text-sm ${isActive('/') ? 'font-semibold text-foreground' : 'text-muted-foreground'} hover:text-foreground transition-colors`}
-          >
+    <header className={cn("fixed top-0 left-0 right-0 z-50 px-6 transition-all duration-300 ease-in-out", isScrolled || isMenuOpen ? "py-3 bg-background/80 shadow-lg backdrop-blur-lg border-b" : "py-6 bg-background/0")}>
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="flex flex-col items-start">
+          <Link to="/" className="brand-name text-xl md:text-2xl text-white font-brilliante tracking-wider drop-shadow-md">
+            <span className="text-zinc-50">Junglee Ghumakkad</span>
+          </Link>
+          <span className="text-white text-xs ml-1.5">Photography</span>
+        </div>
+
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center space-x-8">
+          <Link to="/" className={cn("nav-link glow-hover", isActive("/") && "active", navTextClasses)}>
             Home
           </Link>
-          <Link 
-            to="/gallery?genre=Wildlife" 
-            className={`text-sm ${isActive('/gallery') ? 'font-semibold text-foreground' : 'text-muted-foreground'} hover:text-foreground transition-colors`}
-          >
+          <Link to="/gallery" className={cn("nav-link glow-hover", isActive("/gallery") && "active", navTextClasses)}>
             Gallery
           </Link>
-          <Link 
-            to="/prints" 
-            className={`text-sm ${isActive('/prints') ? 'font-semibold text-foreground' : 'text-muted-foreground'} hover:text-foreground transition-colors`}
-          >
+          <Link to="/blogs" className={cn("nav-link glow-hover", isActive("/blogs") && "active", navTextClasses)}>
+            Blogs
+          </Link>
+          <Link to="/prints" className={cn("nav-link glow-hover", isActive("/prints") && "active", navTextClasses)}>
             Prints
           </Link>
-          <Link 
-            to="/blogs" 
-            className={`text-sm ${isActive('/blogs') ? 'font-semibold text-foreground' : 'text-muted-foreground'} hover:text-foreground transition-colors`}
-          >
-            Blog
-          </Link>
-          <Link 
-            to="/about" 
-            className={`text-sm ${isActive('/about') ? 'font-semibold text-foreground' : 'text-muted-foreground'} hover:text-foreground transition-colors`}
-          >
+          <Link to="/about" className={cn("nav-link glow-hover", isActive("/about") && "active", navTextClasses)}>
             About
           </Link>
-          <Link to="/cart">
-            <Badge variant="outline" className="rounded-full h-8 w-8 flex items-center justify-center">
-              <ShoppingBag className="h-4 w-4" />
-              {count > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primary text-white rounded-full text-xs w-4 h-4 flex items-center justify-center">
-                  {count}
-                </span>
-              )}
-            </Badge>
+          <a 
+            href="https://www.instagram.com/junglee_ghumakkad/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className={cn("p-2 hover:opacity-80 transition-colors duration-200 glow-hover", navTextClasses)}
+            aria-label="Instagram"
+          >
+            <Instagram className="h-5 w-5" />
+          </a>
+          <Link to="/cart" className={cn("relative p-2 hover:opacity-80 transition-colors duration-200 glow-hover", navTextClasses)} aria-label="Shopping Cart">
+            <ShoppingCart className="h-5 w-5" />
+            {count > 0 && <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center animate-fade-in">
+                {count}
+              </span>}
           </Link>
         </nav>
-        
-        {/* Mobile Menu Button */}
-        <button 
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
-          className="md:hidden flex items-center"
-        >
-          {mobileMenuOpen ? (
-            <X className="h-6 w-6" />
-          ) : (
-            <Menu className="h-6 w-6" />
-          )}
-        </button>
+
+        {/* Mobile Navigation */}
+        <div className="flex items-center md:hidden">
+          <a 
+            href="https://www.instagram.com/junglee_ghumakkad/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className={cn("p-2 mr-2 hover:opacity-80 transition-colors duration-200", navTextClasses)}
+            aria-label="Instagram"
+          >
+            <Instagram className="h-5 w-5" />
+          </a>
+          <Link to="/cart" className={cn("relative p-2 mr-2 hover:opacity-80 transition-colors duration-200", navTextClasses)} aria-label="Shopping Cart">
+            <ShoppingCart className="h-5 w-5" />
+            {count > 0 && <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center animate-fade-in">
+                {count}
+              </span>}
+          </Link>
+
+          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className={cn("p-2 hover:opacity-80 transition-colors duration-200", navTextClasses)} aria-label={isMenuOpen ? "Close menu" : "Open menu"}>
+            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
       </div>
-      
-      {/* Mobile Menu */}
-      <div 
-        className={`md:hidden fixed inset-0 z-50 bg-background transform transition-transform duration-300 ease-in-out ${
-          mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-        style={{ top: '60px' }} // Adjust based on your header height
-      >
-        <nav className="flex flex-col p-6 space-y-4">
-          <Link
-            to="/"
-            onClick={() => setMobileMenuOpen(false)}
-            className={`text-lg py-2 border-b border-muted ${isActive('/') ? 'font-semibold' : ''}`}
-          >
-            Home
-          </Link>
-          <Link
-            to="/gallery?genre=Wildlife"
-            onClick={() => setMobileMenuOpen(false)}
-            className={`text-lg py-2 border-b border-muted ${isActive('/gallery') ? 'font-semibold' : ''}`}
-          >
-            Gallery
-          </Link>
-          <Link
-            to="/prints"
-            onClick={() => setMobileMenuOpen(false)}
-            className={`text-lg py-2 border-b border-muted ${isActive('/prints') ? 'font-semibold' : ''}`}
-          >
-            Prints
-          </Link>
-          <Link
-            to="/blogs"
-            onClick={() => setMobileMenuOpen(false)}
-            className={`text-lg py-2 border-b border-muted ${isActive('/blogs') ? 'font-semibold' : ''}`}
-          >
-            Blog
-          </Link>
-          <Link
-            to="/about"
-            onClick={() => setMobileMenuOpen(false)}
-            className={`text-lg py-2 border-b border-muted ${isActive('/about') ? 'font-semibold' : ''}`}
-          >
-            About
-          </Link>
-          <Link
-            to="/cart"
-            onClick={() => setMobileMenuOpen(false)}
-            className="text-lg py-2 border-b border-muted flex items-center gap-2"
-          >
-            <ShoppingBag className="h-4 w-4" />
-            Cart
-            {count > 0 && (
-              <Badge className="ml-2 bg-primary text-white">{count}</Badge>
-            )}
-          </Link>
-        </nav>
-      </div>
+
+      {/* Mobile Menu - with more blur effect */}
+      {isMenuOpen && (
+        <div className="md:hidden absolute top-full left-0 right-0 h-screen z-50 bg-background/60 shadow-lg backdrop-blur-xl border-b animate-slide-down">
+          <nav className="flex flex-col p-6 space-y-4">
+            <Link to="/" className={cn("text-lg nav-link", isActive("/") && "active", "text-foreground")}>
+              Home
+            </Link>
+            <Link to="/gallery" className={cn("text-lg nav-link", isActive("/gallery") && "active", "text-foreground")}>
+              Gallery
+            </Link>
+            <Link to="/blogs" className={cn("text-lg nav-link", isActive("/blogs") && "active", "text-foreground")}>
+              Blogs
+            </Link>
+            <Link to="/prints" className={cn("text-lg nav-link", isActive("/prints") && "active", "text-foreground")}>
+              Prints
+            </Link>
+            <Link to="/about" className={cn("text-lg nav-link", isActive("/about") && "active", "text-foreground")}>
+              About
+            </Link>
+          </nav>
+        </div>
+      )}
     </header>
   );
 };
