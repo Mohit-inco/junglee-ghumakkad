@@ -40,7 +40,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
               <span className="font-medium">Size:</span> {item.size}
             </div>
             <div className="text-primary font-medium mt-1">
-              ${item.price.toFixed(2)} each
+              ₹{item.price.toFixed(2)} each
             </div>
           </div>
         </div>

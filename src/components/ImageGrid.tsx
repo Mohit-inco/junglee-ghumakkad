@@ -6,11 +6,15 @@ import ImageModal from './ImageModal';
 interface ImageGridProps {
   images: Image[];
   columns?: number; // Make this prop optional with a default value
+  showPrices?: boolean; // Option to show prices
+  minPrice?: Record<string, number>; // Minimum price per image ID
 }
 
 const ImageGrid: React.FC<ImageGridProps> = ({
   images,
-  columns = 3 // Default to 3 columns if not specified
+  columns = 3, // Default to 3 columns if not specified
+  showPrices = false,
+  minPrice = {}
 }) => {
   const [selectedImage, setSelectedImage] = useState<Image | null>(null);
   const [hoveredImageId, setHoveredImageId] = useState<string | null>(null);
@@ -75,9 +79,14 @@ const ImageGrid: React.FC<ImageGridProps> = ({
                 }`} 
                 loading="lazy" 
               />
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3 bg-[#000a0e]/0">
+              <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity flex flex-col justify-end p-3 bg-gradient-to-t from-black/70 to-transparent">
                 <h3 className="font-medium text-white text-lg mb-1">{image.title}</h3>
                 <p className="text-white/80 text-sm">{image.location}</p>
+                {showPrices && minPrice[image.id] && (
+                  <p className="mt-1 text-white font-medium">
+                    From ₹{minPrice[image.id].toFixed(2)}
+                  </p>
+                )}
               </div>
             </div>
           </div>

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -200,7 +201,7 @@ const Print: React.FC = () => {
                           className="justify-between"
                         >
                           <span>{option.size}</span>
-                          <span>${Number(option.price).toFixed(2)}</span>
+                          <span>₹{Number(option.price).toFixed(2)}</span>
                         </Button>
                       ))}
                     </div>
@@ -247,7 +248,9 @@ const Print: React.FC = () => {
             date: image.date || 'N/A',
             photographerNote: image.photographers_note,
             categories: image.categories || [],
-            enablePrint: image.enable_print
+            enablePrint: image.enable_print,
+            width: 1200, // Provide default values for width and height
+            height: 800  // Provide default values for width and height
           }}
           onClose={() => setShowImageModal(false)}
           onNext={() => {/* No op */}}

@@ -14,6 +14,7 @@ import BlogPost from '@/pages/BlogPost';
 import Cart from '@/pages/Cart';
 import Print from '@/pages/Print';
 import PrintsGallery from '@/pages/PrintsGallery';
+import OrderConfirmation from '@/pages/OrderConfirmation';
 import NotFound from '@/pages/NotFound';
 import Admin from '@/pages/Admin';
 import AdminLogin from '@/pages/AdminLogin';
@@ -51,6 +52,7 @@ function App() {
               <Route path="/print/:id" element={<PageTransition><Print /></PageTransition>} />
               <Route path="/prints" element={<PageTransition><PrintsGallery /></PageTransition>} />
               <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
+              <Route path="/order-confirmation" element={<PageTransition><OrderConfirmation /></PageTransition>} />
               {/* Admin routes without PageTransition */}
               <Route path="/admin" element={<Admin />} />
               <Route path="/admin-login" element={<AdminLogin />} />
