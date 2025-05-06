@@ -1,17 +1,19 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getBlogs } from '@/integrations/supabase/api';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, Calendar } from 'lucide-react';
 import { blogDataMapping } from '@/data/BlogData';
 
 const Blogs = () => {
   const [showNavbar, setShowNavbar] = useState(true);
   const heroRef = useRef(null);
   const lastScrollY = useRef(0);
+  const navigate = useNavigate();
   
   const {
     data: dynamicBlogs = [],
@@ -46,12 +48,18 @@ const Blogs = () => {
     };
   }, []);
 
+  const handleBlogClick = (id: string) => {
+    navigate(`/blogs/${id}`);
+  };
+
   // Combine static and dynamic blogs
   const staticBlogs = Object.entries(blogDataMapping).map(([id, blog]) => ({
     id,
     title: blog.title,
     subtitle: blog.subtitle,
     coverImage: blog.coverImage,
+    date: blog.date,
+    author: blog.author || "Junglee Ghumakkad",
     isStatic: true
   }));
 
@@ -100,40 +108,56 @@ const Blogs = () => {
         </div>
       </motion.section>
       
-      {/* Static Blogs */}
+      {/* Static Blogs - Now as bars instead of cards */}
       <section className="py-8 px-6">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl font-serif mb-6">Featured Stories</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {staticBlogs.map((blog) => (
-              <Link 
+          <h2 className="text-2xl font-serif mb-8">Featured Stories</h2>
+          <div className="space-y-4">
+            {staticBlogs.map((blog, index) => (
+              <motion.div 
                 key={blog.id}
-                to={`/blogs/${blog.id}`} 
-                className="group bg-background border shadow-sm rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-300"
+                onClick={() => handleBlogClick(blog.id)}
+                className="group bg-background border shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer rounded-lg overflow-hidden"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ scale: 1.01 }}
               >
-                <div className="aspect-video relative overflow-hidden">
-                  <img 
-                    src={blog.coverImage} 
-                    alt={blog.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
-                    <div className="p-4 text-white">
-                      <h3 className="text-xl font-medium">{blog.title}</h3>
-                      {blog.subtitle && <p className="text-sm opacity-90 mt-1">{blog.subtitle}</p>}
+                <div className="flex flex-col md:flex-row">
+                  <div className="md:w-1/4 h-48 md:h-auto overflow-hidden">
+                    <img 
+                      src={blog.coverImage} 
+                      alt={blog.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                  <div className="p-6 md:w-3/4 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-2xl font-serif mb-2 group-hover:text-primary transition-colors duration-300">{blog.title}</h3>
+                      <p className="text-muted-foreground line-clamp-2 mb-4">{blog.subtitle}</p>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Calendar className="h-4 w-4 mr-2" />
+                        <span>{blog.date ? new Date(blog.date).toLocaleDateString() : 'Date not available'}</span>
+                        <span className="mx-2">•</span>
+                        <span>By {blog.author}</span>
+                      </div>
+                      <ArrowRight className="h-5 w-5 transform group-hover:translate-x-1 transition-transform duration-300" />
                     </div>
                   </div>
                 </div>
-              </Link>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
       
-      {/* Dynamic Blogs from Supabase */}
+      {/* Dynamic Blogs from Supabase - Also as bars */}
       <section className="py-8 px-6 bg-secondary/10">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl font-serif mb-6">Recent Posts</h2>
+          <h2 className="text-2xl font-serif mb-8">Recent Posts</h2>
           
           {isLoading ? (
             <div className="text-center py-10">
@@ -147,38 +171,55 @@ const Blogs = () => {
               </p>
             </div>
           ) : dynamicBlogs.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {dynamicBlogs.map((blog) => (
-                <Link 
+            <div className="space-y-4">
+              {dynamicBlogs.map((blog, index) => (
+                <motion.div 
                   key={blog.id}
-                  to={`/blogs/${blog.id}`} 
-                  className="flex gap-4 p-4 bg-background rounded-lg hover:shadow-md transition-shadow"
+                  onClick={() => handleBlogClick(blog.id)}
+                  className="group bg-background border shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer rounded-lg overflow-hidden"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ scale: 1.01 }}
                 >
-                  {blog.cover_image && (
-                    <div className="w-24 h-24 flex-shrink-0">
-                      <img 
-                        src={blog.cover_image} 
-                        alt={blog.title}
-                        className="w-full h-full object-cover rounded-md"
-                      />
-                    </div>
-                  )}
-                  <div>
-                    <h3 className="font-medium">{blog.title}</h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {new Date(blog.published_at || blog.created_at).toLocaleDateString()}
-                    </p>
-                    {blog.tags && blog.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {blog.tags.slice(0, 3).map(tag => (
-                          <span key={tag} className="text-xs px-2 py-0.5 bg-secondary text-secondary-foreground rounded-full">
-                            {tag}
-                          </span>
-                        ))}
+                  <div className="flex flex-col md:flex-row">
+                    {blog.cover_image && (
+                      <div className="md:w-1/4 h-48 md:h-auto overflow-hidden">
+                        <img 
+                          src={blog.cover_image} 
+                          alt={blog.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
                       </div>
                     )}
+                    <div className="p-6 md:w-3/4 flex flex-col justify-between">
+                      <div>
+                        <h3 className="text-2xl font-serif mb-2 group-hover:text-primary transition-colors duration-300">{blog.title}</h3>
+                        <p className="text-muted-foreground line-clamp-2 mb-4">{blog.summary || ''}</p>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center text-sm text-muted-foreground">
+                          <Calendar className="h-4 w-4 mr-2" />
+                          <span>{new Date(blog.published_at || blog.created_at).toLocaleDateString()}</span>
+                          <span className="mx-2">•</span>
+                          <span>By {blog.author}</span>
+                        </div>
+                        <ArrowRight className="h-5 w-5 transform group-hover:translate-x-1 transition-transform duration-300" />
+                      </div>
+                      
+                      {blog.tags && blog.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-4">
+                          {blog.tags.slice(0, 3).map(tag => (
+                            <span key={tag} className="text-xs px-2 py-0.5 bg-secondary text-secondary-foreground rounded-full">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </Link>
+                </motion.div>
               ))}
             </div>
           ) : (
