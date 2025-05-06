@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -11,7 +10,6 @@ import { blogDataMapping } from '@/data/BlogData';
 
 const Blogs = () => {
   const [showNavbar, setShowNavbar] = useState(true);
-  const heroRef = useRef(null);
   const lastScrollY = useRef(0);
   const navigate = useNavigate();
   
@@ -48,7 +46,7 @@ const Blogs = () => {
     };
   }, []);
 
-  const handleBlogClick = (id: string) => {
+  const handleBlogClick = (id) => {
     navigate(`/blogs/${id}`);
   };
 
@@ -65,50 +63,10 @@ const Blogs = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background relative">
-      {/* Navbar with AnimatePresence for smooth appearance/disappearance */}
-      <AnimatePresence>
-        {showNavbar && (
-          <motion.div
-            className="fixed top-0 left-0 right-0 z-40"
-            initial={{ y: -100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -100, opacity: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            <NavBar />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Navbar - No longer fixed, just at the top */}
+      <NavBar />
       
-      {/* Hero Section */}
-      <motion.section 
-        ref={heroRef}
-        className="pt-32 pb-16 px-6 bg-muted"
-        initial={{ opacity: 1 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-      >
-        <div className="max-w-7xl mx-auto text-center">
-          <motion.h1 
-            className="text-4xl md:text-5xl lg:text-6xl font-serif mb-6"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-          >
-            Blogs
-          </motion.h1>
-          <motion.p 
-            className="text-muted-foreground max-w-2xl mx-auto"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-          >
-            Stories, insights, and adventures from behind the lens.
-          </motion.p>
-        </div>
-      </motion.section>
-      
-      {/* Static Blogs - Now as bars instead of cards */}
+      {/* Content starts immediately after navbar */}
       <section className="py-8 px-6">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-serif mb-8">Featured Stories</h2>
