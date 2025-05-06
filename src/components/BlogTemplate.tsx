@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
@@ -64,7 +63,15 @@ export default function BlogTemplate({ content }: BlogTemplateProps) {
 
   return (
     <div ref={containerRef} className="overflow-x-hidden bg-[#f6f4ef] text-[#2d3e33] font-sans">
-      {/* Cover Section with Parallax */}
+      {/* Close button that matches the bg color */}
+      <button className="fixed top-6 right-6 z-50 w-10 h-10 flex items-center justify-center rounded-full bg-[#f6f4ef] text-[#2d3e33] shadow-md hover:bg-[#e8e5df] transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      {/* Cover Section with Parallax - Now touches the top */}
       <section className="relative h-screen overflow-hidden">
         <motion.div 
           style={{ y: y1 }}
@@ -112,16 +119,31 @@ export default function BlogTemplate({ content }: BlogTemplateProps) {
         }
         
         if (section.type === 'image-text') {
+          // Create a unique scrollYProgress for each section
+          const sectionRef = useRef<HTMLDivElement>(null);
+          const { scrollYProgress: sectionScrollProgress } = useScroll({
+            target: sectionRef,
+            offset: ["start end", "end start"]
+          });
+          
+          // Create parallax effect for this section
+          const sectionParallax = useTransform(sectionScrollProgress, [0, 1], [0, 100]);
+
           return (
-            <section key={index} className="reveal-section opacity-0 transition-opacity duration-1000 min-h-screen flex flex-col md:flex-row">
+            <section ref={sectionRef} key={index} className="reveal-section opacity-0 transition-opacity duration-1000 min-h-screen flex flex-col md:flex-row">
               <div className={section.layout === 'one-third-two-thirds' ? 'md:w-1/3' : (section.layout === 'half-half' ? 'md:w-1/2' : 'md:w-2/3')}>
                 {section.image && (
                   <div className="h-[50vh] md:h-full relative overflow-hidden">
-                    <img 
-                      src={section.image} 
-                      alt={section.imageAlt || ''} 
-                      className="w-full h-full object-cover"
-                    />
+                    <motion.div 
+                      style={{ y: sectionParallax }}
+                      className="w-full h-[120%]"
+                    >
+                      <img 
+                        src={section.image} 
+                        alt={section.imageAlt || ''} 
+                        className="w-full h-full object-cover"
+                      />
+                    </motion.div>
                   </div>
                 )}
               </div>
@@ -146,8 +168,18 @@ export default function BlogTemplate({ content }: BlogTemplateProps) {
         }
         
         if (section.type === 'text-image') {
+          // Create a unique scrollYProgress for each section
+          const sectionRef = useRef<HTMLDivElement>(null);
+          const { scrollYProgress: sectionScrollProgress } = useScroll({
+            target: sectionRef,
+            offset: ["start end", "end start"]
+          });
+          
+          // Create parallax effect for this section
+          const sectionParallax = useTransform(sectionScrollProgress, [0, 1], [0, 100]);
+
           return (
-            <section key={index} className="reveal-section opacity-0 transition-opacity duration-1000 min-h-screen flex flex-col md:flex-row">
+            <section ref={sectionRef} key={index} className="reveal-section opacity-0 transition-opacity duration-1000 min-h-screen flex flex-col md:flex-row">
               <div className={section.layout === 'two-thirds-one-third' ? 'md:w-2/3' : (section.layout === 'half-half' ? 'md:w-1/2' : 'md:w-1/3')}>
                 <div className="p-8 md:p-16 lg:p-24 flex items-center h-full">
                   <div>
@@ -168,7 +200,7 @@ export default function BlogTemplate({ content }: BlogTemplateProps) {
                 {section.image && (
                   <div className="relative overflow-hidden h-[50vh] md:h-full">
                     <motion.div 
-                      style={{ y: y2 }}
+                      style={{ y: sectionParallax }}
                       className="w-full h-full md:h-[120%]"
                     >
                       <img 
@@ -185,14 +217,29 @@ export default function BlogTemplate({ content }: BlogTemplateProps) {
         }
         
         if (section.type === 'full-width-image') {
+          // Create a unique scrollYProgress for this section
+          const fullWidthRef = useRef<HTMLDivElement>(null);
+          const { scrollYProgress: fullWidthScrollProgress } = useScroll({
+            target: fullWidthRef,
+            offset: ["start end", "end start"]
+          });
+          
+          // Create parallax effect for this section
+          const fullWidthParallax = useTransform(fullWidthScrollProgress, [0, 1], [0, 150]);
+
           return (
-            <section key={index} className="reveal-section opacity-0 transition-opacity duration-1000 h-[80vh] relative overflow-hidden">
+            <section ref={fullWidthRef} key={index} className="reveal-section opacity-0 transition-opacity duration-1000 h-[80vh] relative overflow-hidden">
               {section.image && (
-                <img 
-                  src={section.image} 
-                  alt={section.imageAlt || ''}
-                  className="w-full h-full object-cover"
-                />
+                <motion.div 
+                  style={{ y: fullWidthParallax }}
+                  className="absolute inset-0 w-full h-[120%]"
+                >
+                  <img 
+                    src={section.image} 
+                    alt={section.imageAlt || ''}
+                    className="w-full h-full object-cover"
+                  />
+                </motion.div>
               )}
             </section>
           );
@@ -209,18 +256,36 @@ export default function BlogTemplate({ content }: BlogTemplateProps) {
                 )}
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {content.galleryImages.map((img, i) => (
-                    <div 
-                      key={i} 
-                      className="overflow-hidden rounded-md shadow-lg aspect-[4/3] transform transition-all duration-500 hover:scale-[1.02] hover:shadow-xl"
-                    >
-                      <img 
-                        src={img.src} 
-                        alt={img.alt}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ))}
+                  {content.galleryImages.map((img, i) => {
+                    // Create individual parallax effects for gallery images
+                    const galleryItemRef = useRef<HTMLDivElement>(null);
+                    const { scrollYProgress: galleryItemProgress } = useScroll({
+                      target: galleryItemRef,
+                      offset: ["start end", "end start"]
+                    });
+                    
+                    // Subtle hover effect to prevent too much movement
+                    const galleryParallax = useTransform(galleryItemProgress, [0, 1], [0, 50]);
+
+                    return (
+                      <div 
+                        ref={galleryItemRef}
+                        key={i} 
+                        className="overflow-hidden rounded-md shadow-lg aspect-[4/3] transform transition-all duration-500 hover:scale-[1.02] hover:shadow-xl"
+                      >
+                        <motion.div
+                          style={{ y: galleryParallax }}
+                          className="w-full h-[110%]"
+                        >
+                          <img 
+                            src={img.src} 
+                            alt={img.alt}
+                            className="w-full h-full object-cover"
+                          />
+                        </motion.div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </section>
@@ -241,7 +306,7 @@ export default function BlogTemplate({ content }: BlogTemplateProps) {
                     {paragraph}
                   </p>
                 ))}
-                <div className="flex justify-center space-x-4">
+                <div className="flex flex-col sm:flex-row justify-center sm:space-x-4 space-y-4 sm:space-y-0">
                   <button className="px-6 py-3 bg-[#2d3e33] text-white rounded-full hover:bg-[#3d5244] transition-colors">
                     Share This Journey
                   </button>
