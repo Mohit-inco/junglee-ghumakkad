@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
+import { checkIsAdmin, getOrders, updateOrderStatus } from '@/integrations/supabase/api';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 import {
@@ -118,26 +118,17 @@ const AdminOrders: React.FC = () => {
   // Fetch orders when loading is complete and isAdmin is true
   useEffect(() => {
     if (!loading && isAdmin) {
-      fetchOrders();
+      fetchOrdersData();
     }
   }, [loading, isAdmin]);
 
-  // Fetch orders from the database using our new RPC function
-  const fetchOrders = async () => {
+  // Fetch orders from the database using our API function
+  const fetchOrdersData = async () => {
     try {
-      // Use the get_all_orders RPC function
-      const { data, error } = await supabase
-        .rpc('get_all_orders');
-      
-      if (error) {
-        console.error('Error fetching orders with RPC:', error);
-        toast.error('Failed to load orders');
-        return;
-      }
-      
-      console.log('Orders fetched successfully:', data);
-      setOrders(data || []);
-      setFilteredOrders(data || []);
+      const ordersData = await getOrders();
+      console.log('Orders fetched successfully:', ordersData);
+      setOrders(ordersData);
+      setFilteredOrders(ordersData);
     } catch (error) {
       console.error('Error fetching orders:', error);
       toast.error('Failed to load orders');
@@ -159,26 +150,24 @@ const AdminOrders: React.FC = () => {
     setIsDialogOpen(true);
   };
 
-  // Handle order update using our new RPC function
+  // Handle order update using our API function
   const handleUpdateOrder = async () => {
     try {
       setIsUpdating(true);
       
-      // Use the update_order RPC function
-      const { error } = await supabase
-        .rpc('update_order', {
-          order_id_param: selectedOrder.id,
-          status_param: status,
-          tracking_number_param: trackingNumber.trim() || null
-        });
+      const success = await updateOrderStatus(
+        selectedOrder.id, 
+        status, 
+        trackingNumber.trim() || undefined
+      );
       
-      if (error) {
-        throw error;
+      if (!success) {
+        throw new Error('Failed to update order');
       }
       
       toast.success('Order updated successfully');
       setIsDialogOpen(false);
-      fetchOrders();
+      fetchOrdersData();
     } catch (error: any) {
       console.error('Error updating order:', error);
       toast.error(error.message || 'Failed to update order');
@@ -289,7 +278,7 @@ const AdminOrders: React.FC = () => {
                 <Search className="h-4 w-4" />
               </Button>
             </div>
-            <Button variant="outline" onClick={fetchOrders}>
+            <Button variant="outline" onClick={fetchOrdersData}>
               <RefreshCw className="h-4 w-4 mr-2" /> Refresh
             </Button>
           </div>

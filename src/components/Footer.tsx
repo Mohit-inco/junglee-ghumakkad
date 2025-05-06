@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Instagram, Twitter, Facebook, Mail } from 'lucide-react';
+import { Instagram, Twitter, Facebook, Mail, Package } from 'lucide-react';
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -42,6 +42,12 @@ const Footer: React.FC = () => {
               <li>
                 <Link to="/cart" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Cart
+                </Link>
+              </li>
+              <li>
+                <Link to="/track-order" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
+                  <Package className="h-3 w-3" />
+                  Track Order
                 </Link>
               </li>
             </ul>
@@ -88,6 +94,7 @@ const Footer: React.FC = () => {
           <div className="mt-4 md:mt-0 flex space-x-6">
             <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-foreground transition-colors">Terms of Service</a>
+            <Link to="/track-order" className="hover:text-foreground transition-colors">Track Your Order</Link>
           </div>
         </div>
       </div>

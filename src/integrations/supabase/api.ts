@@ -1,4 +1,3 @@
-
 import { supabase } from './client';
 import { Tables } from './types';
 

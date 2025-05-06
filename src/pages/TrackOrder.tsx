@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -8,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Package, Search, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import { getOrderById } from '@/integrations/supabase/api';
 
 const TrackOrder: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -27,23 +26,15 @@ const TrackOrder: React.FC = () => {
     setLoading(true);
     
     try {
-      // Try querying using the order_id field which should be accessible via normal RLS
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('order_id', orderId.trim())
-        .single();
+      // Use the API function that handles both order_id and id lookups
+      const data = await getOrderById(orderId.trim());
       
-      if (error) {
-        console.error('Error fetching order:', error);
+      if (!data) {
         toast.error('Order not found. Please check the order ID and try again');
         setOrderData(null);
-      } else if (data) {
+      } else {
         console.log('Order found:', data);
         setOrderData(data);
-      } else {
-        toast.error('Order not found. Please check the order ID and try again');
-        setOrderData(null);
       }
     } catch (error: any) {
       console.error('Error fetching order:', error);
