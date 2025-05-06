@@ -27,6 +27,7 @@ const TrackOrder: React.FC = () => {
     setLoading(true);
     
     try {
+      // Try querying using the order_id field which should be accessible via normal RLS
       const { data, error } = await supabase
         .from('orders')
         .select('*')
@@ -34,21 +35,31 @@ const TrackOrder: React.FC = () => {
         .single();
       
       if (error) {
-        throw error;
-      }
-      
-      if (data) {
+        console.error('Error fetching order:', error);
+        toast.error('Order not found. Please check the order ID and try again');
+        setOrderData(null);
+      } else if (data) {
+        console.log('Order found:', data);
         setOrderData(data);
       } else {
         toast.error('Order not found. Please check the order ID and try again');
+        setOrderData(null);
       }
     } catch (error: any) {
       console.error('Error fetching order:', error);
-      toast.error('Order not found. Please check the order ID and try again');
+      toast.error('Error fetching order details. Please try again later');
+      setOrderData(null);
     } finally {
       setLoading(false);
     }
   };
+  
+  // Try to search if orderId is provided in URL params
+  React.useEffect(() => {
+    if (initialOrderId) {
+      handleSearch();
+    }
+  }, [initialOrderId]);
   
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {

@@ -258,7 +258,39 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_if_admin: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
+      get_all_orders: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          address: string
+          city: string
+          created_at: string
+          customer_email: string
+          customer_name: string
+          customer_phone: string
+          id: string
+          items: Json
+          order_id: string
+          payment_method: string
+          pincode: string
+          state: string
+          status: string
+          total_amount: number
+          tracking_number: string | null
+          updated_at: string
+        }[]
+      }
+      update_order: {
+        Args: {
+          order_id_param: string
+          status_param: string
+          tracking_number_param: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

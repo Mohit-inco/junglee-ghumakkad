@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -76,7 +77,7 @@ const AdminOrders: React.FC = () => {
         
         // Use the check_if_admin function we already set up
         const { data: adminCheckData, error: adminCheckError } = await supabase
-          .rpc('check_if_admin', { input_user_id: data.session.user.id });
+          .rpc('check_if_admin', { user_id: data.session.user.id });
         
         console.log("Admin check data:", adminCheckData);
         console.log("Admin check error:", adminCheckError);
@@ -121,47 +122,20 @@ const AdminOrders: React.FC = () => {
     }
   }, [loading, isAdmin]);
 
-  // Fetch orders from the database using RPC function to avoid policy conflicts
+  // Fetch orders from the database using our new RPC function
   const fetchOrders = async () => {
     try {
-      // Use a function to fetch orders instead of direct table access
+      // Use the get_all_orders RPC function
       const { data, error } = await supabase
         .rpc('get_all_orders');
       
       if (error) {
         console.error('Error fetching orders with RPC:', error);
-        
-        // Fallback to direct query with specific columns to avoid potential policy issues
-        const { data: directData, error: directError } = await supabase
-          .from('orders')
-          .select(`
-            id, 
-            order_id, 
-            created_at, 
-            customer_name, 
-            customer_email, 
-            customer_phone,
-            address, 
-            city, 
-            state, 
-            pincode, 
-            total_amount, 
-            payment_method, 
-            status, 
-            tracking_number,
-            items
-          `)
-          .order('created_at', { ascending: false });
-        
-        if (directError) {
-          throw directError;
-        }
-        
-        setOrders(directData || []);
-        setFilteredOrders(directData || []);
+        toast.error('Failed to load orders');
         return;
       }
       
+      console.log('Orders fetched successfully:', data);
       setOrders(data || []);
       setFilteredOrders(data || []);
     } catch (error) {
@@ -185,12 +159,12 @@ const AdminOrders: React.FC = () => {
     setIsDialogOpen(true);
   };
 
-  // Handle order update
+  // Handle order update using our new RPC function
   const handleUpdateOrder = async () => {
     try {
       setIsUpdating(true);
       
-      // Use an RPC function to update the order to avoid policy conflicts
+      // Use the update_order RPC function
       const { error } = await supabase
         .rpc('update_order', {
           order_id_param: selectedOrder.id,
@@ -199,19 +173,7 @@ const AdminOrders: React.FC = () => {
         });
       
       if (error) {
-        // Fallback to direct update if RPC fails
-        const { error: directError } = await supabase
-          .from('orders')
-          .update({
-            status,
-            tracking_number: trackingNumber.trim() || null,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', selectedOrder.id);
-        
-        if (directError) {
-          throw directError;
-        }
+        throw error;
       }
       
       toast.success('Order updated successfully');

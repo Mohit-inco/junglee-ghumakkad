@@ -274,10 +274,9 @@ export async function deletePrintOption(id: string): Promise<boolean> {
 // Order functions
 export async function getOrders(): Promise<Order[]> {
   try {
+    // Use the RPC function to avoid policy conflicts
     const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .rpc('get_all_orders');
     
     if (error) throw error;
     return data || [];
@@ -295,7 +294,20 @@ export async function getOrderById(orderId: string): Promise<Order | null> {
       .eq('order_id', orderId)
       .single();
     
-    if (error) throw error;
+    if (error) {
+      // If not found by order_id, try to find by id
+      if (error.code === 'PGRST116') {
+        const { data: dataById, error: errorById } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('id', orderId)
+          .single();
+          
+        if (errorById) throw errorById;
+        return dataById;
+      }
+      throw error;
+    }
     return data;
   } catch (error) {
     console.error('Error fetching order:', error);
@@ -305,19 +317,13 @@ export async function getOrderById(orderId: string): Promise<Order | null> {
 
 export async function updateOrderStatus(id: string, status: string, trackingNumber?: string): Promise<boolean> {
   try {
-    const updateData: any = { 
-      status, 
-      updated_at: new Date().toISOString()
-    };
-    
-    if (trackingNumber !== undefined) {
-      updateData.tracking_number = trackingNumber || null;
-    }
-    
+    // Use the RPC function for updating
     const { error } = await supabase
-      .from('orders')
-      .update(updateData)
-      .eq('id', id);
+      .rpc('update_order', {
+        order_id_param: id,
+        status_param: status,
+        tracking_number_param: trackingNumber || null
+      });
     
     if (error) throw error;
     return true;
@@ -347,11 +353,7 @@ export async function createOrder(orderData: Omit<Order, 'id' | 'created_at' | '
 export async function checkIsAdmin(userId: string): Promise<boolean> {
   try {
     const { data, error } = await supabase
-      .from('user_roles')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('role', 'admin')
-      .maybeSingle();
+      .rpc('check_if_admin', { user_id: userId });
       
     if (error) throw error;
     return !!data;
