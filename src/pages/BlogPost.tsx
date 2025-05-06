@@ -54,7 +54,7 @@ const BlogPost = () => {
     // Format the blog data to match the BlogContent interface
     const dynamicBlogContent = {
       title: blog.title,
-      subtitle: blog.subtitle || "",
+      subtitle: blog.summary || "", // Use summary as subtitle or empty string if not available
       coverImage: blog.cover_image || "",
       author: blog.author,
       date: blog.published_at || blog.created_at,
