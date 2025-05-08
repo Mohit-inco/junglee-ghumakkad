@@ -63,7 +63,12 @@ export default function BlogTemplate({ content }: BlogTemplateProps) {
   }, []);
 
   return (
-    <div ref={containerRef} className="overflow-x-hidden bg-[#f6f4ef] text-[#2d3e33] font-sans">
+    <div ref={containerRef} className="overflow-x-hidden bg-[#f6f4ef] text-[#2d3e33] font-sans"
+      style={{
+    marginTop: '-60px',
+    padding: 0,
+    width: '100%'
+  }}>
       {/* Cover Section with Parallax */}
       <section className="relative h-screen overflow-hidden">
         <motion.div 
