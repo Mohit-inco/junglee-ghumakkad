@@ -4,7 +4,7 @@ import { BlogContent } from "@/components/BlogTemplate";
 // Blog 1: Photography Expedition to Nelapattu and Pulicat
 export const blog1: BlogContent = {
   title: "Discovering Untold Stories",
-  subtitle: "A photographic expedition to Nelapattu Bird Sanctuary and Pulicat Lake",
+  subtitle: "Wings and Waters: A Photographic Journey",
   coverImage: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//1000035613_enhanced%20(1).jpg",
   author: "Junglee Ghumakkad",
   date: "2023-01-15",
