@@ -35,7 +35,7 @@ const ParallaxWindow: React.FC<ParallaxWindowProps> = ({ images }) => {
         className="absolute inset-0 w-full h-[120%]"
       >
         <div 
-          className="w-auto h-100% transition-all duration-1000 ease-out"
+          className="w-full h-full transition-all duration-1000 ease-out"
           style={{ 
             backgroundImage: `url(${images[selectedImageIndex].src})`,
             backgroundSize: 'contain',
