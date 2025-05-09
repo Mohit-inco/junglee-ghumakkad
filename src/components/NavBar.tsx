@@ -1,29 +1,20 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, ShoppingCart, Instagram } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { cn } from "@/lib/utils";
+import useScrollDirection from "./useScrollDirection";
 
 const NavBar: React.FC = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const {
-    count
-  } = useCart();
+  const { count } = useCart();
+  
+  // Use our custom hook for scroll behavior
+  const { visible, isScrolled } = useScrollDirection();
 
   // Check if route is active
   const isActive = (path: string) => location.pathname === path;
-
-  // Handle scroll effect
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   // Handle body scroll lock when menu is open
   useEffect(() => {
@@ -46,7 +37,13 @@ const NavBar: React.FC = () => {
   const navTextClasses = "text-white drop-shadow-md";
   
   return (
-    <header className={cn("fixed top-0 left-0 right-0 z-50 px-6 transition-all duration-300 ease-in-out", isScrolled || isMenuOpen ? "py-3 bg-background/80 shadow-lg backdrop-blur-lg border-b" : "py-6 bg-background/0")}>
+    <header 
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 px-6 transition-all duration-300 ease-in-out", 
+        isScrolled || isMenuOpen ? "py-3 bg-background/80 shadow-lg backdrop-blur-lg border-b" : "py-6 bg-background/0",
+        !visible && !isMenuOpen ? "-translate-y-full" : "translate-y-0"
+      )}
+    >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex flex-col items-start">
           <Link to="/" className="brand-name text-xl md:text-2xl text-white font-brilliante tracking-wider drop-shadow-md">
