@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Image } from '@/lib/data';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 
 interface ParallaxWindowProps {
   images: Image[];
@@ -28,37 +28,47 @@ const ParallaxWindow: React.FC<ParallaxWindowProps> = ({ images }) => {
   }
 
   return (
-    <div ref={containerRef} className="relative w-full h-[70vh] overflow-hidden">
-      {/* Parallax Background Image - Increased height to 120% for more parallax room */}
-      <motion.div 
-        style={{ y }} 
-        className="absolute inset-0 w-full h-[120%]"
-      >
-        <div 
-          className="w-full h-full transition-all duration-1000 ease-out"
-          style={{ 
-            backgroundImage: `url(${images[selectedImageIndex].src})`,
-            backgroundSize: 'contain',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-          }}
-        />
-      </motion.div>
+    <div className="w-full flex flex-col">
+      {/* Parallax container */}
+      <div ref={containerRef} className="relative w-full h-[70vh] overflow-hidden bg-black/5">
+        {/* Parallax Background Image with fade transition */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={selectedImageIndex}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            style={{ y }}
+            className="absolute inset-0 w-full h-[120%]"
+          >
+            <div
+              className="w-full h-full"
+              style={{
+                backgroundImage: `url(${images[selectedImageIndex].src})`,
+                backgroundSize: 'contain',
+                backgroundPosition: 'center', 
+                backgroundRepeat: 'no-repeat',
+              }}
+            />
+          </motion.div>
+        </AnimatePresence>
+        
+        {/* Subtle gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/20" />
+      </div>
       
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/30" />
-      
-      {/* Thumbnail navigation - very small rectangles at bottom */}
-      <div className="absolute bottom-4 left-0 right-0 flex justify-center">
-        <div className="flex gap-1">
+      {/* Thumbnail navigation - outside and below the image area */}
+      <div className="w-full py-3 bg-gray-100 border-t border-gray-200">
+        <div className="flex justify-center gap-2">
           {images.map((image, index) => (
             <button
               key={image.id}
               onClick={() => setSelectedImageIndex(index)}
-              className={`relative flex-shrink-0 w-8 h-4 rounded-sm overflow-hidden transition-all duration-200 ${
+              className={`relative flex-shrink-0 w-10 h-6 overflow-hidden transition-all duration-200 ${
                 selectedImageIndex === index 
-                  ? 'ring-1 ring-white' 
-                  : 'ring-1 ring-white/30 hover:ring-white/70 opacity-60 hover:opacity-100'
+                  ? 'ring-2 ring-blue-500 scale-105' 
+                  : 'ring-1 ring-gray-300 hover:ring-blue-300'
               }`}
               aria-label={`View ${image.title}`}
             >
