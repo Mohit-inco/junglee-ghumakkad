@@ -29,8 +29,8 @@ const ParallaxWindow: React.FC<ParallaxWindowProps> = ({ images }) => {
 
   return (
     <div className="w-full flex flex-col">
-      {/* Parallax container */}
-      <div ref={containerRef} className="relative w-full h-[70vh] overflow-hidden bg-black/5">
+      {/* Parallax container - increased to 80vh */}
+      <div ref={containerRef} className="relative w-full h-[80vh] overflow-hidden bg-black/10">
         {/* Parallax Background Image with fade transition */}
         <AnimatePresence mode="wait">
           <motion.div
@@ -58,8 +58,8 @@ const ParallaxWindow: React.FC<ParallaxWindowProps> = ({ images }) => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/20" />
       </div>
       
-      {/* Thumbnail navigation - outside and below the image area */}
-      <div className="w-full py-3 bg-gray-100 border-t border-gray-200">
+      {/* Thumbnail navigation - dark theme instead of white */}
+      <div className="w-full py-3 bg-gray-900">
         <div className="flex justify-center gap-2">
           {images.map((image, index) => (
             <button
@@ -67,8 +67,8 @@ const ParallaxWindow: React.FC<ParallaxWindowProps> = ({ images }) => {
               onClick={() => setSelectedImageIndex(index)}
               className={`relative flex-shrink-0 w-10 h-6 overflow-hidden transition-all duration-200 ${
                 selectedImageIndex === index 
-                  ? 'ring-2 ring-blue-500 scale-105' 
-                  : 'ring-1 ring-gray-300 hover:ring-blue-300'
+                  ? 'ring-2 ring-blue-400 scale-105' 
+                  : 'ring-1 ring-gray-600 hover:ring-blue-300'
               }`}
               aria-label={`View ${image.title}`}
             >
