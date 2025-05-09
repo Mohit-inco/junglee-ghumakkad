@@ -30,7 +30,7 @@ const ParallaxWindow: React.FC<ParallaxWindowProps> = ({ images }) => {
   return (
     <div className="w-full flex flex-col">
       {/* Parallax container - increased to 80vh */}
-      <div ref={containerRef} className="relative w-full h-[80vh] overflow-hidden bg-black/10">
+      <div ref={containerRef} className="relative w-[100vw] h-[100vh] overflow-hidden bg-black/10">
         {/* Parallax Background Image with fade transition */}
         <AnimatePresence mode="wait">
           <motion.div
