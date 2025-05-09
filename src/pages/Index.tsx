@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getGalleryImages } from '@/integrations/supabase/api';
 import Hero from '@/components/Hero';
-import ImageGrid from '@/components/ImageGrid';
+import ParallaxWindow from '@/components/ParallaxWindow';
 import Footer from '@/components/Footer';
 import NavBar from '@/components/NavBar';
 import ExpandingPanels from '@/components/ExpandingPanels';
@@ -16,7 +16,7 @@ const Index = () => {
     queryFn: () => getGalleryImages('featured')
   });
 
-  // Format the images for the ImageGrid component
+  // Format the images for our components
   const formattedFeaturedImages: Image[] = featuredImages.map(image => ({
     id: image.id,
     src: image.image_url,
@@ -62,7 +62,7 @@ const Index = () => {
       {/* Hero Section */}
       <Hero />
       
-      {/* Featured Work Section */}
+      {/* Featured Work Section - with ParallaxWindow */}
       <section className="py-20 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 scroll-animate opacity-0">
@@ -76,7 +76,7 @@ const Index = () => {
           
           <div className="scroll-animate opacity-0">
             {formattedFeaturedImages.length > 0 ? (
-              <ImageGrid images={formattedFeaturedImages} columns={3} />
+              <ParallaxWindow images={formattedFeaturedImages} />
             ) : (
               <div className="text-center py-20 text-muted-foreground">
                 Featured images will appear here soon.
