@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import ImageGrid from '@/components/ImageGrid';
@@ -8,8 +8,10 @@ import { useQuery } from '@tanstack/react-query';
 import { Image } from '@/lib/data';
 
 const Gallery = () => {
-  const [selectedGenre, setSelectedGenre] = useState<string>('Wildlife');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [selectedGenre, setSelectedGenre] = useState<string>(searchParams.get('genre') || 'Wildlife');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(searchParams.get('category'));
   const [allCategories, setAllCategories] = useState<string[]>([]);
   const [allGenres, setAllGenres] = useState<string[]>(['Wildlife', 'StreetPalette', 'AstroShot', 'Landscape']);
   const [genreCategories, setGenreCategories] = useState<string[]>([]);
@@ -49,6 +51,18 @@ const Gallery = () => {
   useEffect(() => {
     updateGenreCategories(selectedGenre, images);
   }, [selectedGenre, images]);
+
+  // Update URL when genre or category changes
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (selectedGenre) {
+      params.set('genre', selectedGenre);
+    }
+    if (selectedCategory) {
+      params.set('category', selectedCategory);
+    }
+    setSearchParams(params);
+  }, [selectedGenre, selectedCategory, setSearchParams]);
   
   // Function to update categories based on selected genre
   const updateGenreCategories = (genre: string, imagesList: GalleryImage[]) => {
@@ -92,22 +106,22 @@ const Gallery = () => {
     categories: image.categories || [],
     photographerNote: image.photographers_note || '',
     enablePrint: image.enable_print || false,
-    width: 0,  // Add placeholder values
+    width: 0,
     height: 0
   }));
-  
+
   return (
     <div className="min-h-screen flex flex-col">
       <NavBar />
       
       <main className="flex-grow pt-24 px-6">
         <div className="max-w-5xl mx-auto">
-          {/* Genre Filters - Styled like headings with Helvetica Bold */}
+          {/* Genre Navigation */}
           <div className="mb-10 flex flex-wrap gap-6 md:gap-8">
             {allGenres.map(genre => (
               <button
                 key={genre}
-                onClick={() => setSelectedGenre(selectedGenre === genre ? genre : genre)}
+                onClick={() => setSelectedGenre(genre)}
                 className={`relative font-bold text-2xl md:text-3xl transition-all border-b-2 pb-1 ${
                   selectedGenre === genre 
                     ? 'border-primary text-primary' 
@@ -120,7 +134,7 @@ const Gallery = () => {
             ))}
           </div>
           
-          {/* Category Filters - Only show categories for selected genre */}
+          {/* Category Navigation */}
           <div className="mb-10">
             <div className="flex gap-2 flex-wrap">
               <button

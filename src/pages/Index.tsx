@@ -1,15 +1,25 @@
-
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getGalleryImages } from '@/integrations/supabase/api';
 import Hero from '@/components/Hero';
-import ParallaxWindow from '@/components/ParallaxWindow';
+import FeaturedWorkGrid from '@/components/FeaturedWorkGrid';
 import Footer from '@/components/Footer';
 import NavBar from '@/components/NavBar';
 import ExpandingPanels from '@/components/ExpandingPanels';
 import { Image } from '@/lib/data';
+import { motion, useScroll, useTransform } from 'framer-motion';
 
 const Index = () => {
+  const aboutRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: aboutRef,
+    offset: ["start end", "end start"]
+  });
+
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.2]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.5, 1, 0.5]);
+  const x = useTransform(scrollYProgress, [0, 1], [100, 0]);
+
   // Fetch featured images from the database
   const { data: featuredImages = [] } = useQuery({
     queryKey: ['featured-images'],
@@ -62,35 +72,17 @@ const Index = () => {
       {/* Hero Section */}
       <Hero />
       
-      {/* Featured Work Section - with ParallaxWindow */}
-      <section className="py-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 scroll-animate opacity-0">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-serif">Featured Work</h2>
-              <p className="text-muted-foreground mt-3 max-w-2xl">
-                A selection of my most celebrated photographs from around the world.
-              </p>
-            </div>
-          </div>
-          
-          <div className="scroll-animate opacity-0">
-            {formattedFeaturedImages.length > 0 ? (
-              <ParallaxWindow images={formattedFeaturedImages} />
-            ) : (
-              <div className="text-center py-20 text-muted-foreground">
-                Featured images will appear here soon.
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
+      {/* Add gap between Hero and Expanding Panels */}
+      <div className="mt-16 md:mt-24" />
+      
+      {/* Featured Work Section - with Grid Layout */}
+      {/* Removed Featured Work section as requested */}
       
       {/* Expanding Panels Section */}
       <ExpandingPanels />
       
       {/* About Section Preview */}
-      <section className="bg-muted px-6 py-[62px] my-[80px]">
+      <section ref={aboutRef} className="bg-muted px-6 py-[62px] my-[80px]">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="scroll-animate opacity-0">
@@ -102,13 +94,19 @@ const Index = () => {
                 Whether it's tracking elusive wildlife, chasing the perfect night sky, or framing the chaos of city streets, he's always on the lookout for new perspectives and untold stories.
               </p>
             </div>
-            <div className="rounded-lg overflow-hidden bg-muted shadow-md scroll-animate opacity-0">
-              {featuredImages.length > 0 ? (
-                <img src={featuredImages[0].image_url} alt="Junglee Ghumakkad - Photographer" className="w-full h-auto" />
-              ) : (
-                <img src="/lovable-uploads/f6997cd3-02ac-462c-96c5-2e39d303511d.png" alt="Junglee Ghumakkad - Photographer" className="w-full h-auto" />
-              )}
-            </div>
+            <motion.div 
+              className="rounded-lg overflow-hidden bg-muted shadow-md scroll-animate opacity-0"
+              style={{ scale, opacity, x }}
+              initial={{ x: 100, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+            >
+              <img 
+                src="https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//WhatsApp%20Image%202025-03-22%20at%2011%20(1).46" 
+                alt="Junglee Ghumakkad - Photographer" 
+                className="w-full h-auto object-cover"
+              />
+            </motion.div>
           </div>
         </div>
       </section>

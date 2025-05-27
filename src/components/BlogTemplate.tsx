@@ -1,26 +1,31 @@
-
 import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
+
+export interface ImageData {
+  src: string;
+  alt: string;
+  height?: string;
+  width?: string;
+  parallaxValue?: number;
+}
+
+export interface BlogSection {
+  type: "text" | "image" | "image-text" | "text-image" | "full-width-image" | "gallery" | "conclusion";
+  title?: string;
+  content?: string[];
+  image?: ImageData;
+  layout?: "one-third-two-thirds" | "two-thirds-one-third" | "half-half" | "full";
+  galleryImages?: ImageData[];
+}
 
 export interface BlogContent {
   title: string;
   subtitle: string;
-  coverImage: string;
+  coverImage: ImageData;
+  author: string;
+  date: string;
   sections: BlogSection[];
-  galleryImages: Array<{src: string, alt: string}>;
-  author?: string;
-  date?: string;
-}
-
-export interface BlogSection {
-  type: 'text' | 'image' | 'image-text' | 'text-image' | 'full-width-image' | 'gallery' | 'conclusion';
-  title?: string;
-  content?: string[];
-  image?: string;
-  imageAlt?: string;
-  imagePosition?: 'left' | 'right' | 'top' | 'bottom';
-  layout?: 'one-third-two-thirds' | 'two-thirds-one-third' | 'half-half' | 'full';
-  galleryImages?: Array<{src: string, alt: string}>;
+  galleryImages: ImageData[];
 }
 
 interface BlogTemplateProps {
@@ -78,7 +83,7 @@ export default function BlogTemplate({ content }: BlogTemplateProps) {
           <div 
             className="w-full h-full bg-cover bg-center"
             style={{ 
-              backgroundImage: `url('${content.coverImage}')`,
+              backgroundImage: `url('${content.coverImage.src}')`,
               filter: "saturate(0.9) brightness(0.85)"
             }}
           />
@@ -123,8 +128,8 @@ export default function BlogTemplate({ content }: BlogTemplateProps) {
                 {section.image && (
                   <div className="h-[50vh] md:h-full relative overflow-hidden">
                     <img 
-                      src={section.image} 
-                      alt={section.imageAlt || ''} 
+                      src={section.image.src} 
+                      alt={section.image.alt || ''} 
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -177,8 +182,8 @@ export default function BlogTemplate({ content }: BlogTemplateProps) {
                       className="w-full h-full md:h-[120%]"
                     >
                       <img 
-                        src={section.image}
-                        alt={section.imageAlt || ''}
+                        src={section.image.src}
+                        alt={section.image.alt || ''}
                         className="w-full h-full object-cover"
                       />
                     </motion.div>
@@ -194,8 +199,8 @@ export default function BlogTemplate({ content }: BlogTemplateProps) {
             <section key={index} className="reveal-section opacity-0 transition-opacity duration-1000 h-[80vh] relative overflow-hidden">
               {section.image && (
                 <img 
-                  src={section.image} 
-                  alt={section.imageAlt || ''}
+                  src={section.image.src} 
+                  alt={section.image.alt || ''}
                   className="w-full h-full object-cover"
                 />
               )}

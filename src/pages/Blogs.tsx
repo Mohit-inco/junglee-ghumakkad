@@ -6,7 +6,18 @@ import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Calendar, Search, Filter, ChevronDown, X } from 'lucide-react';
-import { blogDataMapping } from '@/data/BlogData';
+
+// Static blog data for the photography expedition
+const photographyBlog = {
+  id: 'nelapattu-pulicat-expedition',
+  title: 'An Expedition to Nellapattu and Pulicat Bird Sanctuaries',
+  subtitle: 'A thrilling photography adventure into the heart of avian life and conservation',
+  coverImage: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//DSC06581.jpg",
+  date: new Date().toISOString(),
+  author: "Junglee Ghumakkad",
+  isStatic: true,
+  tags: ['Photography', 'Wildlife', 'Nature', 'Birds']
+};
 
 const Blogs = () => {
   const [showNavbar, setShowNavbar] = useState(true);
@@ -66,20 +77,8 @@ const Blogs = () => {
     navigate(`/blogs/${id}`);
   };
 
-  // Transform static blogs data
-  const staticBlogs = Object.entries(blogDataMapping).map(([id, blog]) => ({
-    id,
-    title: blog.title,
-    subtitle: blog.subtitle,
-    coverImage: blog.coverImage,
-    date: blog.date,
-    author: blog.author || "Junglee Ghumakkad",
-    isStatic: true,
-    tags: blog.tags || []
-  }));
-
   // Combine static and dynamic blogs
-  const allBlogs = [...staticBlogs, ...dynamicBlogs.map(blog => ({
+  const allBlogs = [photographyBlog, ...dynamicBlogs.map(blog => ({
     id: blog.id,
     title: blog.title,
     subtitle: blog.summary || '',
@@ -102,8 +101,8 @@ const Blogs = () => {
       return matchesSearch && matchesCategory;
     })
     .sort((a, b) => {
-      const dateA = new Date(a.date || 0);
-      const dateB = new Date(b.date || 0);
+      const dateA = new Date(a.date || 0).getTime();
+      const dateB = new Date(b.date || 0).getTime();
       return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
     });
 
