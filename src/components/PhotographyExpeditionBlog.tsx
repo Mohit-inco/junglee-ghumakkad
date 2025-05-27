@@ -46,7 +46,7 @@ const PhotographyExpeditionBlog = () => {
   // Blog data with single images per section
   const blogData = {
     coverImage: {
-      src: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//DSC06581.jpg",
+      src: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//1000035613_enhanced.jpg.png",
       alt: "Cover image of Nellapattu Bird Sanctuary",
       height: 1080,
       width: 1920,
@@ -179,7 +179,7 @@ const PhotographyExpeditionBlog = () => {
             className="w-full h-full bg-cover bg-center"
             style={{ 
               backgroundImage: `url('${blogData.coverImage.src}')`,
-              filter: "saturate(0.9) brightness(0.85)"
+              filter: "saturate(1) brightness(0.85)"
             }}
           />
         </motion.div>
