@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -24,11 +23,21 @@ import AdminLogin from '@/pages/AdminLogin';
 function App() {
   const [showSplash, setShowSplash] = useState(true);
   
+  // Create a new QueryClient with optimized configuration
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        refetchOnWindowFocus: false,
-        staleTime: 1000 * 60 * 5, // 5 minutes
+        refetchOnWindowFocus: false, // Disable refetch on window focus
+        staleTime: 1000 * 60 * 2, // Data considered fresh for 2 minutes
+        gcTime: 1000 * 60 * 30, // Keep unused data in cache for 30 minutes
+        retry: 2, // Retry failed requests twice
+        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
+        refetchOnMount: true, // Refetch on component mount
+        refetchOnReconnect: true, // Refetch when reconnecting
+      },
+      mutations: {
+        retry: 1, // Retry failed mutations once
+        retryDelay: 1000, // Wait 1 second before retrying
       },
     },
   });

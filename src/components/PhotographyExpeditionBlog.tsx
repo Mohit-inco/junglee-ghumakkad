@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, useScroll, useTransform, useInView } from 'framer-motion';
+import { motion, useScroll, useTransform, useDragControls } from 'framer-motion';
 
 interface ImageData {
   src: string;
@@ -11,11 +11,14 @@ interface ImageData {
 
 const PhotographyExpeditionBlog = () => {
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const [isCopied, setIsCopied] = React.useState(false);
+  const [currentImage, setCurrentImage] = React.useState(0);
+  const dragControls = useDragControls();
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"]
   });
-  const [isCopied, setIsCopied] = React.useState(false);
 
   const handleShare = async () => {
     try {
@@ -27,6 +30,19 @@ const PhotographyExpeditionBlog = () => {
     }
   };
 
+  const handleDragEnd = (event: any, info: any) => {
+    const threshold = 50; // minimum distance for swipe
+    if (Math.abs(info.offset.x) > threshold) {
+      if (info.offset.x > 0) {
+        // Swipe right - go to previous image
+        setCurrentImage((prev) => (prev > 0 ? prev - 1 : blogData.galleryImages.length - 1));
+      } else {
+        // Swipe left - go to next image
+        setCurrentImage((prev) => (prev < blogData.galleryImages.length - 1 ? prev + 1 : 0));
+      }
+    }
+  };
+
   // Animation variants
   const sectionVariants = {
     hidden: { opacity: 0, y: 50 },
@@ -35,6 +51,24 @@ const PhotographyExpeditionBlog = () => {
       y: 0,
       transition: {
         duration: 0.8,
+        ease: "easeOut"
+      }
+    }
+  };
+
+  // Image reveal animation variants
+  const imageRevealVariants = {
+    hidden: { 
+      opacity: 0,
+      scale: 1.1,
+      filter: "blur(10px)"
+    },
+    visible: { 
+      opacity: 1,
+      scale: 1,
+      filter: "blur(0px)",
+      transition: {
+        duration: 1,
         ease: "easeOut"
       }
     }
@@ -165,13 +199,11 @@ const PhotographyExpeditionBlog = () => {
     ]
   };
 
-  const [currentImage, setCurrentImage] = React.useState(0);
-
   return (
     <div ref={containerRef} className="overflow-x-hidden bg-[#f6f4ef] text-[#2d3e33] font-sans">
       {/* Cover Section with Parallax */}
-      <section className="relative mb-10 h-screen overflow-hidden">
-        <motion.div
+      <section className="relative mb-10 min-h-[100vh] md:h-screen overflow-hidden">
+        <motion.div 
           style={{ y: y1 }}
           className="absolute inset-0 w-full h-[120%]"
         >
@@ -195,24 +227,25 @@ const PhotographyExpeditionBlog = () => {
         </div>
       </section>
 
-      {/* Section 1 */}
+      {/* Content Sections */}
       <motion.section 
-        className="h-screen mb-10 flex flex-col md:flex-row overflow-hidden"
+        className="min-h-[100vh] md:h-screen mb-10 flex flex-col md:flex-row overflow-hidden"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={sectionVariants}
       >
-        <div className="md:w-[40%] flex flex-col h-full">
+        <div className="md:w-[40%] flex flex-col h-full order-2 md:order-1">
           <div className="h-1/2 relative overflow-hidden">
             <motion.img 
               src={blogData.image1.src} 
               alt={blogData.image1.alt}
               style={{ height: '100%', width: '100%' }}
               className="w-full h-full object-cover"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
+              variants={imageRevealVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
             />
           </div>
           <div className="h-1/2 relative overflow-hidden">
@@ -221,13 +254,14 @@ const PhotographyExpeditionBlog = () => {
               alt={blogData.image2.alt}
               style={{ height: '100%', width: '100%' }}
               className="w-full h-full object-cover"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
+              variants={imageRevealVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
             />
           </div>
         </div>
-        <div className="md:w-[60%] p-8 md:p-12 lg:p-16 flex items-center">
+        <div className="md:w-[60%] p-8 md:p-12 lg:p-16 flex items-center order-1 md:order-2">
           <div>
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-light mb-6 relative pb-4 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-16 after:h-[2px] after:bg-[#a3c6a9]">
               The Journey Begins
@@ -247,13 +281,13 @@ const PhotographyExpeditionBlog = () => {
 
       {/* Section 2 */}
       <motion.section 
-        className="h-screen mb-10 flex flex-col md:flex-row overflow-hidden"
+        className="min-h-[100vh] md:h-screen mb-10 flex flex-col md:flex-row overflow-hidden"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={sectionVariants}
       >
-        <div className="md:w-[60%] p-8 md:p-12 lg:p-16 flex items-center order-2 md:order-1">
+        <div className="md:w-[60%] p-8 md:p-12 lg:p-16 flex items-center order-1 md:order-1">
           <div>
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-light mb-6 relative pb-4 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-16 after:h-[2px] after:bg-[#a3c6a9]">
               Nellapattu Bird Sanctuary
@@ -269,16 +303,17 @@ const PhotographyExpeditionBlog = () => {
             </p>
           </div>
         </div>
-        <div className="md:w-[40%] flex flex-col h-full order-1 md:order-2">
+        <div className="md:w-[40%] flex flex-col h-full order-2 md:order-2">
           <div className="h-1/2 relative overflow-hidden">
             <motion.img 
               src={blogData.image3.src} 
               alt={blogData.image3.alt}
               style={{ height: '100%', width: '100%' }}
               className="w-full h-full object-cover"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
+              variants={imageRevealVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
             />
           </div>
           <div className="h-1/2 relative overflow-hidden">
@@ -287,9 +322,10 @@ const PhotographyExpeditionBlog = () => {
               alt={blogData.image2.alt}
               style={{ height: '100%', width: '100%' }}
               className="w-full h-full object-cover"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
+              variants={imageRevealVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
             />
           </div>
         </div>
@@ -297,13 +333,39 @@ const PhotographyExpeditionBlog = () => {
 
       {/* Section 3 */}
       <motion.section 
-        className="h-screen mb-10 flex flex-col md:flex-row overflow-hidden"
+        className="min-h-[100vh] md:h-screen mb-10 flex flex-col md:flex-row overflow-hidden"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={sectionVariants}
       >
-        <div className="md:w-[60%] p-8 md:p-12 lg:p-16 flex items-center order-2 md:order-2">
+        <div className="md:w-[40%] flex flex-col h-full order-2 md:order-1">
+          <div className="h-1/2 relative overflow-hidden">
+            <motion.img 
+              src={blogData.image5.src} 
+              alt={blogData.image5.alt}
+              style={{ height: '100%', width: '100%' }}
+              className="w-full h-full object-cover"
+              variants={imageRevealVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+            />
+          </div>
+          <div className="h-1/2 relative overflow-hidden">
+            <motion.img 
+              src={blogData.image6.src} 
+              alt={blogData.image6.alt}
+              style={{ height: '100%', width: '100%' }}
+              className="w-full h-full object-cover"
+              variants={imageRevealVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+            />
+          </div>
+        </div>
+        <div className="md:w-[60%] p-8 md:p-12 lg:p-16 flex items-center order-1 md:order-2">
           <div>
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-light mb-6 relative pb-4 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-16 after:h-[2px] after:bg-[#a3c6a9]">
               Pulicat Bird Sanctuary
@@ -319,41 +381,17 @@ const PhotographyExpeditionBlog = () => {
             </p>
           </div>
         </div>
-        <div className="md:w-[40%] flex flex-col h-full order-1 md:order-1">
-          <div className="h-1/2 relative overflow-hidden">
-            <motion.img 
-              src={blogData.image5.src} 
-              alt={blogData.image5.alt}
-              style={{ height: '100%', width: '100%' }}
-              className="w-full h-full object-cover"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-            />
-          </div>
-          <div className="h-1/2 relative overflow-hidden">
-            <motion.img 
-              src={blogData.image6.src} 
-              alt={blogData.image6.alt}
-              style={{ height: '100%', width: '100%' }}
-              className="w-full h-full object-cover"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-            />
-          </div>
-        </div>
       </motion.section>
 
       {/* Section 4 */}
       <motion.section 
-        className="h-screen mb-10 flex flex-col md:flex-row overflow-hidden"
+        className="min-h-[100vh] md:h-screen mb-10 flex flex-col md:flex-row overflow-hidden"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={sectionVariants}
       >
-        <div className="md:w-[40%] p-8 md:p-12 lg:p-16 flex items-center order-2 md:order-1">
+        <div className="md:w-[40%] p-8 md:p-12 lg:p-16 flex items-center order-1 md:order-1">
           <div>
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-light mb-6 relative pb-4 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-16 after:h-[2px] after:bg-[#a3c6a9]">
               Nature's Ingenious Designs
@@ -369,7 +407,7 @@ const PhotographyExpeditionBlog = () => {
             </p>
           </div>
         </div>
-        <div className="md:w-[60%] flex flex-col h-full order-1 md:order-2">
+        <div className="md:w-[60%] flex flex-col h-full order-2 md:order-2">
           <div className="flex h-full">
             {/* Portrait image on the left */}
             <div className="w-1/2 h-full relative overflow-hidden">
@@ -378,9 +416,10 @@ const PhotographyExpeditionBlog = () => {
                 alt={blogData.image7.alt}
                 style={{ height: '100%', width: '100%' }}
                 className="w-full h-full object-cover"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5 }}
+                variants={imageRevealVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
               />
             </div>
             {/* Two landscape images stacked on the right */}
@@ -391,9 +430,10 @@ const PhotographyExpeditionBlog = () => {
                   alt={blogData.image8.alt}
                   style={{ height: '100%', width: '100%' }}
                   className="w-full h-full object-cover"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5 }}
+                  variants={imageRevealVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: "-100px" }}
                 />
               </div>
               <div className="h-1/2 relative overflow-hidden">
@@ -402,9 +442,10 @@ const PhotographyExpeditionBlog = () => {
                   alt={blogData.image9.alt}
                   style={{ height: '100%', width: '100%' }}
                   className="w-full h-full object-cover"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5 }}
+                  variants={imageRevealVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: "-100px" }}
                 />
               </div>
             </div>
@@ -414,7 +455,7 @@ const PhotographyExpeditionBlog = () => {
 
       {/* Gallery Section */}
       <motion.section 
-        className="h-screen mb-10 p-3 bg-[#2d3e33] text-white overflow-hidden"
+        className="min-h-[100vh] md:h-screen mb-10 p-3 bg-[#2d3e33] text-white overflow-hidden"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
@@ -425,17 +466,23 @@ const PhotographyExpeditionBlog = () => {
             Visual Journey Into Nature's Heart
           </h2>
           
-          <div className="relative flex-grow flex items-center justify-center">
+          <div className="relative flex-grow flex flex-col items-center justify-center">
             <motion.div 
-              className="w-[80%] h-[80%] relative mx-auto"
+              className="w-full h-[60vh] md:h-[70vh] relative mx-auto"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
+              drag="x"
+              dragControls={dragControls}
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.1}
+              onDragEnd={handleDragEnd}
+              whileTap={{ cursor: "grabbing" }}
             >
               {blogData.galleryImages.map((img, i) => (
                 <motion.div
                   key={i}
-                  className="absolute inset-0 w-full h-full flex items-center justify-center"
+                  className="absolute inset-0 w-full h-full flex items-center justify-center touch-none"
                   initial={{ opacity: 0, x: 100 }}
                   animate={{ 
                     opacity: currentImage === i ? 1 : 0, 
@@ -447,47 +494,55 @@ const PhotographyExpeditionBlog = () => {
                   <img 
                     src={img.src} 
                     alt={img.alt}
-                    className="max-w-full max-h-full object-contain"
+                    className="w-full h-full object-contain select-none"
+                    draggable="false"
                   />
                 </motion.div>
               ))}
             </motion.div>
 
-            {/* Navigation Dots */}
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+            {/* Desktop Navigation Buttons */}
+            <div className="hidden md:flex absolute inset-x-0 top-1/2 -translate-y-1/2 justify-between px-4 pointer-events-none">
+              <button
+                onClick={() => setCurrentImage((prev) => (prev > 0 ? prev - 1 : blogData.galleryImages.length - 1))}
+                className="w-8 h-8 rounded-full bg-black/20 hover:bg-black/30 text-white flex items-center justify-center pointer-events-auto transition-colors"
+                aria-label="Previous image"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                onClick={() => setCurrentImage((prev) => (prev < blogData.galleryImages.length - 1 ? prev + 1 : 0))}
+                className="w-8 h-8 rounded-full bg-black/20 hover:bg-black/30 text-white flex items-center justify-center pointer-events-auto transition-colors"
+                aria-label="Next image"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Navigation Dots - Visible in both modes */}
+            <div className="flex justify-center mt-4 space-x-3">
               {blogData.galleryImages.map((_, i) => (
                 <button
                   key={i}
-                  className="w-1.5 h-1.5 rounded-full bg-white/50 hover:bg-white transition-colors"
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    currentImage === i ? 'bg-white scale-125' : 'bg-white/40'
+                  }`}
                   onClick={() => setCurrentImage(i)}
+                  aria-label={`Go to image ${i + 1}`}
                 />
               ))}
             </div>
-
-            {/* Navigation Arrows */}
-            <button 
-              className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white/80 hover:text-white transition-colors"
-              onClick={() => setCurrentImage((prev) => (prev > 0 ? prev - 1 : blogData.galleryImages.length - 1))}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button 
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white/80 hover:text-white transition-colors"
-              onClick={() => setCurrentImage((prev) => (prev < blogData.galleryImages.length - 1 ? prev + 1 : 0))}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
           </div>
         </div>
       </motion.section>
 
       {/* Conclusion */}
       <motion.section 
-        className="h-screen pb-[25px] bg-white overflow-hidden"
+        className="min-h-[100vh] md:h-screen pb-[25px] bg-white overflow-hidden"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}

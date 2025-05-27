@@ -40,7 +40,7 @@ const NavBar: React.FC = () => {
     <header 
       className={cn(
         "fixed top-0 left-0 right-0 z-50 px-6 transition-all duration-300 ease-in-out", 
-        isScrolled || isMenuOpen ? "py-3 bg-background/80 shadow-lg backdrop-blur-lg border-b" : "py-6 bg-background/0",
+        isScrolled || isMenuOpen ? "py-3 bg-black shadow-lg backdrop-blur-lg border-b" : "py-6 bg-background/0",
         !visible && !isMenuOpen ? "-translate-y-full" : "translate-y-0"
       )}
     >
@@ -112,21 +112,21 @@ const NavBar: React.FC = () => {
 
       {/* Mobile Menu - with more blur effect */}
       {isMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 h-screen z-50 bg-background/60 shadow-lg backdrop-blur-xl border-b animate-slide-down">
+        <div className="md:hidden absolute top-full left-0 right-0 h-screen z-50 bg-black shadow-lg backdrop-blur-xl border-b animate-slide-down">
           <nav className="flex flex-col p-6 space-y-4">
-            <Link to="/" className={cn("text-lg nav-link", isActive("/") && "active", "text-foreground")}>
+            <Link to="/" className={cn("text-lg nav-link", isActive("/") && "active", "text-white")}>
               Home
             </Link>
-            <Link to="/gallery" className={cn("text-lg nav-link", isActive("/gallery") && "active", "text-foreground")}>
+            <Link to="/gallery" className={cn("text-lg nav-link", isActive("/gallery") && "active", "text-white")}>
               Gallery
             </Link>
-            <Link to="/blogs" className={cn("text-lg nav-link", isActive("/blogs") && "active", "text-foreground")}>
+            <Link to="/blogs" className={cn("text-lg nav-link", isActive("/blogs") && "active", "text-white")}>
               Blogs
             </Link>
-            <Link to="/prints" className={cn("text-lg nav-link", isActive("/prints") && "active", "text-foreground")}>
+            <Link to="/prints" className={cn("text-lg nav-link", isActive("/prints") && "active", "text-white")}>
               Prints
             </Link>
-            <Link to="/about" className={cn("text-lg nav-link", isActive("/about") && "active", "text-foreground")}>
+            <Link to="/about" className={cn("text-lg nav-link", isActive("/about") && "active", "text-white")}>
               About
             </Link>
           </nav>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Instagram, BookOpen, FileText, Camera, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,22 +15,21 @@ const panels: PanelProps[] = [
   {
     id: 1,
     title: "Print",
-    // Fixed image URL - replace with an actual direct image URL
-    image: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//IMG_4511.jpg", // Replace with your actual image path
+    image: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//IMG_4511.jpg",
     link: "/print",
     icon: <FileText className="w-5 h-5" />
   },
   {
     id: 2,
     title: "Blogs",
-    image: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//Print.png", 
+    image: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//Print.png",
     link: "/blogs",
     icon: <BookOpen className="w-5 h-5" />
   },
   {
     id: 3,
     title: "About me",
-    image: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//About.jpg", 
+    image: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//About.jpg",
     link: "/about",
     icon: <Instagram className="w-5 h-5" />
   },
@@ -52,37 +51,72 @@ const panels: PanelProps[] = [
 
 const MobileExpandingPanels: React.FC = () => {
   const [activePanel, setActivePanel] = useState<number | null>(null);
+  const [loadedImages, setLoadedImages] = useState<Record<number, boolean>>({});
   const [isMobile, setIsMobile] = useState<boolean>(false);
+  const rafId = useRef<number>();
+  const resizeTimeout = useRef<NodeJS.Timeout>();
 
-  // Handle responsive behavior
-  useEffect(() => {
-    const checkIfMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    
-    // Set initially
-    checkIfMobile();
-    
-    // Update on resize
-    window.addEventListener('resize', checkIfMobile);
-    
-    return () => {
-      window.removeEventListener('resize', checkIfMobile);
-    };
-  }, []);
-
-  const handlePanelClick = (id: number) => {
+  // Memoized panel click handler
+  const handlePanelClick = useCallback((id: number) => {
     if (activePanel === id) {
       setActivePanel(null);
     } else {
       setActivePanel(id);
     }
-  };
+  }, [activePanel]);
+
+  // Handle image load
+  const handleImageLoad = useCallback((id: number) => {
+    setLoadedImages(prev => ({
+      ...prev,
+      [id]: true
+    }));
+  }, []);
+
+  // Optimized resize handler
+  const handleResize = useCallback(() => {
+    if (resizeTimeout.current) {
+      clearTimeout(resizeTimeout.current);
+    }
+    resizeTimeout.current = setTimeout(() => {
+      setIsMobile(window.innerWidth <= 768);
+    }, 100);
+  }, []);
+
+  // Handle responsive behavior
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize, { passive: true });
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (resizeTimeout.current) {
+        clearTimeout(resizeTimeout.current);
+      }
+      if (rafId.current) {
+        cancelAnimationFrame(rafId.current);
+      }
+    };
+  }, [handleResize]);
+
+  // Preload images
+  useEffect(() => {
+    panels.forEach(panel => {
+      const img = new Image();
+      img.src = panel.image;
+      img.onload = () => handleImageLoad(panel.id);
+      img.onerror = () => {
+        console.error(`Failed to load image: ${panel.image}`);
+        handleImageLoad(panel.id); // Mark as loaded even on error to show fallback
+      };
+    });
+  }, [handleImageLoad]);
 
   return (
     <section className="flex flex-col w-full max-w-6xl mx-auto bg-black rounded-lg overflow-hidden">
-      {panels.map((panel) => {
+      {panels.map(panel => {
         const isActive = activePanel === panel.id;
+        const isLoaded = loadedImages[panel.id];
         
         return (
           <div
@@ -90,29 +124,46 @@ const MobileExpandingPanels: React.FC = () => {
             className={`relative overflow-hidden transition-all duration-700 ease-in-out cursor-pointer 
               ${isActive ? (isMobile ? 'h-48' : 'h-96') : (isMobile ? 'h-24' : 'h-32')}`}
             onClick={() => handlePanelClick(panel.id)}
+            style={{ willChange: 'height' }}
           >
-            {/* Use an img element instead of background-image for better loading control */}
+            {/* Loading placeholder */}
+            {!isLoaded && (
+              <div className="absolute inset-0 bg-gray-900 animate-pulse" />
+            )}
+
+            {/* Image */}
             <img 
               src={panel.image}
               alt={panel.title}
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-in-out"
               style={{ 
-                transform: isActive ? 'scale(1.05)' : 'scale(1)'
+                transform: isActive ? 'scale(1.05)' : 'scale(1)',
+                willChange: 'transform',
+                opacity: isLoaded ? 1 : 0
               }}
-              onError={(e) => {
-                // Fallback to placeholder if image fails to load
-                const target = e.target as HTMLImageElement;
-                target.src = `/api/placeholder/800/600?text=${panel.title}`;
+              loading="lazy"
+              decoding="async"
+            />
+            
+            {/* Overlay */}
+            <div 
+              className="absolute inset-0 bg-black/40 transition-opacity duration-500 ease-in-out"
+              style={{ 
+                opacity: isActive ? 0.2 : 0.5,
+                willChange: 'opacity'
               }}
             />
             
-            <div className="absolute inset-0 bg-black/40 transition-opacity duration-500 ease-in-out"
-                 style={{ opacity: isActive ? 0.2 : 0.5 }} />
-            
+            {/* Content */}
             <div className="absolute inset-0 flex flex-col justify-center items-center p-6 text-white">
-              <div className={`panel-content transition-all duration-700 ease-in-out ${isActive ? 'scale-110' : 'scale-100'}`}>
-                <h3 className={`text-lg font-light text-center transition-all duration-500 
-                  ${isActive ? 'opacity-100 mb-4' : 'opacity-80'}`}>
+              <div 
+                className={`panel-content transition-all duration-700 ease-in-out ${isActive ? 'scale-110' : 'scale-100'}`}
+                style={{ willChange: 'transform' }}
+              >
+                <h3 
+                  className={`text-lg font-light text-center transition-all duration-500 
+                    ${isActive ? 'opacity-100 mb-4' : 'opacity-80'}`}
+                >
                   {panel.title}
                 </h3>
                 

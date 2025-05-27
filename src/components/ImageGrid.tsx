@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Image } from '@/lib/data';
 import ImageModal from './ImageModal';
@@ -18,6 +17,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({
 }) => {
   const [selectedImage, setSelectedImage] = useState<Image | null>(null);
   const [hoveredImageId, setHoveredImageId] = useState<string | null>(null);
+  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
   
   const openModal = (image: Image) => {
     setSelectedImage(image);
@@ -45,6 +45,19 @@ const ImageGrid: React.FC<ImageGridProps> = ({
     }
   };
   
+  const handleImageLoad = (imageId: string) => {
+    setLoadedImages(prev => ({
+      ...prev,
+      [imageId]: true
+    }));
+  };
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const target = e.target as HTMLImageElement;
+    target.src = '/placeholder-image.jpg'; // Add a placeholder image
+    console.error(`Failed to load image: ${target.src}`);
+  };
+  
   // Generate the appropriate column class based on the columns prop
   const getColumnClass = () => {
     switch(columns) {
@@ -70,17 +83,23 @@ const ImageGrid: React.FC<ImageGridProps> = ({
               className="hover-image-card bg-muted relative cursor-pointer transition-all duration-300" 
               onClick={() => openModal(image)}
             >
+              {/* Loading placeholder */}
+              {!loadedImages[image.id] && (
+                <div className="absolute inset-0 bg-muted animate-pulse" />
+              )}
               <img 
                 src={image.src} 
                 alt={image.alt} 
                 className={`w-full h-auto object-cover transition-all duration-300 ${
                   hoveredImageId === image.id ? 'brightness-110' : 
                   hoveredImageId !== null ? 'brightness-50' : 'brightness-100'
-                }`} 
-                loading="lazy" 
+                } ${loadedImages[image.id] ? 'opacity-100' : 'opacity-0'}`}
+                loading="lazy"
+                decoding="async"
+                onLoad={() => handleImageLoad(image.id)}
+                onError={handleImageError}
               />
-              <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity flex flex-col justify-end p-3 ">
-              
+              <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
                 {showPrices && minPrice[image.id] && (
                   <p className="mt-1 text-white font-medium">
                     From ₹{minPrice[image.id].toFixed(2)}
