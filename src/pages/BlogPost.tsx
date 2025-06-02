@@ -99,7 +99,23 @@ const BlogPost = () => {
             >
               <X className="h-6 w-6" />
             </button>
-            <PhotographyExpeditionBlog />
+            <PhotographyExpeditionBlog 
+              coverImage="/images/nelapattu-cover.jpg"
+              image1="/images/nelapattu-1.jpg"
+              image2="/images/nelapattu-2.jpg"
+              image3="/images/nelapattu-3.jpg"
+              image4="/images/nelapattu-4.jpg"
+              image5="/images/nelapattu-5.jpg"
+              image6="/images/nelapattu-6.jpg"
+              galleryImages={[
+                { src: '/images/gallery-1.jpg', alt: 'Flamingos at Pulicat Lake' },
+                { src: '/images/gallery-2.jpg', alt: 'Painted Storks in Flight' },
+                { src: '/images/gallery-3.jpg', alt: 'Sunset at Nelapattu' },
+                { src: '/images/gallery-4.jpg', alt: 'Spot-billed Pelicans' },
+                { src: '/images/gallery-5.jpg', alt: 'Bird Colony' },
+                { src: '/images/gallery-6.jpg', alt: 'Morning Light at Pulicat' }
+              ]}
+            />
           </div>
         </motion.main>
       </div>
@@ -112,7 +128,10 @@ const BlogPost = () => {
     const dynamicBlogContent = {
       title: blog.title,
       subtitle: blog.summary || "", // Use summary as subtitle or empty string if not available
-      coverImage: blog.cover_image || "",
+      coverImage: {
+        src: blog.cover_image || "",
+        alt: blog.title + " cover image"
+      },
       author: blog.author,
       date: blog.published_at || blog.created_at,
       sections: [
