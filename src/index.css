@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Dancing+Script:wght@400;700&family=Caveat:wght@400;600;700&display=swap');
 
 @tailwind base;
@@ -59,19 +60,26 @@
     @apply border-border;
   }
   
-  html, body {
+  html {
     @apply scroll-smooth;
+    /* Enhanced smooth scrolling */
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px; /* Account for fixed navbar */
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    /* Optimize for smooth scrolling */
+    overscroll-behavior: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif;
   }
   
-  /* Hide scrollbars but keep functionality */
+  /* Enhanced scrollbar hiding */
   ::-webkit-scrollbar {
     width: 0;
     background: transparent;
@@ -92,6 +100,18 @@
   
   .scrollbar-hide::-webkit-scrollbar {
     display: none; /* Chrome, Safari and Opera */
+  }
+
+  /* Smooth scroll enhancement for all elements */
+  * {
+    will-change: auto;
+  }
+
+  /* Optimize rendering for smooth animations */
+  .smooth-element {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
   }
 }
 
@@ -234,6 +254,7 @@
     max-height: 100vh;
   }
 
+  /* Enhanced smooth transitions */
   .slide-enter {
     transform: translateX(100%);
     opacity: 0;
@@ -242,7 +263,7 @@
   .slide-enter-active {
     transform: translateX(0);
     opacity: 1;
-    transition: all 500ms;
+    transition: all 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 
   .slide-exit {
@@ -253,18 +274,20 @@
   .slide-exit-active {
     transform: translateX(-100%);
     opacity: 0;
-    transition: all 500ms;
+    transition: all 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 
-  /* New animation classes */
+  /* Enhanced animation classes with smooth easing */
   .scroll-animate {
-    @apply transition-all duration-1000 ease-out;
+    @apply transition-all duration-1000;
     transition-property: opacity, transform;
+    transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 
   .photo-animate {
-    @apply transition-all duration-1500 ease-out;
+    @apply transition-all duration-1500;
     transition-property: opacity, transform;
+    transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
   
   .animate-fade-in {
@@ -283,6 +306,7 @@
   /* Expanding panels styles */
   .expanding-panel {
     @apply border-r border-white/10;
+    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 
   .expanding-panel:last-child {
@@ -291,24 +315,32 @@
 
   .panel-content {
     @apply relative z-10;
+    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 
   /* For touch screens */
   @media (hover: none) {
     .expanding-panel:active .panel-content {
       @apply scale-110;
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
   }
 }
 
-/* Animation keyframes */
+/* Animation keyframes with smooth easing */
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
 }
 
 .animate-fade-in {
-  animation: fade-in 0.7s ease-out forwards;
+  animation: fade-in 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 /* Mobile styles for expanding panels */
@@ -316,6 +348,7 @@
   .expanding-panel {
     height: 20vh;
     width: 100%;
+    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
   
   .expanding-panel.active {
