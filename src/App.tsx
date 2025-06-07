@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { CartProvider } from '@/context/CartContext';
 import PageTransition from '@/components/PageTransition';
 import SplashScreen from '@/components/SplashScreen';
+import { AppPreloader } from '@/components/AppPreloader';
 import Index from '@/pages/Index';
 import Gallery from '@/pages/Gallery';
 import About from '@/pages/About';
@@ -22,6 +23,7 @@ import AdminLogin from '@/pages/AdminLogin';
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
+  const [imagesPreloaded, setImagesPreloaded] = useState(false);
   
   // Create a new QueryClient with optimized configuration
   const queryClient = new QueryClient({
@@ -47,13 +49,18 @@ function App() {
     setShowSplash(false);
   };
 
+  // Handle image preloading completion
+  const handleImagesPreloaded = () => {
+    setImagesPreloaded(true);
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <CartProvider>
         {showSplash ? (
           <SplashScreen onComplete={handleSplashComplete} />
         ) : (
-          <>
+          <AppPreloader onComplete={handleImagesPreloaded}>
             <Routes>
               <Route path="/" element={<PageTransition><Index /></PageTransition>} />
               <Route path="/gallery" element={<PageTransition><Gallery /></PageTransition>} />
@@ -72,7 +79,7 @@ function App() {
               <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster />
-          </>
+          </AppPreloader>
         )}
       </CartProvider>
     </QueryClientProvider>
