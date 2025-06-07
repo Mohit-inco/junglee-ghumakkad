@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -6,7 +5,6 @@ import { Toaster } from '@/components/ui/sonner';
 import { CartProvider } from '@/context/CartContext';
 import PageTransition from '@/components/PageTransition';
 import SplashScreen from '@/components/SplashScreen';
-import useSmoothScroll from '@/hooks/useSmoothScroll';
 import Index from '@/pages/Index';
 import Gallery from '@/pages/Gallery';
 import About from '@/pages/About';
@@ -24,9 +22,6 @@ import AdminLogin from '@/pages/AdminLogin';
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
-  
-  // Initialize smooth scrolling
-  useSmoothScroll();
   
   // Create a new QueryClient with optimized configuration
   const queryClient = new QueryClient({

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -113,10 +112,7 @@ const BlogPost = () => {
     const dynamicBlogContent = {
       title: blog.title,
       subtitle: blog.summary || "", // Use summary as subtitle or empty string if not available
-      coverImage: {
-        src: blog.cover_image || "",
-        alt: blog.title + " cover image"
-      },
+      coverImage: blog.cover_image || "",
       author: blog.author,
       date: blog.published_at || blog.created_at,
       sections: [
