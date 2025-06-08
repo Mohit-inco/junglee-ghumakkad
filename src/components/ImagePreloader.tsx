@@ -3,6 +3,7 @@ import { useImagePreloader } from '../hooks/useImagePreloader';
 
 interface ImagePreloaderProps {
   images: string[];
+  priorityImages?: string[];
   children: React.ReactNode;
   onComplete?: () => void;
   onError?: (error: Error) => void;
@@ -10,12 +11,14 @@ interface ImagePreloaderProps {
 
 export const ImagePreloader: React.FC<ImagePreloaderProps> = ({
   images,
+  priorityImages,
   children,
   onComplete,
   onError,
 }) => {
   const { progress, isLoading, error } = useImagePreloader({
     images,
+    priorityImages,
     onComplete,
     onError,
   });
