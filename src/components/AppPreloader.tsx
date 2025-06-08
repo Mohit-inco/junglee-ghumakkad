@@ -18,8 +18,32 @@ interface AppPreloaderProps {
 export const AppPreloader: React.FC<AppPreloaderProps> = ({ children, onComplete }) => {
   const [supabaseImages, setSupabaseImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if screen is mobile
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    // Initial check
+    checkScreenSize();
+
+    // Add resize listener
+    window.addEventListener('resize', checkScreenSize);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   useEffect(() => {
+    // Skip preloading on mobile
+    if (isMobile) {
+      setIsLoading(false);
+      onComplete?.();
+      return;
+    }
+
     const fetchSupabaseImages = async () => {
       try {
         // Fetch gallery images
@@ -99,7 +123,12 @@ export const AppPreloader: React.FC<AppPreloaderProps> = ({ children, onComplete
     };
 
     fetchSupabaseImages();
-  }, []);
+  }, [isMobile, onComplete]);
+
+  // Skip preloader on mobile
+  if (isMobile) {
+    return <>{children}</>;
+  }
 
   if (isLoading) {
     return (
