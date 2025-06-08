@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { ImagePreloader } from './ImagePreloader';
 import { supabase } from '@/integrations/supabase/client';
 import { GalleryImage, BlogImage } from '@/integrations/supabase/api';
-import { useLocation } from 'react-router-dom';
 
 // Local images that need to be preloaded
 const localImagesToPreload = [
@@ -19,7 +18,6 @@ interface AppPreloaderProps {
 export const AppPreloader: React.FC<AppPreloaderProps> = ({ children, onComplete }) => {
   const [supabaseImages, setSupabaseImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const location = useLocation();
 
   useEffect(() => {
     const fetchSupabaseImages = async () => {
@@ -91,35 +89,8 @@ export const AppPreloader: React.FC<AppPreloaderProps> = ({ children, onComplete
           }
         });
 
-        // Determine priority images based on current route
-        let priorityImages: string[] = [];
-        if (location.pathname === '/') {
-          // For home page, prioritize local images and first few gallery images
-          priorityImages = [
-            ...localImagesToPreload,
-            ...(galleryImages?.slice(0, 4).map(img => processImageUrl(img.image_url)) || [])
-          ].filter((url): url is string => url !== null);
-        } else if (location.pathname.startsWith('/gallery')) {
-          // For gallery page, prioritize gallery images
-          priorityImages = galleryImages?.slice(0, 8).map(img => processImageUrl(img.image_url)) || [];
-        } else if (location.pathname.startsWith('/blog')) {
-          // For blog page, prioritize blog images
-          priorityImages = blogImages?.slice(0, 4).map(img => processImageUrl(img.image_url)) || [];
-        }
-
         console.log('Processed image URLs:', uniqueImages);
-        console.log('Priority images:', priorityImages);
         setSupabaseImages(uniqueImages);
-
-        // Create preloader with priority images
-        const preloader = new ImagePreloader({
-          priorityImages,
-          onComplete,
-          onError: (error) => console.error('Error preloading images:', error)
-        });
-
-        preloader.addImages(uniqueImages);
-        preloader.preload();
       } catch (error) {
         console.error('Error fetching images:', error);
       } finally {
@@ -128,7 +99,7 @@ export const AppPreloader: React.FC<AppPreloaderProps> = ({ children, onComplete
     };
 
     fetchSupabaseImages();
-  }, [location.pathname, onComplete]);
+  }, []);
 
   if (isLoading) {
     return (
@@ -138,5 +109,13 @@ export const AppPreloader: React.FC<AppPreloaderProps> = ({ children, onComplete
     );
   }
 
-  return <>{children}</>;
+  return (
+    <ImagePreloader
+      images={supabaseImages}
+      onComplete={onComplete}
+      onError={(error) => console.error('Error preloading images:', error)}
+    >
+      {children}
+    </ImagePreloader>
+  );
 }; 

@@ -1,39 +1,13 @@
-import React, { useEffect, useRef } from 'react';
+
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Instagram, Twitter, Facebook, Mail, Package } from 'lucide-react';
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
-  const footerRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('animate-slide-in');
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      {
-        threshold: 0.1,
-      }
-    );
-
-    if (footerRef.current) {
-      observer.observe(footerRef.current);
-    }
-
-    return () => {
-      if (footerRef.current) {
-        observer.unobserve(footerRef.current);
-      }
-    };
-  }, []);
 
   return (
-    <footer ref={footerRef} className="border-t bg-secondary/20 opacity-0 translate-y-10 transition-all duration-1000">
+    <footer className="border-t bg-secondary/20">
       <div className="max-w-7xl mx-auto px-6 py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {/* Brand and Description */}
