@@ -1,11 +1,11 @@
+
 import React, { useEffect, useState } from 'react';
 import { ImagePreloader } from './ImagePreloader';
 import { supabase } from '@/integrations/supabase/client';
 import { GalleryImage, BlogImage } from '@/integrations/supabase/api';
 
-// Local images that need to be preloaded
+// Only preload essential local images
 const localImagesToPreload = [
-  // Add your local images here
   '/lovable-uploads/79dc3092-5eaf-49f0-9fbb-5445cafebe74.png',
   '/lovable-uploads/0f8fd122-54f5-40c6-bc1a-42b844709c07.png',
 ];
@@ -16,94 +16,72 @@ interface AppPreloaderProps {
 }
 
 export const AppPreloader: React.FC<AppPreloaderProps> = ({ children, onComplete }) => {
-  const [supabaseImages, setSupabaseImages] = useState<string[]>([]);
+  const [essentialImages, setEssentialImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Check if screen is mobile
   useEffect(() => {
     const checkScreenSize = () => {
       setIsMobile(window.innerWidth <= 768);
     };
 
-    // Initial check
     checkScreenSize();
-
-    // Add resize listener
     window.addEventListener('resize', checkScreenSize);
-
-    // Cleanup
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
   useEffect(() => {
-    // Skip preloading on mobile
+    // Skip preloading on mobile for faster initial load
     if (isMobile) {
       setIsLoading(false);
       onComplete?.();
       return;
     }
 
-    const fetchSupabaseImages = async () => {
+    const fetchEssentialImages = async () => {
       try {
-        // Fetch gallery images
-        const { data: galleryImages, error: galleryError } = await supabase
+        // Only fetch featured/hero images for initial preload
+        const { data: featuredImages, error: featuredError } = await supabase
           .from('gallery_images')
           .select('image_url')
+          .eq('section', 'featured')
+          .limit(6) // Only preload first 6 featured images
           .order('created_at', { ascending: false });
 
-        if (galleryError) throw galleryError;
+        if (featuredError) throw featuredError;
 
-        // Fetch blog images
-        const { data: blogImages, error: blogError } = await supabase
-          .from('blog_images')
-          .select('image_url')
-          .order('created_at', { ascending: false });
-
-        if (blogError) throw blogError;
-
-        // Process and validate image URLs
         const processImageUrl = (url: string) => {
           if (!url) return null;
           
           try {
-            // If it's already a valid Supabase storage URL, return it
             if (url.includes('supabase.co/storage/v1/object/public/images/')) {
               return url;
             }
 
-            // If it's a dashboard URL, return null
             if (url.includes('supabase.com/dashboard')) {
               console.warn('Invalid dashboard URL detected:', url);
               return null;
             }
 
-            // If it's a relative path, get the public URL
             const { data } = supabase.storage
               .from('images')
               .getPublicUrl(url);
 
-            if (!data?.publicUrl) {
-              console.warn('No public URL generated for:', url);
-              return null;
-            }
-
-            return data.publicUrl;
+            return data?.publicUrl || null;
           } catch (error) {
             console.error('Error processing image URL:', error);
             return null;
           }
         };
 
-        // Combine and process all image URLs
-        const allImages = [
+        // Combine local images with essential remote images
+        const allEssentialImages = [
           ...localImagesToPreload,
-          ...(galleryImages?.map(img => processImageUrl(img.image_url)) || []),
-          ...(blogImages?.map(img => processImageUrl(img.image_url)) || [])
+          ...(featuredImages?.map(img => processImageUrl(img.image_url)) || [])
         ].filter((url): url is string => url !== null);
 
-        // Remove duplicates and invalid URLs
-        const uniqueImages = [...new Set(allImages)].filter(url => {
+        // Remove duplicates and validate URLs
+        const uniqueImages = [...new Set(allEssentialImages)].filter(url => {
           try {
             new URL(url);
             return true;
@@ -113,16 +91,18 @@ export const AppPreloader: React.FC<AppPreloaderProps> = ({ children, onComplete
           }
         });
 
-        console.log('Processed image URLs:', uniqueImages);
-        setSupabaseImages(uniqueImages);
+        console.log('Essential images to preload:', uniqueImages.length);
+        setEssentialImages(uniqueImages);
       } catch (error) {
-        console.error('Error fetching images:', error);
+        console.error('Error fetching essential images:', error);
+        // Continue without preloading if fetch fails
+        setEssentialImages(localImagesToPreload);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchSupabaseImages();
+    fetchEssentialImages();
   }, [isMobile, onComplete]);
 
   // Skip preloader on mobile
@@ -132,19 +112,20 @@ export const AppPreloader: React.FC<AppPreloaderProps> = ({ children, onComplete
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-gray-600">Loading image list...</div>
+      <div className="flex items-center justify-center min-h-screen bg-black">
+        <div className="text-gray-300">Preparing gallery...</div>
       </div>
     );
   }
 
   return (
     <ImagePreloader
-      images={supabaseImages}
+      images={essentialImages}
       onComplete={onComplete}
-      onError={(error) => console.error('Error preloading images:', error)}
+      onError={(error) => console.error('Error preloading essential images:', error)}
+      priorityCount={4} // Load first 4 images with high priority
     >
       {children}
     </ImagePreloader>
   );
-}; 
+};

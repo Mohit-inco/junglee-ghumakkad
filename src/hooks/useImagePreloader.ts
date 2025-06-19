@@ -1,19 +1,28 @@
+
 import { useState, useEffect } from 'react';
-import ImagePreloader from '../lib/imagePreloader';
+import SmartImagePreloader from '../lib/smartImagePreloader';
 
 interface UseImagePreloaderOptions {
   images: string[];
   onComplete?: () => void;
   onError?: (error: Error) => void;
+  priorityCount?: number;
 }
 
-export const useImagePreloader = ({ images, onComplete, onError }: UseImagePreloaderOptions) => {
+export const useImagePreloader = ({ 
+  images, 
+  onComplete, 
+  onError,
+  priorityCount = 6 
+}: UseImagePreloaderOptions) => {
   const [progress, setProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const preloader = new ImagePreloader({
+    const preloader = new SmartImagePreloader({
+      priorityCount,
+      batchSize: 3,
       onProgress: (progress) => {
         setProgress(progress);
       },
@@ -32,13 +41,13 @@ export const useImagePreloader = ({ images, onComplete, onError }: UseImagePrelo
     preloader.preload();
 
     return () => {
-      // Cleanup if needed
+      preloader.abort();
     };
-  }, [images, onComplete, onError]);
+  }, [images, onComplete, onError, priorityCount]);
 
   return {
     progress,
     isLoading,
     error,
   };
-}; 
+};
