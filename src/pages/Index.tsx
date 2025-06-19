@@ -104,7 +104,7 @@ const Index = () => {
               <img 
                 src="https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//WhatsApp%20Image%202025-03-22%20at%2011%20(1).46" 
                 alt="Junglee Ghumakkad - Photographer" 
-                className="w-full h-auto object-cover"
+                className="w-full h-auto object-cover max-h-[60vh] md:max-h-[60vh]"
               />
             </motion.div>
           </div>
