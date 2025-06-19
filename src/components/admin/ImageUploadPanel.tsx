@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -425,6 +426,7 @@ const ImageUploadPanel: React.FC<Props> = ({ session }) => {
         images={images} 
         onEditImage={handleEditImage}
         onManagePrints={handleManagePrints}
+        onRefresh={fetchImages}
       />
     </div>
   );

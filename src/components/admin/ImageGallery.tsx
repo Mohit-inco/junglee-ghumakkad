@@ -8,18 +8,20 @@ interface ImageGalleryProps {
   images: GalleryImage[];
   onEditImage: (image: GalleryImage) => void;
   onManagePrints?: (image: GalleryImage) => void;
+  onRefresh?: () => void;
 }
 
 const ImageGallery: React.FC<ImageGalleryProps> = ({ 
   images, 
   onEditImage,
-  onManagePrints 
+  onManagePrints,
+  onRefresh 
 }) => {
   return (
     <Card>
       <CardHeader>
         <CardTitle>Manage Images</CardTitle>
-        <CardDescription>Edit or delete existing images</CardDescription>
+        <CardDescription>Edit, manage prints, or delete existing images</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -29,6 +31,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
               image={image} 
               onEdit={onEditImage}
               onManagePrints={onManagePrints}
+              onDelete={onRefresh}
             />
           ))}
         </div>

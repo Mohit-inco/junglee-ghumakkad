@@ -1,94 +1,173 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { GalleryImage } from '@/integrations/supabase/api';
-import { Image, FileImage } from 'lucide-react';
+import { Edit, Printer, Trash2, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface ImageCardProps {
   image: GalleryImage;
   onEdit: (image: GalleryImage) => void;
   onManagePrints?: (image: GalleryImage) => void;
+  onDelete?: () => void;
 }
 
-export const ImageCard: React.FC<ImageCardProps> = ({ image, onEdit, onManagePrints }) => {
-  const [isLoaded, setIsLoaded] = useState(false);
+const ImageCard: React.FC<ImageCardProps> = ({ 
+  image, 
+  onEdit, 
+  onManagePrints,
+  onDelete 
+}) => {
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  // Generate thumbnail URL by adding query parameters for resizing
-  // This assumes your image hosting supports query parameters for resizing
-  // Common parameters for CDNs like Cloudinary, Imgix, or Supabase Storage
-  const getThumbnailUrl = (url: string) => {
-    // Check if URL already has query parameters
-    const separator = url.includes('?') ? '&' : '?';
+  const handleDelete = async () => {
+    setIsDeleting(true);
     
-    // For Supabase Storage, you might use width and height parameters
-    // Adjust the parameters based on your image hosting provider
-    return `${url}${separator}width=300&quality=60`;
+    try {
+      // First delete associated print options
+      const { error: printOptionsError } = await supabase
+        .from('print_options')
+        .delete()
+        .eq('image_id', image.id);
+
+      if (printOptionsError) {
+        console.error('Error deleting print options:', printOptionsError);
+      }
+
+      // Then delete the gallery image
+      const { error: imageError } = await supabase
+        .from('gallery_images')
+        .delete()
+        .eq('id', image.id);
+
+      if (imageError) throw imageError;
+
+      // If image is stored in Supabase storage, attempt to delete it
+      if (image.image_url && image.image_url.includes('supabase.co/storage')) {
+        try {
+          const urlObj = new URL(image.image_url);
+          const path = urlObj.pathname.split('/storage/v1/object/public/images/')[1];
+          
+          if (path) {
+            const { error: storageError } = await supabase.storage
+              .from('images')
+              .remove([path]);
+              
+            if (storageError) {
+              console.warn('Could not delete image from storage:', storageError);
+            }
+          }
+        } catch (storageError) {
+          console.warn('Could not delete image from storage:', storageError);
+        }
+      }
+
+      toast.success('Image deleted successfully');
+      onDelete?.();
+    } catch (error: any) {
+      toast.error(`Error deleting image: ${error.message}`);
+      console.error('Error deleting image:', error);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
-    <Card key={image.id} className="overflow-hidden">
-      <div className="aspect-video w-full overflow-hidden bg-muted relative">
-        {/* Low-quality placeholder that loads immediately */}
-        <div 
-          className={`w-full h-full absolute inset-0 bg-center bg-cover blur-sm transition-opacity duration-300 ${isLoaded ? 'opacity-0' : 'opacity-100'}`}
-          style={{ backgroundImage: `url(${getThumbnailUrl(image.image_url)})`, backgroundSize: 'cover' }}
-        />
-        
-        {/* Actual image with proper loading */}
+    <Card className="overflow-hidden">
+      <div className="aspect-video relative">
         <img 
-          src={getThumbnailUrl(image.image_url)} 
-          alt={image.title} 
-          className={`w-full h-full object-cover transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-          loading="lazy"
-          onLoad={() => setIsLoaded(true)}
+          src={image.image_url} 
+          alt={image.title}
+          className="w-full h-full object-cover"
         />
-        
-        {/* Print badge */}
-        {image.enable_print && (
-          <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-            Print Available
-          </div>
-        )}
       </div>
-      <CardContent className="p-4">
-        <h3 className="text-lg font-semibold">{image.title}</h3>
-        <p className="text-sm text-muted-foreground line-clamp-2">{image.description}</p>
-        
-        <div className="mt-2 flex flex-wrap gap-1">
-          {image.sections?.map((section) => (
-            <span 
-              key={section} 
-              className="text-xs bg-primary/10 text-primary rounded px-1.5 py-0.5"
-            >
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm line-clamp-2">{image.title}</CardTitle>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="flex flex-wrap gap-1 mb-3">
+          {image.sections?.map(section => (
+            <span key={section} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
               {section}
             </span>
           ))}
         </div>
-      </CardContent>
-      <CardFooter className="p-4 pt-0 gap-2">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="flex-1"
-          onClick={() => onEdit(image)}
-        >
-          <Image className="h-4 w-4 mr-2" />
-          Edit
-        </Button>
         
-        {onManagePrints && (
+        <div className="flex gap-2 flex-wrap">
           <Button 
             variant="outline" 
-            size="sm" 
-            className="flex-1"
-            onClick={() => onManagePrints(image)}
+            size="sm"
+            onClick={() => onEdit(image)}
+            className="flex items-center gap-1"
           >
-            <FileImage className="h-4 w-4 mr-2" />
-            Prints
+            <Edit size={14} />
+            Edit
           </Button>
-        )}
-      </CardFooter>
+          
+          {onManagePrints && (
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => onManagePrints(image)}
+              className="flex items-center gap-1"
+            >
+              <Printer size={14} />
+              Prints
+            </Button>
+          )}
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button 
+                variant="destructive" 
+                size="sm"
+                disabled={isDeleting}
+                className="flex items-center gap-1"
+              >
+                {isDeleting ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Trash2 size={14} />
+                )}
+                Delete
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete the image 
+                  "{image.title}" and all its associated data including print options.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={handleDelete}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </CardContent>
     </Card>
   );
 };
+
+export default ImageCard;
