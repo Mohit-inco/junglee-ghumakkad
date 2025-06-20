@@ -1,12 +1,12 @@
 
 import React, { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Loader2, LogIn } from 'lucide-react';
+import { Loader2, LogIn, Phone } from 'lucide-react';
 
 const AdminLogin: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -89,10 +89,26 @@ const AdminLogin: React.FC = () => {
               />
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="flex flex-col space-y-2">
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Logging in...</> : <><LogIn className="mr-2 h-4 w-4" /> Login</>}
             </Button>
+            <div className="relative w-full">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or
+                </span>
+              </div>
+            </div>
+            <Link to="/admin-sms-login" className="w-full">
+              <Button type="button" variant="outline" className="w-full">
+                <Phone className="mr-2 h-4 w-4" />
+                Login with SMS
+              </Button>
+            </Link>
           </CardFooter>
         </form>
       </Card>

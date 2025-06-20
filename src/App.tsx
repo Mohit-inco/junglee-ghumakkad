@@ -1,89 +1,58 @@
-import { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Toaster } from '@/components/ui/sonner';
+
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from '@/context/CartContext';
-import PageTransition from '@/components/PageTransition';
-import SplashScreen from '@/components/SplashScreen';
-import { AppPreloader } from '@/components/AppPreloader';
-import Index from '@/pages/Index';
-import Gallery from '@/pages/Gallery';
-import About from '@/pages/About';
-import Blogs from '@/pages/Blogs';
-import BlogPost from '@/pages/BlogPost';
-import Cart from '@/pages/Cart';
-import Print from '@/pages/Print';
-import PrintsGallery from '@/pages/PrintsGallery';
-import OrderConfirmation from '@/pages/OrderConfirmation';
-import TrackOrder from '@/pages/TrackOrder';
-import AdminOrders from '@/pages/AdminOrders';
-import NotFound from '@/pages/NotFound';
-import Admin from '@/pages/Admin';
-import AdminLogin from '@/pages/AdminLogin';
+import Index from "./pages/Index";
+import Gallery from "./pages/Gallery";
+import Print from "./pages/Print";
+import PrintsGallery from "./pages/PrintsGallery";
+import Cart from "./pages/Cart";
+import OrderConfirmation from "./pages/OrderConfirmation";
+import TrackOrder from "./pages/TrackOrder";
+import About from "./pages/About";
+import Admin from "./pages/Admin";
+import AdminLogin from "./pages/AdminLogin";
+import AdminSMSLogin from "./pages/AdminSMSLogin";
+import AdminOrders from "./pages/AdminOrders";
+import Blogs from "./pages/Blogs";
+import BlogPost from "./pages/BlogPost";
+import PhotographyBlog from "./pages/PhotographyBlog";
+import NotFound from "./pages/NotFound";
 
-function App() {
-  const [showSplash, setShowSplash] = useState(true);
-  const [imagesPreloaded, setImagesPreloaded] = useState(false);
-  
-  // Create a new QueryClient with optimized configuration
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        refetchOnWindowFocus: false, // Disable refetch on window focus
-        staleTime: 1000 * 60 * 2, // Data considered fresh for 2 minutes
-        gcTime: 1000 * 60 * 30, // Keep unused data in cache for 30 minutes
-        retry: 2, // Retry failed requests twice
-        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
-        refetchOnMount: true, // Refetch on component mount
-        refetchOnReconnect: true, // Refetch when reconnecting
-      },
-      mutations: {
-        retry: 1, // Retry failed mutations once
-        retryDelay: 1000, // Wait 1 second before retrying
-      },
-    },
-  });
+const queryClient = new QueryClient();
 
-  // Handle splash screen completion
-  const handleSplashComplete = () => {
-    setShowSplash(false);
-  };
-
-  // Handle image preloading completion
-  const handleImagesPreloaded = () => {
-    setImagesPreloaded(true);
-  };
-
-  return (
-    <QueryClientProvider client={queryClient}>
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
       <CartProvider>
-        {showSplash ? (
-          <SplashScreen onComplete={handleSplashComplete} />
-        ) : (
-          <AppPreloader onComplete={handleImagesPreloaded}>
-            <Routes>
-              <Route path="/" element={<PageTransition><Index /></PageTransition>} />
-              <Route path="/gallery" element={<PageTransition><Gallery /></PageTransition>} />
-              <Route path="/about" element={<PageTransition><About /></PageTransition>} />
-              <Route path="/blogs" element={<PageTransition><Blogs /></PageTransition>} />
-              <Route path="/blogs/:id" element={<PageTransition><BlogPost /></PageTransition>} />
-              <Route path="/print/:id" element={<PageTransition><Print /></PageTransition>} />
-              <Route path="/prints" element={<PageTransition><PrintsGallery /></PageTransition>} />
-              <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
-              <Route path="/order-confirmation" element={<PageTransition><OrderConfirmation /></PageTransition>} />
-              <Route path="/track-order" element={<PageTransition><TrackOrder /></PageTransition>} />
-              {/* Admin routes without PageTransition */}
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/admin-login" element={<AdminLogin />} />
-              <Route path="/admin/orders" element={<AdminOrders />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Toaster />
-          </AppPreloader>
-        )}
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/print/:id" element={<Print />} />
+            <Route path="/prints" element={<PrintsGallery />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/order-confirmation" element={<OrderConfirmation />} />
+            <Route path="/track-order" element={<TrackOrder />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin-login" element={<AdminLogin />} />
+            <Route path="/admin-sms-login" element={<AdminSMSLogin />} />
+            <Route path="/admin/orders" element={<AdminOrders />} />
+            <Route path="/blogs" element={<Blogs />} />
+            <Route path="/blogs/:id" element={<BlogPost />} />
+            <Route path="/photography-blog" element={<PhotographyBlog />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
       </CartProvider>
-    </QueryClientProvider>
-  );
-}
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 export default App;
