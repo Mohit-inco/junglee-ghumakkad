@@ -9,6 +9,30 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_phone_numbers: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          phone_number: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          phone_number: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          phone_number?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       blog_images: {
         Row: {
           blog_id: string | null
@@ -282,6 +306,10 @@ export type Database = {
           tracking_number: string | null
           updated_at: string
         }[]
+      }
+      is_admin_phone_number: {
+        Args: { phone: string }
+        Returns: boolean
       }
       update_order: {
         Args: {

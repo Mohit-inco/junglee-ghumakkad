@@ -14,7 +14,6 @@ const AdminSMSLogin: React.FC = () => {
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
-  const [session, setSession] = useState(() => supabase.auth.getSession());
   const navigate = useNavigate();
 
   // Check if user is already logged in
@@ -24,6 +23,14 @@ const AdminSMSLogin: React.FC = () => {
         navigate('/admin');
       }
     });
+
+    // Check for existing SMS admin session
+    const adminSession = localStorage.getItem('admin_session');
+    const storedAdminPhone = localStorage.getItem('admin_phone');
+    
+    if (adminSession && storedAdminPhone) {
+      navigate('/admin');
+    }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
@@ -43,6 +50,19 @@ const AdminSMSLogin: React.FC = () => {
       const phoneRegex = /^\+?[1-9]\d{1,14}$/;
       if (!phoneRegex.test(phone)) {
         throw new Error('Please enter a valid phone number with country code');
+      }
+
+      // Check if phone number is registered as admin
+      const { data: isAdminPhone, error: adminCheckError } = await supabase
+        .rpc('is_admin_phone_number', { phone: phone });
+
+      if (adminCheckError) {
+        console.error('Error checking admin phone:', adminCheckError);
+        throw new Error('Unable to verify phone number. Please try again.');
+      }
+
+      if (!isAdminPhone) {
+        throw new Error('This phone number is not authorized for admin access.');
       }
 
       // Generate a 6-digit OTP
@@ -108,14 +128,6 @@ const AdminSMSLogin: React.FC = () => {
         throw new Error('Phone number mismatch. Please start over.');
       }
 
-      // For admin SMS login, we'll create a session using the phone number
-      // In a real implementation, you'd want to check if this phone number belongs to an admin
-      const adminPhones = ['+1234567890', '+919876543210']; // Add your admin phone numbers here
-      
-      if (!adminPhones.includes(phone)) {
-        throw new Error('This phone number is not authorized for admin access.');
-      }
-
       // Create a session token (in production, this should be handled server-side)
       const sessionToken = `admin_${phone}_${Date.now()}`;
       localStorage.setItem('admin_session', sessionToken);
@@ -150,7 +162,7 @@ const AdminSMSLogin: React.FC = () => {
           </CardTitle>
           <CardDescription className="text-center">
             {!otpSent 
-              ? "Enter your phone number to receive an OTP" 
+              ? "Enter your registered phone number to receive an OTP" 
               : "Enter the 6-digit code sent to your phone"
             }
           </CardDescription>
@@ -179,7 +191,7 @@ const AdminSMSLogin: React.FC = () => {
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Sending OTP...
+                    Verifying & Sending OTP...
                   </>
                 ) : (
                   <>
