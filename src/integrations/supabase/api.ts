@@ -8,32 +8,72 @@ export type PrintOption = Tables<'print_options'>;
 export type Order = Tables<'orders'>;
 export type UserRole = Tables<'user_roles'>;
 
-export async function getGalleryImages(section?: string): Promise<GalleryImage[]> {
+interface PaginationOptions {
+  page?: number;
+  limit?: number;
+  genre?: string;
+  category?: string;
+}
+
+interface PaginatedResponse<T> {
+  data: T[];
+  count: number;
+  hasMore: boolean;
+}
+
+export async function getGalleryImages(section?: string, options?: PaginationOptions): Promise<PaginatedResponse<GalleryImage>> {
   let query = supabase
     .from('gallery_images')
-    .select('*')
+    .select('id, title, description, location, image_url, categories, genres, sections, enable_print, created_at', { count: 'exact' })
     .order('created_at', { ascending: false });
   
   if (section) {
     query = query.contains('sections', [section]);
   }
+
+  if (options?.genre) {
+    query = query.contains('genres', [options.genre]);
+  }
+
+  if (options?.category) {
+    query = query.contains('categories', [options.category]);
+  }
+
+  // Apply pagination
+  if (options?.page && options?.limit) {
+    const from = (options.page - 1) * options.limit;
+    const to = from + options.limit - 1;
+    query = query.range(from, to);
+  }
   
-  const { data, error } = await query;
+  const { data, error, count } = await query;
   
   if (error) {
     console.error('Error fetching gallery images:', error);
-    return [];
+    return { data: [], count: 0, hasMore: false };
   }
   
-  return data || [];
+  const hasMore = count ? data.length + ((options?.page || 1) - 1) * (options?.limit || 0) < count : false;
+  
+  return { 
+    data: data || [], 
+    count: count || 0, 
+    hasMore 
+  };
 }
 
-export async function getImagesBySection(section: string): Promise<GalleryImage[]> {
-  const { data, error } = await supabase
+export async function getImagesBySection(section: string, limit?: number): Promise<GalleryImage[]> {
+  let query = supabase
     .from('gallery_images')
-    .select('*')
+    .select('id, title, image_url, categories, genres, sections')
     .contains('sections', [section])
     .order('created_at', { ascending: false });
+
+  if (limit) {
+    query = query.limit(limit);
+  }
+  
+  const { data, error } = await query;
   
   if (error) {
     console.error(`Error fetching ${section} images:`, error);
@@ -43,12 +83,18 @@ export async function getImagesBySection(section: string): Promise<GalleryImage[
   return data || [];
 }
 
-export async function getImagesByGenre(genre: string): Promise<GalleryImage[]> {
-  const { data, error } = await supabase
+export async function getImagesByGenre(genre: string, limit?: number): Promise<GalleryImage[]> {
+  let query = supabase
     .from('gallery_images')
-    .select('*')
+    .select('id, title, image_url, categories, genres')
     .contains('genres', [genre])
     .order('created_at', { ascending: false });
+
+  if (limit) {
+    query = query.limit(limit);
+  }
+  
+  const { data, error } = await query;
   
   if (error) {
     console.error(`Error fetching ${genre} genre images:`, error);

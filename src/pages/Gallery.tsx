@@ -15,12 +15,30 @@ const Gallery = () => {
   const [allCategories, setAllCategories] = useState<string[]>([]);
   const [allGenres, setAllGenres] = useState<string[]>(['Wildlife', 'StreetPalette', 'AstroShot', 'Landscape']);
   const [genreCategories, setGenreCategories] = useState<string[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const IMAGES_PER_PAGE = 20;
   
-  // Fetch images using React Query
-  const { data: images = [], isLoading, error } = useQuery({
-    queryKey: ['gallery-images'],
-    queryFn: () => getGalleryImages('gallery')
+  // Fetch images using React Query with pagination
+  const { data: imagesResponse, isLoading, error } = useQuery({
+    queryKey: ['gallery-images', selectedGenre, selectedCategory, page],
+    queryFn: () => getGalleryImages('gallery', { 
+      genre: selectedGenre, 
+      category: selectedCategory,
+      page,
+      limit: IMAGES_PER_PAGE 
+    }),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 30, // 30 minutes
   });
+
+  const images = imagesResponse?.data || [];
+  const totalCount = imagesResponse?.count || 0;
+
+  // Update hasMore based on total count
+  useEffect(() => {
+    setHasMore(images.length < totalCount);
+  }, [images.length, totalCount]);
   
   // Extract all unique categories and genres from images
   useEffect(() => {
@@ -50,7 +68,13 @@ const Gallery = () => {
   // Update categories when genre changes
   useEffect(() => {
     updateGenreCategories(selectedGenre, images);
+    setPage(1); // Reset page when genre changes
   }, [selectedGenre, images]);
+
+  // Reset page when category changes
+  useEffect(() => {
+    setPage(1);
+  }, [selectedCategory]);
 
   // Update URL when genre or category changes
   useEffect(() => {
@@ -110,6 +134,12 @@ const Gallery = () => {
     height: 0
   }));
 
+  const loadMore = () => {
+    if (hasMore && !isLoading) {
+      setPage(prev => prev + 1);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <NavBar />
@@ -165,7 +195,7 @@ const Gallery = () => {
           </div>
           
           {/* Loading state */}
-          {isLoading && (
+          {isLoading && page === 1 && (
             <div className="text-center py-20">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
               <p className="mt-4 text-muted-foreground">Loading gallery...</p>
@@ -186,7 +216,22 @@ const Gallery = () => {
           {!isLoading && !error && (
             <>
               {filteredImages.length > 0 ? (
-                <ImageGrid images={formattedImages} columns={3} />
+                <>
+                  <ImageGrid images={formattedImages} columns={3} />
+                  
+                  {/* Load More Button */}
+                  {hasMore && (
+                    <div className="text-center mt-8">
+                      <button
+                        onClick={loadMore}
+                        disabled={isLoading}
+                        className="px-6 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isLoading ? 'Loading...' : 'Load More'}
+                      </button>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="text-center py-20">
                   <h3 className="text-xl font-medium mb-2">No matching images found</h3>
@@ -199,7 +244,7 @@ const Gallery = () => {
               {/* Results count */}
               {filteredImages.length > 0 && (
                 <p className="text-sm text-muted-foreground mt-6">
-                  Showing {filteredImages.length} of {images.length} images
+                  Showing {filteredImages.length} of {totalCount} images
                 </p>
               )}
             </>

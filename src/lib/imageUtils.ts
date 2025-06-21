@@ -1,6 +1,7 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
-// Function to get a thumbnail version of an image URL
+// Function to get a thumbnail version of an image URL with WebP optimization
 export const getThumbnailUrl = (url: string, width: number = 300): string => {
   if (!url) return '';
   
@@ -16,11 +17,17 @@ export const getThumbnailUrl = (url: string, width: number = 300): string => {
       // Get the public URL using Supabase client
       const { data } = supabase.storage
         .from('images')
-        .getPublicUrl(path);
+        .getPublicUrl(path, {
+          transform: {
+            width: width,
+            height: Math.round(width * 1.2), // Maintain aspect ratio
+            resize: 'cover',
+            format: 'webp',
+            quality: 60
+          }
+        });
 
-      // Add width and quality parameters
-      const separator = data.publicUrl.includes('?') ? '&' : '?';
-      return `${data.publicUrl}${separator}width=${width}&quality=60`;
+      return data.publicUrl;
     } catch (error) {
       console.error('Error processing Supabase URL:', error);
       return url;
@@ -65,8 +72,8 @@ export const preloadImage = (url: string): Promise<void> => {
   });
 };
 
-// Function to get optimized image URL for display
-export const getOptimizedImageUrl = (url: string, width?: number): string => {
+// Function to get optimized image URL for display with WebP format
+export const getOptimizedImageUrl = (url: string, width?: number, quality: number = 80): string => {
   if (!url) return '';
   
   // If it's a Supabase storage URL
@@ -78,19 +85,19 @@ export const getOptimizedImageUrl = (url: string, width?: number): string => {
       
       if (!path) return url;
 
-      // Get the public URL using Supabase client
+      // Get the public URL using Supabase client with WebP optimization
       const { data } = supabase.storage
         .from('images')
-        .getPublicUrl(path);
+        .getPublicUrl(path, {
+          transform: {
+            width: width,
+            format: 'webp',
+            quality: quality,
+            resize: width ? 'cover' : undefined
+          }
+        });
 
-      // Add optimization parameters
-      const separator = data.publicUrl.includes('?') ? '&' : '?';
-      const params = [];
-      
-      if (width) params.push(`width=${width}`);
-      params.push('quality=80');
-      
-      return `${data.publicUrl}${separator}${params.join('&')}`;
+      return data.publicUrl;
     } catch (error) {
       console.error('Error processing Supabase URL:', error);
       return url;
@@ -98,4 +105,9 @@ export const getOptimizedImageUrl = (url: string, width?: number): string => {
   }
   
   return url;
-}; 
+};
+
+// Function to get high quality image URL for modal view
+export const getHighQualityImageUrl = (url: string): string => {
+  return getOptimizedImageUrl(url, 1920, 90);
+};
