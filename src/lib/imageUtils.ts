@@ -1,7 +1,14 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
-// Function to get a thumbnail version of an image URL
-export const getThumbnailUrl = (url: string, width: number = 300): string => {
+// Function to get optimized image URL with transformations
+export const getOptimizedImageUrl = (url: string, options: {
+  width?: number;
+  height?: number;
+  quality?: number;
+  format?: 'webp' | 'jpeg' | 'png';
+  resize?: 'cover' | 'contain' | 'fill';
+} = {}): string => {
   if (!url) return '';
   
   // If it's a Supabase storage URL
@@ -16,19 +23,34 @@ export const getThumbnailUrl = (url: string, width: number = 300): string => {
       // Get the public URL using Supabase client
       const { data } = supabase.storage
         .from('images')
-        .getPublicUrl(path);
+        .getPublicUrl(path, {
+          transform: {
+            width: options.width,
+            height: options.height,
+            quality: options.quality || 80,
+            format: options.format || 'webp',
+            resize: options.resize || 'cover'
+          }
+        });
 
-      // Add width and quality parameters
-      const separator = data.publicUrl.includes('?') ? '&' : '?';
-      return `${data.publicUrl}${separator}width=${width}&quality=60`;
+      return data.publicUrl;
     } catch (error) {
       console.error('Error processing Supabase URL:', error);
       return url;
     }
   }
   
-  // For local images or other URLs, return as is
   return url;
+};
+
+// Function to get a thumbnail version of an image URL
+export const getThumbnailUrl = (url: string, width: number = 300): string => {
+  return getOptimizedImageUrl(url, {
+    width,
+    quality: 60,
+    format: 'webp',
+    resize: 'cover'
+  });
 };
 
 // Function to preload an image with both thumbnail and full version
@@ -49,7 +71,7 @@ export const preloadImage = (url: string): Promise<void> => {
       
       fullImg.onload = () => resolve();
       fullImg.onerror = () => reject(new Error(`Failed to load full image: ${url}`));
-      fullImg.src = url;
+      fullImg.src = getOptimizedImageUrl(url, { quality: 85, format: 'webp' });
     };
     
     thumbnailImg.onerror = () => {
@@ -64,38 +86,3 @@ export const preloadImage = (url: string): Promise<void> => {
     thumbnailImg.src = thumbnailUrl;
   });
 };
-
-// Function to get optimized image URL for display
-export const getOptimizedImageUrl = (url: string, width?: number): string => {
-  if (!url) return '';
-  
-  // If it's a Supabase storage URL
-  if (url.includes('supabase.co/storage')) {
-    try {
-      // Extract the path from the URL
-      const urlObj = new URL(url);
-      const path = urlObj.pathname.split('/storage/v1/object/public/')[1];
-      
-      if (!path) return url;
-
-      // Get the public URL using Supabase client
-      const { data } = supabase.storage
-        .from('images')
-        .getPublicUrl(path);
-
-      // Add optimization parameters
-      const separator = data.publicUrl.includes('?') ? '&' : '?';
-      const params = [];
-      
-      if (width) params.push(`width=${width}`);
-      params.push('quality=80');
-      
-      return `${data.publicUrl}${separator}${params.join('&')}`;
-    } catch (error) {
-      console.error('Error processing Supabase URL:', error);
-      return url;
-    }
-  }
-  
-  return url;
-}; 

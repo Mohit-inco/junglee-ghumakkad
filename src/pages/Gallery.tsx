@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -7,6 +8,8 @@ import { getGalleryImages, GalleryImage } from '@/integrations/supabase/api';
 import { useQuery } from '@tanstack/react-query';
 import { Image } from '@/lib/data';
 
+const IMAGES_PER_PAGE = 20; // Load images in batches
+
 const Gallery = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -15,11 +18,30 @@ const Gallery = () => {
   const [allCategories, setAllCategories] = useState<string[]>([]);
   const [allGenres, setAllGenres] = useState<string[]>(['Wildlife', 'StreetPalette', 'AstroShot', 'Landscape']);
   const [genreCategories, setGenreCategories] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [allImages, setAllImages] = useState<GalleryImage[]>([]);
   
-  // Fetch images using React Query
+  // Fetch images using React Query with optimized query
   const { data: images = [], isLoading, error } = useQuery({
-    queryKey: ['gallery-images'],
-    queryFn: () => getGalleryImages('gallery')
+    queryKey: ['gallery-images', selectedGenre, selectedCategory],
+    queryFn: async () => {
+      const allGalleryImages = await getGalleryImages('gallery');
+      
+      // Filter images based on genre and category
+      return allGalleryImages.filter(image => {
+        const matchesGenre = selectedGenre 
+          ? image.genres?.includes(selectedGenre) 
+          : true;
+          
+        const matchesCategory = selectedCategory 
+          ? image.categories?.includes(selectedCategory) 
+          : true;
+        
+        return matchesGenre && matchesCategory;
+      });
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   });
   
   // Extract all unique categories and genres from images
@@ -50,6 +72,7 @@ const Gallery = () => {
   // Update categories when genre changes
   useEffect(() => {
     updateGenreCategories(selectedGenre, images);
+    setCurrentPage(1); // Reset to first page when filters change
   }, [selectedGenre, images]);
 
   // Update URL when genre or category changes
@@ -81,21 +104,12 @@ const Gallery = () => {
     }
   };
   
-  // Filter images based on genre and category
-  const filteredImages = images.filter(image => {
-    const matchesGenre = selectedGenre 
-      ? image.genres?.includes(selectedGenre) 
-      : true;
-      
-    const matchesCategory = selectedCategory 
-      ? image.categories?.includes(selectedCategory) 
-      : true;
-    
-    return matchesGenre && matchesCategory;
-  });
+  // Paginated images for current view
+  const paginatedImages = images.slice(0, currentPage * IMAGES_PER_PAGE);
+  const hasMoreImages = images.length > currentPage * IMAGES_PER_PAGE;
 
   // Convert Supabase image data to the format expected by ImageGrid
-  const formattedImages: Image[] = filteredImages.map(image => ({
+  const formattedImages: Image[] = paginatedImages.map(image => ({
     id: image.id,
     src: image.image_url,
     title: image.title,
@@ -109,6 +123,10 @@ const Gallery = () => {
     width: 0,
     height: 0
   }));
+
+  const loadMoreImages = () => {
+    setCurrentPage(prev => prev + 1);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -185,8 +203,22 @@ const Gallery = () => {
           {/* Gallery Grid */}
           {!isLoading && !error && (
             <>
-              {filteredImages.length > 0 ? (
-                <ImageGrid images={formattedImages} columns={3} />
+              {paginatedImages.length > 0 ? (
+                <>
+                  <ImageGrid images={formattedImages} columns={3} />
+                  
+                  {/* Load More Button */}
+                  {hasMoreImages && (
+                    <div className="text-center mt-10">
+                      <button
+                        onClick={loadMoreImages}
+                        className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                      >
+                        Load More Images
+                      </button>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="text-center py-20">
                   <h3 className="text-xl font-medium mb-2">No matching images found</h3>
@@ -197,9 +229,9 @@ const Gallery = () => {
               )}
               
               {/* Results count */}
-              {filteredImages.length > 0 && (
+              {paginatedImages.length > 0 && (
                 <p className="text-sm text-muted-foreground mt-6">
-                  Showing {filteredImages.length} of {images.length} images
+                  Showing {paginatedImages.length} of {images.length} images
                 </p>
               )}
             </>
