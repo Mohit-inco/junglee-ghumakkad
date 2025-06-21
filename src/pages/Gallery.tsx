@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -32,25 +33,30 @@ const Gallery = () => {
     gcTime: 1000 * 60 * 30, // 30 minutes
   });
 
-  const images = imagesResponse?.data || [];
-  const totalCount = imagesResponse?.count || 0;
+  // Handle both paginated and non-paginated responses
+  const images = Array.isArray(imagesResponse) ? imagesResponse : (imagesResponse?.data || []);
+  const totalCount = Array.isArray(imagesResponse) ? images.length : (imagesResponse?.count || 0);
 
   // Update hasMore based on total count
   useEffect(() => {
-    setHasMore(images.length < totalCount);
-  }, [images.length, totalCount]);
+    if (!Array.isArray(imagesResponse)) {
+      setHasMore(images.length < totalCount);
+    } else {
+      setHasMore(false); // No pagination for array response
+    }
+  }, [images.length, totalCount, imagesResponse]);
   
   // Extract all unique categories and genres from images
   useEffect(() => {
     if (images.length > 0) {
       const categories = Array.from(
-        new Set(images.flatMap(image => image.categories || []))
-      ).sort();
+        new Set(images.flatMap(image => Array.isArray(image.categories) ? image.categories : []))
+      ).sort() as string[];
       setAllCategories(categories);
       
       const genres = Array.from(
-        new Set(images.flatMap(image => image.genres || []))
-      ).sort();
+        new Set(images.flatMap(image => Array.isArray(image.genres) ? image.genres : []))
+      ).sort() as string[];
       
       if (genres.length > 0) {
         setAllGenres(prevGenres => {
@@ -91,12 +97,12 @@ const Gallery = () => {
   // Function to update categories based on selected genre
   const updateGenreCategories = (genre: string, imagesList: GalleryImage[]) => {
     const genreImages = imagesList.filter(image => 
-      image.genres?.includes(genre)
+      Array.isArray(image.genres) && image.genres.includes(genre)
     );
     
     const categories = Array.from(
-      new Set(genreImages.flatMap(image => image.categories || []))
-    ).sort();
+      new Set(genreImages.flatMap(image => Array.isArray(image.categories) ? image.categories : []))
+    ).sort() as string[];
     
     setGenreCategories(categories);
     // Reset category selection if current selected category is not in the new genre
@@ -108,11 +114,11 @@ const Gallery = () => {
   // Filter images based on genre and category
   const filteredImages = images.filter(image => {
     const matchesGenre = selectedGenre 
-      ? image.genres?.includes(selectedGenre) 
+      ? Array.isArray(image.genres) && image.genres.includes(selectedGenre)
       : true;
       
     const matchesCategory = selectedCategory 
-      ? image.categories?.includes(selectedCategory) 
+      ? Array.isArray(image.categories) && image.categories.includes(selectedCategory)
       : true;
     
     return matchesGenre && matchesCategory;
@@ -127,7 +133,7 @@ const Gallery = () => {
     location: image.location || '',
     date: image.date || '',
     alt: image.title,
-    categories: image.categories || [],
+    categories: Array.isArray(image.categories) ? image.categories : [],
     photographerNote: image.photographers_note || '',
     enablePrint: image.enable_print || false,
     width: 0,
