@@ -15,28 +15,16 @@ const Admin: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [adminPhone, setAdminPhone] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check both regular authentication and SMS-based authentication
+    // Check if user is logged in
     const checkAuth = async () => {
       try {
-        // Check for SMS-based admin session
-        const adminSession = localStorage.getItem('admin_session');
-        const storedAdminPhone = localStorage.getItem('admin_phone');
-        
-        if (adminSession && storedAdminPhone) {
-          setAdminPhone(storedAdminPhone);
-          setLoading(false);
-          return;
-        }
-
-        // Check regular Supabase authentication
         const { data } = await supabase.auth.getSession();
         
         if (!data.session) {
-          navigate('/admin-sms-login');
+          navigate('/admin-login');
           return;
         }
         
@@ -45,7 +33,7 @@ const Admin: React.FC = () => {
         setLoading(false);
       } catch (error) {
         console.error("Authentication error:", error);
-        navigate('/admin-sms-login');
+        navigate('/admin-login');
       }
     };
     
@@ -53,14 +41,10 @@ const Admin: React.FC = () => {
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT') {
-        // Clear SMS session as well
-        localStorage.removeItem('admin_session');
-        localStorage.removeItem('admin_phone');
-        navigate('/admin-sms-login');
+        navigate('/admin-login');
       } else if (session) {
         setUser(session.user);
         setSession(session);
-        setAdminPhone(null);
       }
     });
     
@@ -68,15 +52,9 @@ const Admin: React.FC = () => {
   }, [navigate]);
 
   const handleSignOut = async () => {
-    // Sign out from both regular auth and SMS auth
-    if (adminPhone) {
-      localStorage.removeItem('admin_session');
-      localStorage.removeItem('admin_phone');
-      navigate('/admin-sms-login');
-    } else {
-      await supabase.auth.signOut();
-    }
+    await supabase.auth.signOut();
     toast.success('Logged out successfully');
+    navigate('/admin-login');
   };
 
   if (loading) {
@@ -87,19 +65,16 @@ const Admin: React.FC = () => {
     );
   }
 
-  // Check authentication - either regular user or SMS-based admin
-  if (!user && !adminPhone) {
-    return <Navigate to="/admin-sms-login" />;
+  if (!user) {
+    return <Navigate to="/admin-login" />;
   }
-
-  const displayEmail = user?.email || `SMS: ${adminPhone}`;
 
   return (
     <div className="container mx-auto p-4 py-8 max-w-7xl">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Admin Dashboard</h1>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Logged in as {displayEmail}</span>
+          <span className="text-sm text-muted-foreground">Logged in as {user.email}</span>
           <Button variant="outline" size="sm" onClick={handleSignOut}>
             <LogOut className="h-4 w-4 mr-2" /> Sign out
           </Button>

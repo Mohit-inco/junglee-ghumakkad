@@ -7,14 +7,8 @@ export type BlogImage = Tables<'blog_images'>;
 export type PrintOption = Tables<'print_options'>;
 export type Order = Tables<'orders'>;
 export type UserRole = Tables<'user_roles'>;
-export type AdminPhoneNumber = Tables<'admin_phone_numbers'>;
 
-// Optimized function to get gallery images with pagination and selective fields
-export async function getGalleryImages(
-  section?: string, 
-  limit?: number, 
-  offset?: number
-): Promise<GalleryImage[]> {
+export async function getGalleryImages(section?: string): Promise<GalleryImage[]> {
   let query = supabase
     .from('gallery_images')
     .select('*')
@@ -22,14 +16,6 @@ export async function getGalleryImages(
   
   if (section) {
     query = query.contains('sections', [section]);
-  }
-  
-  if (limit) {
-    query = query.limit(limit);
-  }
-  
-  if (offset) {
-    query = query.range(offset, offset + (limit || 20) - 1);
   }
   
   const { data, error } = await query;
@@ -42,14 +28,12 @@ export async function getGalleryImages(
   return data || [];
 }
 
-// Optimized function to get images by section with caching
-export async function getImagesBySection(section: string, limit: number = 20): Promise<GalleryImage[]> {
+export async function getImagesBySection(section: string): Promise<GalleryImage[]> {
   const { data, error } = await supabase
     .from('gallery_images')
     .select('*')
     .contains('sections', [section])
-    .order('created_at', { ascending: false })
-    .limit(limit);
+    .order('created_at', { ascending: false });
   
   if (error) {
     console.error(`Error fetching ${section} images:`, error);
@@ -59,14 +43,12 @@ export async function getImagesBySection(section: string, limit: number = 20): P
   return data || [];
 }
 
-// Optimized function to get images by genre
-export async function getImagesByGenre(genre: string, limit: number = 20): Promise<GalleryImage[]> {
+export async function getImagesByGenre(genre: string): Promise<GalleryImage[]> {
   const { data, error } = await supabase
     .from('gallery_images')
     .select('*')
     .contains('genres', [genre])
-    .order('created_at', { ascending: false })
-    .limit(limit);
+    .order('created_at', { ascending: false });
   
   if (error) {
     console.error(`Error fetching ${genre} genre images:`, error);
@@ -76,7 +58,6 @@ export async function getImagesByGenre(genre: string, limit: number = 20): Promi
   return data || [];
 }
 
-// Get full image details (used when opening modals or detail pages)
 export async function getImageById(id: string): Promise<GalleryImage | null> {
   const { data, error } = await supabase
     .from('gallery_images')
@@ -377,81 +358,6 @@ export async function checkIsAdmin(userId: string): Promise<boolean> {
     return !!data;
   } catch (error) {
     console.error('Error checking admin status:', error);
-    return false;
-  }
-}
-
-// Admin phone numbers functions
-export async function getAdminPhoneNumbers(): Promise<AdminPhoneNumber[]> {
-  try {
-    const { data, error } = await supabase
-      .from('admin_phone_numbers')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (error) throw error;
-    return data || [];
-  } catch (error) {
-    console.error('Error fetching admin phone numbers:', error);
-    return [];
-  }
-}
-
-export async function addAdminPhoneNumber(phoneNumber: string): Promise<AdminPhoneNumber | null> {
-  try {
-    const { data, error } = await supabase
-      .from('admin_phone_numbers')
-      .insert({ phone_number: phoneNumber })
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    console.error('Error adding admin phone number:', error);
-    return null;
-  }
-}
-
-export async function updateAdminPhoneNumber(id: string, isActive: boolean): Promise<boolean> {
-  try {
-    const { error } = await supabase
-      .from('admin_phone_numbers')
-      .update({ is_active: isActive, updated_at: new Date().toISOString() })
-      .eq('id', id);
-    
-    if (error) throw error;
-    return true;
-  } catch (error) {
-    console.error('Error updating admin phone number:', error);
-    return false;
-  }
-}
-
-export async function deleteAdminPhoneNumber(id: string): Promise<boolean> {
-  try {
-    const { error } = await supabase
-      .from('admin_phone_numbers')
-      .delete()
-      .eq('id', id);
-    
-    if (error) throw error;
-    return true;
-  } catch (error) {
-    console.error('Error deleting admin phone number:', error);
-    return false;
-  }
-}
-
-export async function checkIsAdminPhone(phoneNumber: string): Promise<boolean> {
-  try {
-    const { data, error } = await supabase
-      .rpc('is_admin_phone_number', { phone: phoneNumber });
-      
-    if (error) throw error;
-    return !!data;
-  } catch (error) {
-    console.error('Error checking admin phone status:', error);
     return false;
   }
 }
