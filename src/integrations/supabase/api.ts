@@ -17,7 +17,7 @@ export async function getGalleryImages(
 ): Promise<GalleryImage[]> {
   let query = supabase
     .from('gallery_images')
-    .select('id, title, image_url, sections, genres, categories, enable_print, created_at')
+    .select('*')
     .order('created_at', { ascending: false });
   
   if (section) {
@@ -46,7 +46,7 @@ export async function getGalleryImages(
 export async function getImagesBySection(section: string, limit: number = 20): Promise<GalleryImage[]> {
   const { data, error } = await supabase
     .from('gallery_images')
-    .select('id, title, image_url, sections, genres, categories, enable_print')
+    .select('*')
     .contains('sections', [section])
     .order('created_at', { ascending: false })
     .limit(limit);
@@ -63,7 +63,7 @@ export async function getImagesBySection(section: string, limit: number = 20): P
 export async function getImagesByGenre(genre: string, limit: number = 20): Promise<GalleryImage[]> {
   const { data, error } = await supabase
     .from('gallery_images')
-    .select('id, title, image_url, sections, genres, categories, enable_print')
+    .select('*')
     .contains('genres', [genre])
     .order('created_at', { ascending: false })
     .limit(limit);
