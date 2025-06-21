@@ -16,29 +16,33 @@ const PrintsGallery = () => {
   const navigate = useNavigate();
   
   // Fetch images using React Query - only get images with enable_print=true
-  const { data: images = [], isLoading, error } = useQuery({
+  const { data: imagesResponse = [], isLoading, error } = useQuery({
     queryKey: ['prints-gallery'],
     queryFn: async () => {
       const allImages = await getGalleryImages('gallery');
-      // Filter only images that have enable_print set to true
-      return allImages.filter(image => image.enable_print === true);
+      // Ensure we have an array and filter only images that have enable_print set to true
+      const imagesArray = Array.isArray(allImages) ? allImages : [];
+      return imagesArray.filter(image => image.enable_print === true);
     }
   });
+
+  // Ensure we have an array to work with
+  const images = Array.isArray(imagesResponse) ? imagesResponse : [];
   
   // Extract all unique categories from images
   useEffect(() => {
     if (images.length > 0) {
       const categories = Array.from(
-        new Set(images.flatMap(image => image.categories || []))
+        new Set(images.flatMap(image => Array.isArray(image.categories) ? image.categories : []))
       ).sort();
-      setAllCategories(categories);
+      setAllCategories(categories as string[]);
     }
   }, [images]);
   
   // Filter images based on category
   const filteredImages = images.filter(image => {
     const matchesCategory = selectedCategory 
-      ? image.categories?.includes(selectedCategory) 
+      ? Array.isArray(image.categories) && image.categories.includes(selectedCategory) 
       : true;
     
     return matchesCategory;

@@ -39,3 +39,6 @@ export const blogContent: BlogContent = {
     }
   ]
 };
+
+// Export blog1 to fix the missing export error
+export const blog1 = blogContent;

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getGalleryImages } from '@/integrations/supabase/api';
@@ -21,10 +22,13 @@ const Index = () => {
   const x = useTransform(scrollYProgress, [0, 1], [100, 0]);
 
   // Fetch featured images from the database
-  const { data: featuredImages = [] } = useQuery({
+  const { data: featuredImagesResponse = [] } = useQuery({
     queryKey: ['featured-images'],
     queryFn: () => getGalleryImages('featured')
   });
+
+  // Ensure we have an array to work with
+  const featuredImages = Array.isArray(featuredImagesResponse) ? featuredImagesResponse : [];
 
   // Format the images for our components
   const formattedFeaturedImages: Image[] = featuredImages.map(image => ({

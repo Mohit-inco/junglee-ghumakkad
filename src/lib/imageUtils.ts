@@ -2,7 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 
 // Function to get a thumbnail version of an image URL with WebP optimization
-export const getThumbnailUrl = (url: string, width: number = 300): string => {
+export const getThumbnailUrl = (url: string, width: number = 400): string => {
   if (!url) return '';
   
   // If it's a Supabase storage URL
@@ -22,7 +22,6 @@ export const getThumbnailUrl = (url: string, width: number = 300): string => {
             width: width,
             height: Math.round(width * 1.2), // Maintain aspect ratio
             resize: 'cover',
-            format: 'webp',
             quality: 60
           }
         });
@@ -72,7 +71,7 @@ export const preloadImage = (url: string): Promise<void> => {
   });
 };
 
-// Function to get optimized image URL for display with WebP format
+// Function to get optimized image URL for display
 export const getOptimizedImageUrl = (url: string, width?: number, quality: number = 80): string => {
   if (!url) return '';
   
@@ -85,13 +84,12 @@ export const getOptimizedImageUrl = (url: string, width?: number, quality: numbe
       
       if (!path) return url;
 
-      // Get the public URL using Supabase client with WebP optimization
+      // Get the public URL using Supabase client
       const { data } = supabase.storage
         .from('images')
         .getPublicUrl(path, {
           transform: {
             width: width,
-            format: 'webp',
             quality: quality,
             resize: width ? 'cover' : undefined
           }
