@@ -84,14 +84,17 @@ const ImageGrid: React.FC<ImageGridProps> = ({
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const target = e.target as HTMLImageElement;
     const imageId = target.getAttribute('data-image-id');
+    console.error(`Failed to load image with ID ${imageId}:`, target.src);
+    
     if (imageId) {
       setLoadingImages(prev => ({
         ...prev,
         [imageId]: false
       }));
     }
-    target.src = '/placeholder.svg';
-    console.error(`Failed to load image: ${target.src}`);
+    
+    // Don't fall back to placeholder.svg, instead log the error and hide the image
+    target.style.display = 'none';
   };
   
   // Generate the appropriate column class based on the columns prop
@@ -105,11 +108,24 @@ const ImageGrid: React.FC<ImageGridProps> = ({
     }
   };
   
+  console.log('ImageGrid - received images:', images);
+  console.log('ImageGrid - images count:', images.length);
+  
   return (
     <>
       <div className={`${getColumnClass()} gap-4 space-y-4`}>
         {images.map(image => {
+          // Log each image URL to debug
+          console.log('ImageGrid - processing image:', image.id, image.src);
+          
+          // Don't try to get thumbnail for empty/invalid URLs
+          if (!image.src || image.src.trim() === '') {
+            console.warn('ImageGrid - empty image src for:', image.id);
+            return null;
+          }
+          
           const thumbnailSrc = getThumbnailUrl(image.src, 400);
+          console.log('ImageGrid - thumbnail URL:', thumbnailSrc);
           
           return (
             <div 

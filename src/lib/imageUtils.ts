@@ -3,18 +3,39 @@ import { supabase } from '@/integrations/supabase/client';
 
 // Function to get a thumbnail version of an image URL with WebP optimization
 export const getThumbnailUrl = (url: string, width: number = 400): string => {
-  if (!url) return '';
+  if (!url) {
+    console.warn('getThumbnailUrl: Empty URL provided');
+    return '';
+  }
+  
+  console.log('getThumbnailUrl: Processing URL:', url);
   
   // If it's a Supabase storage URL
   if (url.includes('supabase.co/storage')) {
     try {
-      // Extract the path from the URL
+      // Extract the path from the URL - handle both old and new URL formats
       const urlObj = new URL(url);
-      const path = urlObj.pathname.split('/storage/v1/object/public/')[1];
+      let path = '';
       
-      if (!path) return url;
+      if (urlObj.pathname.includes('/storage/v1/object/public/')) {
+        path = urlObj.pathname.split('/storage/v1/object/public/')[1];
+      } else if (urlObj.pathname.includes('/object/public/')) {
+        path = urlObj.pathname.split('/object/public/')[1];
+      }
+      
+      if (!path) {
+        console.warn('getThumbnailUrl: Could not extract path from URL:', url);
+        return url;
+      }
 
-      // Get the public URL using Supabase client
+      // Remove the 'images/' prefix if it exists in the path
+      if (path.startsWith('images/')) {
+        path = path.substring(7);
+      }
+
+      console.log('getThumbnailUrl: Extracted path:', path);
+
+      // Get the public URL using Supabase client with transform
       const { data } = supabase.storage
         .from('images')
         .getPublicUrl(path, {
@@ -26,14 +47,16 @@ export const getThumbnailUrl = (url: string, width: number = 400): string => {
           }
         });
 
+      console.log('getThumbnailUrl: Generated thumbnail URL:', data.publicUrl);
       return data.publicUrl;
     } catch (error) {
-      console.error('Error processing Supabase URL:', error);
+      console.error('getThumbnailUrl: Error processing Supabase URL:', error, 'Original URL:', url);
       return url;
     }
   }
   
   // For local images or other URLs, return as is
+  console.log('getThumbnailUrl: Non-Supabase URL, returning as is:', url);
   return url;
 };
 
@@ -73,16 +96,33 @@ export const preloadImage = (url: string): Promise<void> => {
 
 // Function to get optimized image URL for display
 export const getOptimizedImageUrl = (url: string, width?: number, quality: number = 80): string => {
-  if (!url) return '';
+  if (!url) {
+    console.warn('getOptimizedImageUrl: Empty URL provided');
+    return '';
+  }
   
   // If it's a Supabase storage URL
   if (url.includes('supabase.co/storage')) {
     try {
       // Extract the path from the URL
       const urlObj = new URL(url);
-      const path = urlObj.pathname.split('/storage/v1/object/public/')[1];
+      let path = '';
       
-      if (!path) return url;
+      if (urlObj.pathname.includes('/storage/v1/object/public/')) {
+        path = urlObj.pathname.split('/storage/v1/object/public/')[1];
+      } else if (urlObj.pathname.includes('/object/public/')) {
+        path = urlObj.pathname.split('/object/public/')[1];
+      }
+      
+      if (!path) {
+        console.warn('getOptimizedImageUrl: Could not extract path from URL:', url);
+        return url;
+      }
+
+      // Remove the 'images/' prefix if it exists in the path
+      if (path.startsWith('images/')) {
+        path = path.substring(7);
+      }
 
       // Get the public URL using Supabase client
       const { data } = supabase.storage
@@ -97,7 +137,7 @@ export const getOptimizedImageUrl = (url: string, width?: number, quality: numbe
 
       return data.publicUrl;
     } catch (error) {
-      console.error('Error processing Supabase URL:', error);
+      console.error('getOptimizedImageUrl: Error processing Supabase URL:', error);
       return url;
     }
   }
