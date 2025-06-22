@@ -7,18 +7,6 @@ import Footer from '@/components/Footer';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Calendar, Search, Filter, ChevronDown, X } from 'lucide-react';
 
-// Static blog data for the photography expedition
-const photographyBlog = {
-  id: 'nelapattu-pulicat-expedition',
-  title: 'An Expedition to Nellapattu and Pulicat Bird Sanctuaries',
-  subtitle: 'A thrilling photography adventure into the heart of avian life and conservation',
-  coverImage: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//DSC06581.jpg",
-  date: new Date().toISOString(),
-  author: "Junglee Ghumakkad",
-  isStatic: true,
-  tags: ['Photography', 'Wildlife', 'Nature', 'Birds']
-};
-
 const Blogs = () => {
   const [showNavbar, setShowNavbar] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -77,7 +65,19 @@ const Blogs = () => {
     navigate(`/blogs/${id}`);
   };
 
-  // Combine static and dynamic blogs
+  // Restore the static blog data for the photography expedition
+  const photographyBlog = {
+    id: 'nelapattu-pulicat-expedition',
+    title: 'An Expedition to Nellapattu and Pulicat Bird Sanctuaries',
+    subtitle: 'A thrilling photography adventure into the heart of avian life and conservation',
+    coverImage: "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//DSC06581.jpg",
+    date: new Date().toISOString(),
+    author: "Junglee Ghumakkad",
+    isStatic: true,
+    tags: ['Photography', 'Wildlife', 'Nature', 'Birds']
+  };
+
+  // Combine static and dynamic blogs, but only one static blog
   const allBlogs = [photographyBlog, ...dynamicBlogs.map(blog => ({
     id: blog.id,
     title: blog.title,
