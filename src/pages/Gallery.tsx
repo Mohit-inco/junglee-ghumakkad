@@ -33,9 +33,17 @@ const Gallery = () => {
     gcTime: 1000 * 60 * 30, // 30 minutes
   });
 
+  // Debug logging
+  console.log('Gallery - imagesResponse:', imagesResponse);
+  console.log('Gallery - isLoading:', isLoading);
+  console.log('Gallery - error:', error);
+
   // Handle both paginated and non-paginated responses
   const images = Array.isArray(imagesResponse) ? imagesResponse : (imagesResponse?.data || []);
   const totalCount = Array.isArray(imagesResponse) ? images.length : (imagesResponse?.count || 0);
+
+  console.log('Gallery - processed images:', images);
+  console.log('Gallery - images length:', images.length);
 
   // Update hasMore based on total count
   useEffect(() => {
@@ -124,6 +132,9 @@ const Gallery = () => {
     return matchesGenre && matchesCategory;
   });
 
+  console.log('Gallery - filteredImages:', filteredImages);
+  console.log('Gallery - filteredImages length:', filteredImages.length);
+
   // Convert Supabase image data to the format expected by ImageGrid
   const formattedImages: Image[] = filteredImages.map(image => ({
     id: image.id,
@@ -139,6 +150,8 @@ const Gallery = () => {
     width: 0,
     height: 0
   }));
+
+  console.log('Gallery - formattedImages:', formattedImages);
 
   const loadMore = () => {
     if (hasMore && !isLoading) {
@@ -215,6 +228,9 @@ const Gallery = () => {
               <p className="text-muted-foreground">
                 There was an error loading the gallery. Please try again later.
               </p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Error: {error.message}
+              </p>
             </div>
           )}
           
@@ -243,6 +259,9 @@ const Gallery = () => {
                   <h3 className="text-xl font-medium mb-2">No matching images found</h3>
                   <p className="text-muted-foreground">
                     Try adjusting your filters or search criteria.
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Selected genre: {selectedGenre}, Selected category: {selectedCategory || 'All'}
                   </p>
                 </div>
               )}
