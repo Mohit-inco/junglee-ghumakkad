@@ -35,6 +35,12 @@ export const getThumbnailUrl = (url: string, width: number = 400): string => {
 
       console.log('getThumbnailUrl: Extracted path:', path);
 
+      // For images in the 'gallery/' subfolder or with double slashes, use the original URL
+      if (path.includes('gallery/') || path.startsWith('/')) {
+        console.log('getThumbnailUrl: Using original URL for gallery or malformed path:', url);
+        return url;
+      }
+
       // Get the public URL using Supabase client with transform
       const { data } = supabase.storage
         .from('images')
@@ -68,29 +74,16 @@ export const preloadImage = (url: string): Promise<void> => {
       return;
     }
 
-    // First load the thumbnail
-    const thumbnailUrl = getThumbnailUrl(url);
-    const thumbnailImg = new Image();
+    // First try to load the original image directly
+    const img = new Image();
     
-    thumbnailImg.onload = () => {
-      // Then load the full version
-      const fullImg = new Image();
-      
-      fullImg.onload = () => resolve();
-      fullImg.onerror = () => reject(new Error(`Failed to load full image: ${url}`));
-      fullImg.src = url;
+    img.onload = () => resolve();
+    img.onerror = () => {
+      console.warn(`Failed to preload image: ${url}`);
+      reject(new Error(`Failed to load image: ${url}`));
     };
     
-    thumbnailImg.onerror = () => {
-      console.warn(`Failed to load thumbnail: ${thumbnailUrl}, falling back to original URL`);
-      // If thumbnail fails, try loading the original image
-      const fallbackImg = new Image();
-      fallbackImg.onload = () => resolve();
-      fallbackImg.onerror = () => reject(new Error(`Failed to load image: ${url}`));
-      fallbackImg.src = url;
-    };
-    
-    thumbnailImg.src = thumbnailUrl;
+    img.src = url;
   });
 };
 
@@ -124,6 +117,11 @@ export const getOptimizedImageUrl = (url: string, width?: number, quality: numbe
         path = path.substring(7);
       }
 
+      // For images in the 'gallery/' subfolder or with double slashes, use the original URL
+      if (path.includes('gallery/') || path.startsWith('/')) {
+        return url;
+      }
+
       // Get the public URL using Supabase client
       const { data } = supabase.storage
         .from('images')
@@ -147,5 +145,6 @@ export const getOptimizedImageUrl = (url: string, width?: number, quality: numbe
 
 // Function to get high quality image URL for modal view
 export const getHighQualityImageUrl = (url: string): string => {
-  return getOptimizedImageUrl(url, 1920, 90);
+  // For high quality, just return the original URL to avoid transformation issues
+  return url;
 };

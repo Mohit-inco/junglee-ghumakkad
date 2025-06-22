@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { Image } from '@/lib/data';
 import ImageModal from './ImageModal';
-import { getThumbnailUrl, getHighQualityImageUrl } from '@/lib/imageUtils';
 
 interface ImageGridProps {
   images: Image[];
@@ -21,14 +20,10 @@ const ImageGrid: React.FC<ImageGridProps> = ({
   const [hoveredImageId, setHoveredImageId] = useState<string | null>(null);
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
   const [loadingImages, setLoadingImages] = useState<Record<string, boolean>>({});
+  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   
   const openModal = (image: Image) => {
-    // Use high quality image for modal
-    const optimizedImage = {
-      ...image,
-      src: getHighQualityImageUrl(image.src)
-    };
-    setSelectedImage(optimizedImage);
+    setSelectedImage(image);
     document.body.style.overflow = 'hidden';
   };
   
@@ -41,12 +36,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({
     if (selectedImage) {
       const currentIndex = images.findIndex(img => img.id === selectedImage.id);
       const nextIndex = (currentIndex + 1) % images.length;
-      const nextImg = images[nextIndex];
-      const optimizedImage = {
-        ...nextImg,
-        src: getHighQualityImageUrl(nextImg.src)
-      };
-      setSelectedImage(optimizedImage);
+      setSelectedImage(images[nextIndex]);
     }
   };
   
@@ -54,12 +44,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({
     if (selectedImage) {
       const currentIndex = images.findIndex(img => img.id === selectedImage.id);
       const prevIndex = (currentIndex - 1 + images.length) % images.length;
-      const prevImg = images[prevIndex];
-      const optimizedImage = {
-        ...prevImg,
-        src: getHighQualityImageUrl(prevImg.src)
-      };
-      setSelectedImage(optimizedImage);
+      setSelectedImage(images[prevIndex]);
     }
   };
   
@@ -69,6 +54,10 @@ const ImageGrid: React.FC<ImageGridProps> = ({
       [imageId]: true
     }));
     setLoadingImages(prev => ({
+      ...prev,
+      [imageId]: false
+    }));
+    setFailedImages(prev => ({
       ...prev,
       [imageId]: false
     }));
@@ -91,10 +80,11 @@ const ImageGrid: React.FC<ImageGridProps> = ({
         ...prev,
         [imageId]: false
       }));
+      setFailedImages(prev => ({
+        ...prev,
+        [imageId]: true
+      }));
     }
-    
-    // Don't fall back to placeholder.svg, instead log the error and hide the image
-    target.style.display = 'none';
   };
   
   // Generate the appropriate column class based on the columns prop
@@ -115,17 +105,19 @@ const ImageGrid: React.FC<ImageGridProps> = ({
     <>
       <div className={`${getColumnClass()} gap-4 space-y-4`}>
         {images.map(image => {
-          // Log each image URL to debug
           console.log('ImageGrid - processing image:', image.id, image.src);
           
-          // Don't try to get thumbnail for empty/invalid URLs
+          // Don't try to render images with empty/invalid URLs
           if (!image.src || image.src.trim() === '') {
             console.warn('ImageGrid - empty image src for:', image.id);
             return null;
           }
-          
-          const thumbnailSrc = getThumbnailUrl(image.src, 400);
-          console.log('ImageGrid - thumbnail URL:', thumbnailSrc);
+
+          // If image failed to load, don't render it
+          if (failedImages[image.id]) {
+            console.warn('ImageGrid - skipping failed image:', image.id);
+            return null;
+          }
           
           return (
             <div 
@@ -139,14 +131,14 @@ const ImageGrid: React.FC<ImageGridProps> = ({
                 onClick={() => openModal(image)}
               >
                 {/* Loading placeholder */}
-                {(loadingImages[image.id] || !loadedImages[image.id]) && (
-                  <div className="absolute inset-0 bg-muted animate-pulse flex items-center justify-center">
+                {(loadingImages[image.id] || !loadedImages[image.id]) && !failedImages[image.id] && (
+                  <div className="absolute inset-0 bg-muted animate-pulse flex items-center justify-center min-h-[200px]">
                     <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                   </div>
                 )}
                 
                 <img 
-                  src={thumbnailSrc}
+                  src={image.src}
                   alt={image.alt} 
                   data-image-id={image.id}
                   className={`w-full h-auto object-cover transition-all duration-300 ${
