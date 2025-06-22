@@ -133,7 +133,7 @@ export const AppPreloader: React.FC<AppPreloaderProps> = ({ children, onComplete
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-gray-600">Loading image list...</div>
+        {/* No text, only loader will be shown by ImagePreloader */}
       </div>
     );
   }
