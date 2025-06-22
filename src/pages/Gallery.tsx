@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -16,55 +15,24 @@ const Gallery = () => {
   const [allCategories, setAllCategories] = useState<string[]>([]);
   const [allGenres, setAllGenres] = useState<string[]>(['Wildlife', 'StreetPalette', 'AstroShot', 'Landscape']);
   const [genreCategories, setGenreCategories] = useState<string[]>([]);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const IMAGES_PER_PAGE = 20;
   
-  // Fetch images using React Query with pagination
-  const { data: imagesResponse, isLoading, error } = useQuery({
-    queryKey: ['gallery-images', selectedGenre, selectedCategory, page],
-    queryFn: () => getGalleryImages('gallery', { 
-      genre: selectedGenre, 
-      category: selectedCategory,
-      page,
-      limit: IMAGES_PER_PAGE 
-    }),
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    gcTime: 1000 * 60 * 30, // 30 minutes
+  // Fetch images using React Query
+  const { data: images = [], isLoading, error } = useQuery({
+    queryKey: ['gallery-images'],
+    queryFn: () => getGalleryImages('gallery')
   });
-
-  // Debug logging
-  console.log('Gallery - imagesResponse:', imagesResponse);
-  console.log('Gallery - isLoading:', isLoading);
-  console.log('Gallery - error:', error);
-
-  // Handle both paginated and non-paginated responses
-  const images = Array.isArray(imagesResponse) ? imagesResponse : (imagesResponse?.data || []);
-  const totalCount = Array.isArray(imagesResponse) ? images.length : (imagesResponse?.count || 0);
-
-  console.log('Gallery - processed images:', images);
-  console.log('Gallery - images length:', images.length);
-
-  // Update hasMore based on total count
-  useEffect(() => {
-    if (!Array.isArray(imagesResponse)) {
-      setHasMore(images.length < totalCount);
-    } else {
-      setHasMore(false); // No pagination for array response
-    }
-  }, [images.length, totalCount, imagesResponse]);
   
   // Extract all unique categories and genres from images
   useEffect(() => {
     if (images.length > 0) {
       const categories = Array.from(
-        new Set(images.flatMap(image => Array.isArray(image.categories) ? image.categories : []))
-      ).sort() as string[];
+        new Set(images.flatMap(image => image.categories || []))
+      ).sort();
       setAllCategories(categories);
       
       const genres = Array.from(
-        new Set(images.flatMap(image => Array.isArray(image.genres) ? image.genres : []))
-      ).sort() as string[];
+        new Set(images.flatMap(image => image.genres || []))
+      ).sort();
       
       if (genres.length > 0) {
         setAllGenres(prevGenres => {
@@ -82,13 +50,7 @@ const Gallery = () => {
   // Update categories when genre changes
   useEffect(() => {
     updateGenreCategories(selectedGenre, images);
-    setPage(1); // Reset page when genre changes
   }, [selectedGenre, images]);
-
-  // Reset page when category changes
-  useEffect(() => {
-    setPage(1);
-  }, [selectedCategory]);
 
   // Update URL when genre or category changes
   useEffect(() => {
@@ -105,12 +67,12 @@ const Gallery = () => {
   // Function to update categories based on selected genre
   const updateGenreCategories = (genre: string, imagesList: GalleryImage[]) => {
     const genreImages = imagesList.filter(image => 
-      Array.isArray(image.genres) && image.genres.includes(genre)
+      image.genres?.includes(genre)
     );
     
     const categories = Array.from(
-      new Set(genreImages.flatMap(image => Array.isArray(image.categories) ? image.categories : []))
-    ).sort() as string[];
+      new Set(genreImages.flatMap(image => image.categories || []))
+    ).sort();
     
     setGenreCategories(categories);
     // Reset category selection if current selected category is not in the new genre
@@ -122,18 +84,15 @@ const Gallery = () => {
   // Filter images based on genre and category
   const filteredImages = images.filter(image => {
     const matchesGenre = selectedGenre 
-      ? Array.isArray(image.genres) && image.genres.includes(selectedGenre)
+      ? image.genres?.includes(selectedGenre) 
       : true;
       
     const matchesCategory = selectedCategory 
-      ? Array.isArray(image.categories) && image.categories.includes(selectedCategory)
+      ? image.categories?.includes(selectedCategory) 
       : true;
     
     return matchesGenre && matchesCategory;
   });
-
-  console.log('Gallery - filteredImages:', filteredImages);
-  console.log('Gallery - filteredImages length:', filteredImages.length);
 
   // Convert Supabase image data to the format expected by ImageGrid
   const formattedImages: Image[] = filteredImages.map(image => ({
@@ -144,20 +103,12 @@ const Gallery = () => {
     location: image.location || '',
     date: image.date || '',
     alt: image.title,
-    categories: Array.isArray(image.categories) ? image.categories : [],
+    categories: image.categories || [],
     photographerNote: image.photographers_note || '',
     enablePrint: image.enable_print || false,
     width: 0,
     height: 0
   }));
-
-  console.log('Gallery - formattedImages:', formattedImages);
-
-  const loadMore = () => {
-    if (hasMore && !isLoading) {
-      setPage(prev => prev + 1);
-    }
-  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -214,7 +165,7 @@ const Gallery = () => {
           </div>
           
           {/* Loading state */}
-          {isLoading && page === 1 && (
+          {isLoading && (
             <div className="text-center py-20">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
               <p className="mt-4 text-muted-foreground">Loading gallery...</p>
@@ -228,9 +179,6 @@ const Gallery = () => {
               <p className="text-muted-foreground">
                 There was an error loading the gallery. Please try again later.
               </p>
-              <p className="text-sm text-muted-foreground mt-2">
-                Error: {error.message}
-              </p>
             </div>
           )}
           
@@ -238,30 +186,12 @@ const Gallery = () => {
           {!isLoading && !error && (
             <>
               {filteredImages.length > 0 ? (
-                <>
-                  <ImageGrid images={formattedImages} columns={3} />
-                  
-                  {/* Load More Button */}
-                  {hasMore && (
-                    <div className="text-center mt-8">
-                      <button
-                        onClick={loadMore}
-                        disabled={isLoading}
-                        className="px-6 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {isLoading ? 'Loading...' : 'Load More'}
-                      </button>
-                    </div>
-                  )}
-                </>
+                <ImageGrid images={formattedImages} columns={3} />
               ) : (
                 <div className="text-center py-20">
                   <h3 className="text-xl font-medium mb-2">No matching images found</h3>
                   <p className="text-muted-foreground">
                     Try adjusting your filters or search criteria.
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Selected genre: {selectedGenre}, Selected category: {selectedCategory || 'All'}
                   </p>
                 </div>
               )}
@@ -269,7 +199,7 @@ const Gallery = () => {
               {/* Results count */}
               {filteredImages.length > 0 && (
                 <p className="text-sm text-muted-foreground mt-6">
-                  Showing {filteredImages.length} of {totalCount} images
+                  Showing {filteredImages.length} of {images.length} images
                 </p>
               )}
             </>

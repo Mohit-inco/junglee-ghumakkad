@@ -1,26 +1,23 @@
-
 import React, { useState } from 'react';
 import { Image } from '@/lib/data';
 import ImageModal from './ImageModal';
 
 interface ImageGridProps {
   images: Image[];
-  columns?: number;
-  showPrices?: boolean;
-  minPrice?: Record<string, number>;
+  columns?: number; // Make this prop optional with a default value
+  showPrices?: boolean; // Option to show prices
+  minPrice?: Record<string, number>; // Minimum price per image ID
 }
 
 const ImageGrid: React.FC<ImageGridProps> = ({
   images,
-  columns = 3,
+  columns = 3, // Default to 3 columns if not specified
   showPrices = false,
   minPrice = {}
 }) => {
   const [selectedImage, setSelectedImage] = useState<Image | null>(null);
   const [hoveredImageId, setHoveredImageId] = useState<string | null>(null);
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
-  const [loadingImages, setLoadingImages] = useState<Record<string, boolean>>({});
-  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   
   const openModal = (image: Image) => {
     setSelectedImage(image);
@@ -53,38 +50,12 @@ const ImageGrid: React.FC<ImageGridProps> = ({
       ...prev,
       [imageId]: true
     }));
-    setLoadingImages(prev => ({
-      ...prev,
-      [imageId]: false
-    }));
-    setFailedImages(prev => ({
-      ...prev,
-      [imageId]: false
-    }));
-  };
-
-  const handleImageLoadStart = (imageId: string) => {
-    setLoadingImages(prev => ({
-      ...prev,
-      [imageId]: true
-    }));
   };
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const target = e.target as HTMLImageElement;
-    const imageId = target.getAttribute('data-image-id');
-    console.error(`Failed to load image with ID ${imageId}:`, target.src);
-    
-    if (imageId) {
-      setLoadingImages(prev => ({
-        ...prev,
-        [imageId]: false
-      }));
-      setFailedImages(prev => ({
-        ...prev,
-        [imageId]: true
-      }));
-    }
+    target.src = '/placeholder-image.jpg'; // Add a placeholder image
+    console.error(`Failed to load image: ${target.src}`);
   };
   
   // Generate the appropriate column class based on the columns prop
@@ -98,81 +69,49 @@ const ImageGrid: React.FC<ImageGridProps> = ({
     }
   };
   
-  console.log('ImageGrid - received images:', images);
-  console.log('ImageGrid - images count:', images.length);
-  
   return (
     <>
       <div className={`${getColumnClass()} gap-4 space-y-4`}>
-        {images.map(image => {
-          console.log('ImageGrid - processing image:', image.id, image.src);
-          
-          // Don't try to render images with empty/invalid URLs
-          if (!image.src || image.src.trim() === '') {
-            console.warn('ImageGrid - empty image src for:', image.id);
-            return null;
-          }
-
-          // If image failed to load, don't render it
-          if (failedImages[image.id]) {
-            console.warn('ImageGrid - skipping failed image:', image.id);
-            return null;
-          }
-          
-          return (
+        {images.map(image => (
+          <div 
+            key={image.id} 
+            className="break-inside-avoid overflow-hidden"
+            onMouseEnter={() => setHoveredImageId(image.id)}
+            onMouseLeave={() => setHoveredImageId(null)}
+          >
             <div 
-              key={image.id} 
-              className="break-inside-avoid overflow-hidden"
-              onMouseEnter={() => setHoveredImageId(image.id)}
-              onMouseLeave={() => setHoveredImageId(null)}
+              className="hover-image-card bg-muted relative cursor-pointer transition-all duration-300" 
+              onClick={() => openModal(image)}
             >
-              <div 
-                className="hover-image-card bg-muted relative cursor-pointer transition-all duration-300" 
-                onClick={() => openModal(image)}
-              >
-                {/* Loading placeholder */}
-                {(loadingImages[image.id] || !loadedImages[image.id]) && !failedImages[image.id] && (
-                  <div className="absolute inset-0 bg-muted animate-pulse flex items-center justify-center min-h-[200px]">
-                    <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-                  </div>
+              {/* Loading placeholder */}
+              {!loadedImages[image.id] && (
+                <div className="absolute inset-0 bg-muted animate-pulse" />
+              )}
+              <img 
+                src={image.src} 
+                alt={image.alt} 
+                className={`w-full h-auto object-cover transition-all duration-300 ${
+                  hoveredImageId === image.id ? 'brightness-110' : 
+                  hoveredImageId !== null ? 'brightness-50' : 'brightness-100'
+                } ${loadedImages[image.id] ? 'opacity-100' : 'opacity-0'}`}
+                loading="lazy"
+                decoding="async"
+                onLoad={() => handleImageLoad(image.id)}
+                onError={handleImageError}
+              />
+              <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
+                {showPrices && minPrice[image.id] && (
+                  <p className="mt-1 text-white font-medium">
+                    From ₹{minPrice[image.id].toFixed(2)}
+                  </p>
                 )}
-                
-                <img 
-                  src={image.src}
-                  alt={image.alt} 
-                  data-image-id={image.id}
-                  className={`w-full h-auto object-cover transition-all duration-300 ${
-                    hoveredImageId === image.id ? 'brightness-110' : 
-                    hoveredImageId !== null ? 'brightness-50' : 'brightness-100'
-                  } ${loadedImages[image.id] ? 'opacity-100' : 'opacity-0'}`}
-                  loading="lazy"
-                  decoding="async"
-                  onLoadStart={() => handleImageLoadStart(image.id)}
-                  onLoad={() => handleImageLoad(image.id)}
-                  onError={handleImageError}
-                />
-                
-                <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
-                  {showPrices && minPrice[image.id] && (
-                    <p className="mt-1 text-white font-medium">
-                      From ₹{minPrice[image.id].toFixed(2)}
-                    </p>
-                  )}
-                </div>
               </div>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
       
-      {selectedImage && (
-        <ImageModal 
-          image={selectedImage} 
-          onClose={closeModal} 
-          onNext={nextImage} 
-          onPrev={prevImage} 
-        />
-      )}
+      {selectedImage && <ImageModal image={selectedImage} onClose={closeModal} onNext={nextImage} onPrev={prevImage} />}
     </>
   );
 };

@@ -1,4 +1,3 @@
-
 export interface Image {
   id: string;
   src: string;
@@ -21,26 +20,6 @@ export interface PrintOption {
   price: number;
   inStock: boolean;
   printType: string;
-}
-
-// Export BlogContent interface that was missing
-export interface BlogContent {
-  title: string;
-  subtitle: string;
-  coverImage: {
-    src: string;
-    alt: string;
-  };
-  author: string;
-  date: string;
-  sections: Array<{
-    type: 'text';
-    content: string[];
-  }>;
-  galleryImages: Array<{
-    src: string;
-    alt: string;
-  }>;
 }
 
 // This is a placeholder function to get an image from a URL
