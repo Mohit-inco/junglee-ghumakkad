@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getBlog, getBlogImages } from '@/integrations/supabase/api';
 import BlogTemplate from '@/components/BlogTemplate';
-import { BlogContent } from '@/data/BlogData';
+import { BlogContent } from '@/lib/data';
 
 interface ImageData {
   src: string;
