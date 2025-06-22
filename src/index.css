@@ -51,6 +51,10 @@
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 0 0% 20%;
     --sidebar-ring: 0 0% 80%;
+
+    --loader-size: 48px;
+    --loader-lite: #e0e0e0;
+    --loader-brand: #22c55e; /* Tailwind green-500 */
   }
 }
 
@@ -321,4 +325,31 @@
   .expanding-panel.active {
     height: 40vh;
   }
+}
+
+/* Loader-5 Preloader Animation */
+.loader-5 {
+  width: var(--loader-size);
+  height: var(--loader-size);
+  border: 3px solid var(--loader-lite);
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  animation: loader-5-rotation 1s linear infinite;
+}
+.loader-5:after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(var(--loader-size) + 8px);
+  height: calc(var(--loader-size) + 8px);
+  border-radius: 50%;
+  border: 3px solid;
+  border-color: var(--loader-brand) transparent;
+}
+@keyframes loader-5-rotation {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
