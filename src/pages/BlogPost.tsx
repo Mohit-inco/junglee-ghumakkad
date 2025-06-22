@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getBlog, getBlogImages } from '@/integrations/supabase/api';
 import BlogTemplate from '@/components/BlogTemplate';
 import { BlogContent } from '@/lib/data';
+import { blog1 } from '@/data/BlogData';
 
 interface ImageData {
   src: string;
@@ -32,6 +33,15 @@ const BlogPost = () => {
         if (!id) {
           throw new Error("Blog ID is missing");
         }
+
+        // Check if this is the static blog
+        if (id === 'nelapattu-pulicat-expedition') {
+          setBlogContent(blog1);
+          setBlogImages([]);
+          setLoading(false);
+          return;
+        }
+
         const blog = await getBlog(id);
         if (blog) {
           setBlogContent(blog);
@@ -74,7 +84,12 @@ const BlogPost = () => {
     );
   }
 
-  // Create a properly typed BlogContent object
+  // If this is the static blog, use it directly
+  if (id === 'nelapattu-pulicat-expedition') {
+    return <BlogTemplate content={blogContent} />;
+  }
+
+  // Create a properly typed BlogContent object for dynamic blogs
   const formattedBlogContent: BlogContent = {
     title: blogContent.title,
     subtitle: blogContent.summary || '',
