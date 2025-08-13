@@ -34,8 +34,12 @@ export const getCDNImageUrl = (url: string, options: ImageTransformOptions = {})
       
       if (!path) return url;
       
+      // Fix double slashes in the path (common issue with Supabase storage)
+      path = path.replace(/\/+/g, '/').replace(/^\//, '');
+      
       // Use Supabase's image transformation API
-      const transformUrl = url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
+      const baseUrl = url.split('/storage/v1/object/public/')[0];
+      const transformUrl = `${baseUrl}/storage/v1/render/image/public/${path}`;
       const params = new URLSearchParams();
       
       if (width) params.append('width', width.toString());

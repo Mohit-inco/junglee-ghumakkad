@@ -76,10 +76,25 @@ export const useImagePreloader = ({
               setLoadedImages(prev => new Set([...prev, src]));
               resolve();
             };
-            fallbackImg.onerror = () => reject(new Error(`Failed to load image: ${src}`));
+            fallbackImg.onerror = () => {
+              // Try the original URL without any transformations
+              const originalImg = new Image();
+              originalImg.onload = () => {
+                setLoadedImages(prev => new Set([...prev, src]));
+                resolve();
+              };
+              originalImg.onerror = () => {
+                console.warn(`Completely failed to load image: ${src}`);
+                // Don't reject, just resolve to continue with other images
+                resolve();
+              };
+              originalImg.src = src;
+            };
             fallbackImg.src = optimizedSrc;
           } else {
-            reject(new Error(`Failed to load image: ${src}`));
+            console.warn(`Completely failed to load image: ${src}`);
+            // Don't reject, just resolve to continue with other images
+            resolve();
           }
         };
         
