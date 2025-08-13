@@ -7,7 +7,7 @@ const Hero: React.FC = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [loadedImages, setLoadedImages] = useState<Record<number, boolean>>({});
   const [preloadedImages, setPreloadedImages] = useState<Record<number, HTMLImageElement>>({});
-  const featuredImages = [1, 2, 3, 5];
+  const featuredImages = [1, 2, 3]; // Removed index 5 which has empty/invalid image
   const parallaxRef = useRef<HTMLDivElement>(null);
   const isScrolling = useRef(false);
   const rafId = useRef<number>();

@@ -215,7 +215,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
             }} 
             aria-label="Toggle information"
           >
-            <Info className="h-6 w-6" />
+            <Info className="h-6 w-6 animate-pulse" />
           </button>
         </div>
         

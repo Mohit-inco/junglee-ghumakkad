@@ -75,7 +75,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({
         {images.map(image => (
           <div 
             key={image.id} 
-            className="break-inside-avoid overflow-hidden"
+            className="gallery-item break-inside-avoid overflow-hidden opacity-0 translate-y-8 transition-all duration-500"
             onMouseEnter={() => setHoveredImageId(image.id)}
             onMouseLeave={() => setHoveredImageId(null)}
           >

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
@@ -15,6 +15,7 @@ const Gallery = () => {
   const [allCategories, setAllCategories] = useState<string[]>([]);
   const [allGenres, setAllGenres] = useState<string[]>(['Wildlife', 'StreetPalette', 'AstroShot', 'Landscape']);
   const [genreCategories, setGenreCategories] = useState<string[]>([]);
+  const galleryRef = useRef<HTMLDivElement>(null);
   
   // Fetch images using React Query
   const { data: images = [], isLoading, error } = useQuery({
@@ -110,6 +111,29 @@ const Gallery = () => {
     height: 0
   }));
 
+  // Scroll animation effect
+  useEffect(() => {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-fade-in');
+          entry.target.classList.remove('opacity-0', 'translate-y-8');
+        }
+      });
+    }, observerOptions);
+
+    // Observe all gallery items
+    const galleryItems = document.querySelectorAll('.gallery-item');
+    galleryItems.forEach((item) => observer.observe(item));
+
+    return () => observer.disconnect();
+  }, [formattedImages]);
+
   return (
     <div className="min-h-screen flex flex-col">
       <NavBar />
@@ -186,7 +210,9 @@ const Gallery = () => {
           {!isLoading && !error && (
             <>
               {filteredImages.length > 0 ? (
-                <ImageGrid images={formattedImages} columns={3} />
+                <div ref={galleryRef} className="gallery-container">
+                  <ImageGrid images={formattedImages} columns={3} />
+                </div>
               ) : (
                 <div className="text-center py-20">
                   <h3 className="text-xl font-medium mb-2">No matching images found</h3>
