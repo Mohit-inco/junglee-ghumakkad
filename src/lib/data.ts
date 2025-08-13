@@ -62,7 +62,7 @@ export const images = [
   },
   {
     id: "3",
-    src : "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//DSC06666-2.jpg",
+    src : "https://umserxrsymmdtgehbcly.supabase.co/storage/v1/object/public/images//20240630_062328.jpg",
     title: "Himalayan Landscape",
     description: "Beautiful mountain range at sunset",
     location: "Uttarakhand, India",
