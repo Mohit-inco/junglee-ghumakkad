@@ -60,27 +60,25 @@ function App() {
         {showSplash ? (
           <SplashScreen onComplete={handleSplashComplete} />
         ) : (
-          <AppPreloader onComplete={handleImagesPreloaded}>
-            <Routes>
-              <Route path="/" element={<PageTransition><Index /></PageTransition>} />
-              <Route path="/gallery" element={<PageTransition><Gallery /></PageTransition>} />
-              <Route path="/about" element={<PageTransition><About /></PageTransition>} />
-              <Route path="/blogs" element={<PageTransition><Blogs /></PageTransition>} />
-              <Route path="/blogs/:id" element={<PageTransition><BlogPost /></PageTransition>} />
-              <Route path="/print/:id" element={<PageTransition><Print /></PageTransition>} />
-              <Route path="/prints" element={<PageTransition><PrintsGallery /></PageTransition>} />
-              <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
-              <Route path="/order-confirmation" element={<PageTransition><OrderConfirmation /></PageTransition>} />
-              <Route path="/track-order" element={<PageTransition><TrackOrder /></PageTransition>} />
-              {/* Admin routes without PageTransition */}
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/admin-login" element={<AdminLogin />} />
-              <Route path="/admin/orders" element={<AdminOrders />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Toaster />
-          </AppPreloader>
+          <Routes>
+            <Route path="/" element={<PageTransition><Index /></PageTransition>} />
+            <Route path="/gallery" element={<PageTransition><Gallery /></PageTransition>} />
+            <Route path="/about" element={<PageTransition><About /></PageTransition>} />
+            <Route path="/blogs" element={<PageTransition><Blogs /></PageTransition>} />
+            <Route path="/blogs/:id" element={<PageTransition><BlogPost /></PageTransition>} />
+            <Route path="/print/:id" element={<PageTransition><Print /></PageTransition>} />
+            <Route path="/prints" element={<PageTransition><PrintsGallery /></PageTransition>} />
+            <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
+            <Route path="/order-confirmation" element={<PageTransition><OrderConfirmation /></PageTransition>} />
+            <Route path="/track-order" element={<PageTransition><TrackOrder /></PageTransition>} />
+            {/* Admin routes without PageTransition */}
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin-login" element={<AdminLogin />} />
+            <Route path="/admin/orders" element={<AdminOrders />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         )}
+        <Toaster />
       </CartProvider>
     </QueryClientProvider>
   );
