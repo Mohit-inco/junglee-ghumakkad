@@ -61,7 +61,7 @@ const About = () => {
           </div>
 
           {/* Photographer Photos Scattered */}
-          <div className="mt-12 mb-16 scroll-animate opacity-0 px-[22px] mx-0 my-[97px]">
+          <div className="mt-[50px] mb-16 scroll-animate opacity-0 mx-0 my-[97px]">
             
             {/* Desktop: Horizontal scattered layout */}
             <div className="hidden md:block relative max-w-6xl mx-auto h-96">
