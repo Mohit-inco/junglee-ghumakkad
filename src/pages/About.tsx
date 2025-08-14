@@ -63,7 +63,8 @@ const About = () => {
           {/* Photographer Photos Scattered */}
           <div className="mt-8 mb-16 scroll-animate opacity-0 px-[22px] mx-0 my-[97px]">
             
-            <div className="relative max-w-6xl mx-auto h-80 md:h-96">
+            {/* Desktop: Horizontal scattered layout */}
+            <div className="hidden md:block relative max-w-6xl mx-auto h-96">
               {photographerPhotos.map((photo, index) => {
               // Non-overlapping uniform spacing and rotation
               const rotations = [-12, 8, -18];
@@ -84,7 +85,26 @@ const About = () => {
                 zIndex: index + 1
               }}>
                     <div className="relative overflow-hidden">
-                      <img src={photo} alt={`Photographer ${index + 1}`} className="w-48 md:w-56 h-auto object-cover shadow-lg transition-all duration-300 group-hover:shadow-xl" />
+                      <img src={photo} alt={`Photographer ${index + 1}`} className="w-40 lg:w-56 h-auto object-cover shadow-lg transition-all duration-300 group-hover:shadow-xl" />
+                      {/* Moving shine effect */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                      </div>
+                    </div>
+                  </div>;
+            })}
+            </div>
+
+            {/* Mobile: Vertical spread layout */}
+            <div className="md:hidden space-y-8 max-w-sm mx-auto">
+              {photographerPhotos.map((photo, index) => {
+              const rotations = [-8, 6, -10];
+              const alignments = ['self-start', 'self-center', 'self-end'];
+              return <div key={index} className={`flex ${alignments[index]} transition-all duration-300 hover:scale-110 cursor-pointer group hover:-translate-y-2`} style={{
+                transform: `rotate(${rotations[index] || 0}deg)`
+              }}>
+                    <div className="relative overflow-hidden">
+                      <img src={photo} alt={`Photographer ${index + 1}`} className="w-32 sm:w-40 h-auto object-cover shadow-lg transition-all duration-300 group-hover:shadow-xl" />
                       {/* Moving shine effect */}
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
