@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
@@ -7,7 +6,6 @@ import { Camera, Award, MapPin, Calendar, Mail, Instagram } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useIsMobile } from '@/hooks/use-mobile';
-
 const About = () => {
   const isMobile = useIsMobile();
 
@@ -36,12 +34,7 @@ const About = () => {
   }, []);
 
   // These are the updated personal photos of the photographer
-  const photographerPhotos = [
-    "/lovable-uploads/e2435b3a-a454-4ee6-afe6-f003e215a86d.png",
-    "/lovable-uploads/ec9a3df4-2f8e-4066-a0ea-b05d58c998fd.png",
-    "/lovable-uploads/b78ec221-6b04-488f-a420-0a92408def7f.png"
-  ];
-
+  const photographerPhotos = ["/lovable-uploads/e2435b3a-a454-4ee6-afe6-f003e215a86d.png", "/lovable-uploads/ec9a3df4-2f8e-4066-a0ea-b05d58c998fd.png", "/lovable-uploads/b78ec221-6b04-488f-a420-0a92408def7f.png"];
   return <div className="min-h-screen flex flex-col bg-black">
       <NavBar />
       
@@ -68,43 +61,37 @@ const About = () => {
           </div>
 
           {/* Photographer Photos Scattered */}
-          <div className="mt-8 mb-16 scroll-animate opacity-0">
-            <h2 className="font-serif mb-6 text-xl">Behind the Lens</h2>
+          <div className="mt-8 mb-16 scroll-animate opacity-0 px-[22px] mx-0 my-[97px]">
+            
             <div className="relative max-w-6xl mx-auto h-80 md:h-96">
               {photographerPhotos.map((photo, index) => {
-                // Non-overlapping uniform spacing and rotation
-                const rotations = [-12, 8, -18];
-                const positions = [
-                  { left: '15%', top: '20%' },
-                  { left: '55%', top: '10%' },
-                  { left: '85%', top: '30%' }
-                ];
-                
-                return (
-                  <div 
-                    key={index}
-                    className="absolute transition-all duration-300 hover:scale-110 hover:z-20 hover:shadow-2xl cursor-pointer group hover:-translate-y-2"
-                    style={{
-                      left: positions[index]?.left || '50%',
-                      top: positions[index]?.top || '50%',
-                      transform: `translate(-50%, -50%) rotate(${rotations[index] || 0}deg)`,
-                      zIndex: index + 1
-                    }}
-                  >
+              // Non-overlapping uniform spacing and rotation
+              const rotations = [-12, 8, -18];
+              const positions = [{
+                left: '15%',
+                top: '20%'
+              }, {
+                left: '55%',
+                top: '10%'
+              }, {
+                left: '85%',
+                top: '30%'
+              }];
+              return <div key={index} className="absolute transition-all duration-300 hover:scale-110 hover:z-20 hover:shadow-2xl cursor-pointer group hover:-translate-y-2" style={{
+                left: positions[index]?.left || '50%',
+                top: positions[index]?.top || '50%',
+                transform: `translate(-50%, -50%) rotate(${rotations[index] || 0}deg)`,
+                zIndex: index + 1
+              }}>
                     <div className="relative overflow-hidden">
-                      <img 
-                        src={photo} 
-                        alt={`Photographer ${index + 1}`} 
-                        className="w-48 md:w-56 h-auto object-cover shadow-lg transition-all duration-300 group-hover:shadow-xl" 
-                      />
+                      <img src={photo} alt={`Photographer ${index + 1}`} className="w-48 md:w-56 h-auto object-cover shadow-lg transition-all duration-300 group-hover:shadow-xl" />
                       {/* Moving shine effect */}
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  </div>;
+            })}
             </div>
           </div>
           
@@ -201,5 +188,4 @@ const About = () => {
       <Footer />
     </div>;
 };
-
 export default About;
