@@ -70,20 +70,20 @@ const About = () => {
           {/* Photographer Photos Scattered */}
           <div className="mt-8 mb-16 scroll-animate opacity-0">
             <h2 className="font-serif mb-6 text-xl">Behind the Lens</h2>
-            <div className="relative max-w-5xl mx-auto h-80 md:h-96">
+            <div className="relative max-w-6xl mx-auto h-80 md:h-96">
               {photographerPhotos.map((photo, index) => {
-                // Generate random rotation and position for each photo
-                const rotations = [-15, 8, -22, 12, -8, 18];
+                // Uniform spacing and rotation
+                const rotations = [-12, 8, -18];
                 const positions = [
-                  { left: '10%', top: '20%' },
-                  { left: '45%', top: '10%' },
-                  { left: '70%', top: '35%' }
+                  { left: '15%', top: '25%' },
+                  { left: '50%', top: '15%' },
+                  { left: '75%', top: '35%' }
                 ];
                 
                 return (
                   <div 
                     key={index}
-                    className="absolute transition-transform duration-300 hover:scale-105 hover:z-10 cursor-pointer group"
+                    className="absolute transition-all duration-300 hover:scale-110 hover:z-20 hover:brightness-110 hover:shadow-2xl cursor-pointer group hover:-translate-y-2"
                     style={{
                       left: positions[index]?.left || '50%',
                       top: positions[index]?.top || '50%',
@@ -91,14 +91,11 @@ const About = () => {
                       zIndex: index + 1
                     }}
                   >
-                    <div className="w-48 md:w-56 bg-background p-2 shadow-lg border border-border/40 rounded-sm group-hover:shadow-xl transition-shadow">
-                      <img 
-                        src={photo} 
-                        alt={`Photographer ${index + 1}`} 
-                        className="w-full h-32 md:h-36 object-cover rounded-sm" 
-                      />
-                      <div className="h-2 bg-background"></div>
-                    </div>
+                    <img 
+                      src={photo} 
+                      alt={`Photographer ${index + 1}`} 
+                      className="w-48 md:w-56 h-auto object-cover shadow-lg rounded-sm transition-all duration-300 group-hover:shadow-xl" 
+                    />
                   </div>
                 );
               })}
