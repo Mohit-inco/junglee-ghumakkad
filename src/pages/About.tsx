@@ -75,9 +75,9 @@ const About = () => {
                 // Non-overlapping uniform spacing and rotation
                 const rotations = [-12, 8, -18];
                 const positions = [
-                  { left: '10%', top: '20%' },
-                  { left: '50%', top: '10%' },
-                  { left: '80%', top: '30%' }
+                  { left: '15%', top: '20%' },
+                  { left: '55%', top: '10%' },
+                  { left: '85%', top: '30%' }
                 ];
                 
                 return (
