@@ -61,7 +61,7 @@ const About = () => {
           </div>
 
           {/* Photographer Photos Scattered */}
-          <div className="mt-8 mb-16 scroll-animate opacity-0 px-[22px] mx-0 my-[97px]">
+          <div className="mt-12 mb-16 scroll-animate opacity-0 px-[22px] mx-0 my-[97px]">
             
             {/* Desktop: Horizontal scattered layout */}
             <div className="hidden md:block relative max-w-6xl mx-auto h-96">
@@ -70,13 +70,13 @@ const About = () => {
               const rotations = [-12, 8, -18];
               const positions = [{
                 left: '15%',
-                top: '20%'
+                top: '40%'
               }, {
                 left: '55%',
-                top: '10%'
+                top: '25%'
               }, {
                 left: '85%',
-                top: '30%'
+                top: '50%'
               }];
               return <div key={index} className="absolute transition-all duration-300 hover:scale-110 hover:z-20 hover:shadow-2xl cursor-pointer group hover:-translate-y-2" style={{
                 left: positions[index]?.left || '50%',
@@ -85,7 +85,7 @@ const About = () => {
                 zIndex: index + 1
               }}>
                     <div className="relative overflow-hidden">
-                      <img src={photo} alt={`Photographer ${index + 1}`} className="w-40 lg:w-56 h-auto object-cover shadow-lg transition-all duration-300 group-hover:shadow-xl" />
+                      <img src={photo} alt={`Photographer ${index + 1}`} className="w-56 lg:w-72 h-auto object-cover shadow-lg transition-all duration-300 group-hover:shadow-xl" />
                       {/* Moving shine effect */}
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
@@ -104,7 +104,7 @@ const About = () => {
                 transform: `rotate(${rotations[index] || 0}deg)`
               }}>
                     <div className="relative overflow-hidden">
-                      <img src={photo} alt={`Photographer ${index + 1}`} className="w-32 sm:w-40 h-auto object-cover shadow-lg transition-all duration-300 group-hover:shadow-xl" />
+                      <img src={photo} alt={`Photographer ${index + 1}`} className="w-[80vw] max-w-xs h-auto object-cover shadow-lg transition-all duration-300 group-hover:shadow-xl" />
                       {/* Moving shine effect */}
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
