@@ -72,18 +72,18 @@ const About = () => {
             <h2 className="font-serif mb-6 text-xl">Behind the Lens</h2>
             <div className="relative max-w-6xl mx-auto h-80 md:h-96">
               {photographerPhotos.map((photo, index) => {
-                // Uniform spacing and rotation
+                // Non-overlapping uniform spacing and rotation
                 const rotations = [-12, 8, -18];
                 const positions = [
-                  { left: '15%', top: '25%' },
-                  { left: '50%', top: '15%' },
-                  { left: '75%', top: '35%' }
+                  { left: '10%', top: '20%' },
+                  { left: '50%', top: '10%' },
+                  { left: '80%', top: '30%' }
                 ];
                 
                 return (
                   <div 
                     key={index}
-                    className="absolute transition-all duration-300 hover:scale-110 hover:z-20 hover:brightness-110 hover:shadow-2xl cursor-pointer group hover:-translate-y-2"
+                    className="absolute transition-all duration-300 hover:scale-110 hover:z-20 hover:shadow-2xl cursor-pointer group hover:-translate-y-2"
                     style={{
                       left: positions[index]?.left || '50%',
                       top: positions[index]?.top || '50%',
@@ -91,11 +91,17 @@ const About = () => {
                       zIndex: index + 1
                     }}
                   >
-                    <img 
-                      src={photo} 
-                      alt={`Photographer ${index + 1}`} 
-                      className="w-48 md:w-56 h-auto object-cover shadow-lg rounded-sm transition-all duration-300 group-hover:shadow-xl" 
-                    />
+                    <div className="relative overflow-hidden">
+                      <img 
+                        src={photo} 
+                        alt={`Photographer ${index + 1}`} 
+                        className="w-48 md:w-56 h-auto object-cover shadow-lg transition-all duration-300 group-hover:shadow-xl" 
+                      />
+                      {/* Moving shine effect */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                      </div>
+                    </div>
                   </div>
                 );
               })}
