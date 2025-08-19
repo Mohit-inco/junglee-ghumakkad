@@ -76,7 +76,6 @@ export default {
 				serif: ['Playfair Display', 'serif'],
 				script: ['Dancing Script', 'cursive'],
 				nature: ['Caveat', 'cursive'],
-				brilliante: ['Brilliante', 'serif'],
 				helvetica: ['Helvetica', 'Arial', 'sans-serif'],
 			},
 			keyframes: {

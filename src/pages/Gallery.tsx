@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
@@ -23,6 +23,23 @@ const Gallery = () => {
     queryFn: () => getGalleryImages('gallery')
   });
   
+  // Memoize the updateGenreCategories function to prevent recreation on every render
+  const updateGenreCategories = useCallback((genre: string, imagesList: GalleryImage[]) => {
+    const genreImages = imagesList.filter(image => 
+      image.genres?.includes(genre)
+    );
+    
+    const categories = Array.from(
+      new Set(genreImages.flatMap(image => image.categories || []))
+    ).sort();
+    
+    setGenreCategories(categories);
+    // Reset category selection if current selected category is not in the new genre
+    if (selectedCategory && !categories.includes(selectedCategory)) {
+      setSelectedCategory(null);
+    }
+  }, [selectedCategory]);
+  
   // Extract all unique categories and genres from images
   useEffect(() => {
     if (images.length > 0) {
@@ -46,12 +63,14 @@ const Gallery = () => {
       // Update genre-specific categories
       updateGenreCategories(selectedGenre, images);
     }
-  }, [images]);
+  }, [images, selectedGenre, updateGenreCategories]);
   
   // Update categories when genre changes
   useEffect(() => {
-    updateGenreCategories(selectedGenre, images);
-  }, [selectedGenre, images]);
+    if (images.length > 0) {
+      updateGenreCategories(selectedGenre, images);
+    }
+  }, [selectedGenre, images, updateGenreCategories]);
 
   // Update URL when genre or category changes
   useEffect(() => {
@@ -65,53 +84,40 @@ const Gallery = () => {
     setSearchParams(params);
   }, [selectedGenre, selectedCategory, setSearchParams]);
   
-  // Function to update categories based on selected genre
-  const updateGenreCategories = (genre: string, imagesList: GalleryImage[]) => {
-    const genreImages = imagesList.filter(image => 
-      image.genres?.includes(genre)
-    );
-    
-    const categories = Array.from(
-      new Set(genreImages.flatMap(image => image.categories || []))
-    ).sort();
-    
-    setGenreCategories(categories);
-    // Reset category selection if current selected category is not in the new genre
-    if (selectedCategory && !categories.includes(selectedCategory)) {
-      setSelectedCategory(null);
-    }
-  };
-  
-  // Filter images based on genre and category
-  const filteredImages = images.filter(image => {
-    const matchesGenre = selectedGenre 
-      ? image.genres?.includes(selectedGenre) 
-      : true;
+  // Memoize filtered images to prevent recalculation on every render
+  const filteredImages = useMemo(() => {
+    return images.filter(image => {
+      const matchesGenre = selectedGenre 
+        ? image.genres?.includes(selectedGenre) 
+        : true;
+        
+      const matchesCategory = selectedCategory 
+        ? image.categories?.includes(selectedCategory) 
+        : true;
       
-    const matchesCategory = selectedCategory 
-      ? image.categories?.includes(selectedCategory) 
-      : true;
-    
-    return matchesGenre && matchesCategory;
-  });
+      return matchesGenre && matchesCategory;
+    });
+  }, [images, selectedGenre, selectedCategory]);
 
-  // Convert Supabase image data to the format expected by ImageGrid
-  const formattedImages: Image[] = filteredImages.map(image => ({
-    id: image.id,
-    src: image.image_url,
-    title: image.title,
-    description: image.description || '',
-    location: image.location || '',
-    date: image.date || '',
-    alt: image.title,
-    categories: image.categories || [],
-    photographerNote: image.photographers_note || '',
-    enablePrint: image.enable_print || false,
-    width: 0,
-    height: 0
-  }));
+  // Memoize formatted images to prevent recreation on every render
+  const formattedImages = useMemo(() => {
+    return filteredImages.map(image => ({
+      id: image.id,
+      src: image.image_url,
+      title: image.title,
+      description: image.description || '',
+      location: image.location || '',
+      date: image.date || '',
+      alt: image.title,
+      categories: image.categories || [],
+      photographerNote: image.photographers_note || '',
+      enablePrint: image.enable_print || false,
+      width: 0,
+      height: 0
+    }));
+  }, [filteredImages]);
 
-  // Scroll animation effect
+  // Scroll animation effect - only run when formattedImages actually change
   useEffect(() => {
     const observerOptions = {
       threshold: 0.1,
@@ -132,7 +138,7 @@ const Gallery = () => {
     galleryItems.forEach((item) => observer.observe(item));
 
     return () => observer.disconnect();
-  }, [formattedImages]);
+  }, [formattedImages.length]); // Only depend on the length, not the entire array
 
   return (
     <div className="min-h-screen flex flex-col">

@@ -4,13 +4,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: 'Brilliante';
-  src: url('/fonts/Brilliante.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
 @layer base {
   :root {
     --background: 0 0% 0%;

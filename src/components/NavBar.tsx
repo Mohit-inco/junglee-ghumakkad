@@ -46,7 +46,7 @@ const NavBar: React.FC = () => {
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex flex-col items-start">
-          <Link to="/" className="brand-name text-xl md:text-2xl text-white font-brilliante tracking-wider drop-shadow-md">
+          <Link to="/" className="brand-name text-xl md:text-2xl text-white font-serif tracking-wider drop-shadow-md">
             <span className="text-zinc-50">Junglee Ghumakkad</span>
           </Link>
           <span className="text-white text-xs ml-1.5">Photography</span>

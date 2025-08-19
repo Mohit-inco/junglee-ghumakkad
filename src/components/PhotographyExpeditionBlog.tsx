@@ -200,7 +200,7 @@ const PhotographyExpeditionBlog = () => {
   };
 
   return (
-    <div ref={containerRef} className="overflow-x-hidden bg-[#f6f4ef] text-[#2d3e33] font-sans">
+    <div ref={containerRef} className="relative overflow-x-hidden bg-[#f6f4ef] text-[#2d3e33] font-sans">
       {/* Cover Section with Parallax */}
       <section className="relative mb-10 min-h-[100vh] md:h-screen overflow-hidden">
         <motion.div 

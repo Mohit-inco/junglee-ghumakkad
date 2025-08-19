@@ -82,7 +82,7 @@ const Index = () => {
       <ExpandingPanels />
       
       {/* About Section Preview */}
-      <section ref={aboutRef} className="bg-muted px-6 py-[62px] my-[80px]">
+      <section ref={aboutRef} className="relative bg-muted px-6 py-[62px] my-[80px]">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="scroll-animate opacity-0">

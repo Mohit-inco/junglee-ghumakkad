@@ -57,9 +57,13 @@ const Hero: React.FC = () => {
         if (!preloadedImages[index] && images[imageIndex]) {
           const img = new Image();
           
-          // Set high priority for first image
+          // Optimize loading priority using standard attributes
           if (index === 0) {
-            img.fetchPriority = 'high';
+            // First image gets highest priority through eager loading
+            img.loading = 'eager';
+          } else {
+            // Other images use lazy loading for better performance
+            img.loading = 'lazy';
           }
           
           img.onload = () => {
@@ -191,7 +195,6 @@ const Hero: React.FC = () => {
                     loadedImages[index] ? 'opacity-100' : 'opacity-0'
                   }`}
                   loading={index === 0 ? 'eager' : 'lazy'}
-                  fetchPriority={index === 0 ? 'high' : 'low'}
                   decoding="async"
                   onLoad={() => handleImageLoad(index)}
                   onError={() => handleImageError(index)}
