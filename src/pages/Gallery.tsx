@@ -117,28 +117,7 @@ const Gallery = () => {
     }));
   }, [filteredImages]);
 
-  // Scroll animation effect - only run when formattedImages actually change
-  useEffect(() => {
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -100px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('animate-fade-in');
-          entry.target.classList.remove('opacity-0', 'translate-y-8');
-        }
-      });
-    }, observerOptions);
-
-    // Observe all gallery items
-    const galleryItems = document.querySelectorAll('.gallery-item');
-    galleryItems.forEach((item) => observer.observe(item));
-
-    return () => observer.disconnect();
-  }, [formattedImages.length]); // Only depend on the length, not the entire array
+  // Slide-in observer moved to ImageGrid to ensure it runs on client-side navigation
 
   return (
     <div className="min-h-screen flex flex-col">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image } from '@/lib/data';
 import ImageModal from './ImageModal';
 
@@ -68,14 +68,42 @@ const ImageGrid: React.FC<ImageGridProps> = ({
       default: return 'columns-1 sm:columns-2 md:columns-2 xl:columns-3';
     }
   };
+
+  // Ensure slide-in animations run on client-side navigation
+  useEffect(() => {
+    const items = document.querySelectorAll('.gallery-item');
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.remove('opacity-0');
+            entry.target.classList.remove('translate-y-10');
+            entry.target.classList.remove('md:translate-y-14');
+            entry.target.classList.remove('lg:translate-y-16');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.15,
+        rootMargin: '0px 0px -60px 0px',
+      }
+    );
+
+    items.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, [images.length]);
   
   return (
     <>
-      <div className={`${getColumnClass()} gap-4 space-y-4`}>
-        {images.map(image => (
+      <div className={`${getColumnClass()} gap-2 space-y-2`}>
+        {images.map((image, index) => (
           <div 
             key={image.id} 
-            className="gallery-item break-inside-avoid overflow-hidden opacity-0 translate-y-8 transition-all duration-500"
+            className="gallery-item break-inside-avoid overflow-hidden opacity-0 translate-y-10 md:translate-y-14 lg:translate-y-16 transition-all duration-700 ease-out will-change-transform"
+            style={{ transitionDelay: `${(index % 12) * 40}ms` }}
             onMouseEnter={() => setHoveredImageId(image.id)}
             onMouseLeave={() => setHoveredImageId(null)}
           >
