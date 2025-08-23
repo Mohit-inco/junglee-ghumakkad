@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Image } from '@/lib/data';
 import ImageModal from './ImageModal';
 
@@ -18,6 +18,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({
   const [selectedImage, setSelectedImage] = useState<Image | null>(null);
   const [hoveredImageId, setHoveredImageId] = useState<string | null>(null);
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
+  const gridRef = useRef<HTMLDivElement>(null);
   
   const openModal = (image: Image) => {
     setSelectedImage(image);
@@ -71,34 +72,42 @@ const ImageGrid: React.FC<ImageGridProps> = ({
 
   // Ensure slide-in animations run on client-side navigation
   useEffect(() => {
-    const items = document.querySelectorAll('.gallery-item');
+    // Wait for next tick to ensure DOM is ready
+    const timer = setTimeout(() => {
+      if (!gridRef.current) return;
+      
+      const items = gridRef.current.querySelectorAll('.gallery-item');
+      if (items.length === 0) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.remove('opacity-0');
-            entry.target.classList.remove('translate-y-10');
-            entry.target.classList.remove('md:translate-y-14');
-            entry.target.classList.remove('lg:translate-y-16');
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      {
-        threshold: 0.15,
-        rootMargin: '0px 0px -60px 0px',
-      }
-    );
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.remove('opacity-0');
+              entry.target.classList.remove('translate-y-10');
+              entry.target.classList.remove('md:translate-y-14');
+              entry.target.classList.remove('lg:translate-y-16');
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        {
+          threshold: 0.15,
+          rootMargin: '0px 0px -60px 0px',
+        }
+      );
 
-    items.forEach((el) => observer.observe(el));
+      items.forEach((el) => observer.observe(el));
 
-    return () => observer.disconnect();
+      return () => observer.disconnect();
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [images.length]);
   
   return (
     <>
-      <div className={`${getColumnClass()} gap-2 space-y-2`}>
+      <div ref={gridRef} className={`${getColumnClass()} gap-2 space-y-2`}>
         {images.map((image, index) => (
           <div 
             key={image.id} 
